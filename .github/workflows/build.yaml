@@ -1,0 +1,182 @@
+name: Build
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+
+      - name: Cache cvc5 build
+        uses: actions/cache@v4
+        with:
+          path: cvc5/build
+          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5/**/*.cmake', 'cvc5/CMakeLists.txt') }}
+          restore-keys: ${{ runner.os }}-cvc5-
+
+      - name: Build cvc5
+        run: |
+          cd cvc5
+          if [ ! -f build/src/libcvc5.a ]; then
+            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install
+            cd build && make -j$(nproc)
+          fi
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Run cargo check
+        run: cargo check
+
+  test:
+    name: Test Suite
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install build dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+
+      - name: Install build dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: brew install cmake
+
+      - name: Cache cvc5 build
+        uses: actions/cache@v4
+        with:
+          path: cvc5/build
+          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5/**/*.cmake', 'cvc5/CMakeLists.txt') }}
+          restore-keys: ${{ runner.os }}-cvc5-
+
+      - name: Build cvc5
+        run: |
+          cd cvc5
+          if [ ! -f build/src/libcvc5.a ]; then
+            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install
+            cd build && make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+          fi
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Run tests
+        run: cargo test
+
+  lints:
+    name: Lints
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+
+      - name: Cache cvc5 build
+        uses: actions/cache@v4
+        with:
+          path: cvc5/build
+          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5/**/*.cmake', 'cvc5/CMakeLists.txt') }}
+          restore-keys: ${{ runner.os }}-cvc5-
+
+      - name: Build cvc5
+        run: |
+          cd cvc5
+          if [ ! -f build/src/libcvc5.a ]; then
+            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install
+            cd build && make -j$(nproc)
+          fi
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Run cargo fmt
+        run: cargo fmt --all -- --check
+
+      - name: Run cargo clippy
+        run: cargo clippy --all-features --tests -- -D warnings
+
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+
+      - name: Cache cvc5 build
+        uses: actions/cache@v4
+        with:
+          path: cvc5/build
+          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5/**/*.cmake', 'cvc5/CMakeLists.txt') }}
+          restore-keys: ${{ runner.os }}-cvc5-
+
+      - name: Build cvc5
+        run: |
+          cd cvc5
+          if [ ! -f build/src/libcvc5.a ]; then
+            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install
+            cd build && make -j$(nproc)
+          fi
+
+      - name: Build documentation
+        run: cargo doc --all-features --no-deps
+        env:
+          RUSTDOCFLAGS: -D warnings
