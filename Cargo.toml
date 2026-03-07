@@ -1,10 +1,14 @@
+[workspace]
+members = ["cvc5-sys"]
+resolver = "3"
+
 [package]
 name = "cvc5-rs"
 version = "0.0.1"
 edition = "2024"
 readme = "README.md"
-license = "BSD-3"
-description = ""
+license = "BSD-3-Clause"
+description = "High-level Rust bindings for the cvc5 SMT solver"
 authors = ["the cvc5 team"]
 keywords = ["SMT", "solver", "logic"]
 categories = ["science"]
@@ -13,3 +17,4 @@ homepage = "https://github.com/yaspar-org/yaspar-ir"
 [features]
 
 [dependencies]
+cvc5-sys = { path = "cvc5-sys" }

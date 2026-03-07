@@ -1,0 +1,16 @@
+[package]
+name = "cvc5-sys"
+version = "0.0.1"
+edition = "2024"
+build = "build.rs"
+links = "cvc5"
+description = "Low-level FFI bindings for the cvc5 SMT solver"
+license = "BSD-3-Clause"
+keywords = ["FFI", "SMT", "solver", "cvc5"]
+categories = ["external-ffi-bindings"]
+
+[features]
+parser = []
+
+[build-dependencies]
+bindgen = { version = "0.72", default-features = false, features = ["runtime"] }
