@@ -6,6 +6,14 @@ pub struct SynthResult {
     pub(crate) inner: Cvc5SynthResult,
 }
 
+impl Clone for SynthResult {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_synth_result_copy(self.inner) } } }
+}
+
+impl Drop for SynthResult {
+    fn drop(&mut self) { unsafe { cvc5_synth_result_release(self.inner) } }
+}
+
 impl SynthResult {
     pub(crate) fn from_raw(raw: Cvc5SynthResult) -> Self {
         Self { inner: raw }
@@ -46,8 +54,16 @@ impl PartialEq for SynthResult {
     }
 }
 
+impl Eq for SynthResult {}
+
 impl std::hash::Hash for SynthResult {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { cvc5_synth_result_hash(self.inner) }.hash(state);
+    }
+}
+
+impl fmt::Debug for SynthResult {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "SynthResult({self})")
     }
 }

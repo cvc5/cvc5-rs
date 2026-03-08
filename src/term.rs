@@ -4,9 +4,16 @@ use std::fmt;
 use crate::{Op, Sort};
 
 /// A cvc5 term (expression).
-#[derive(Clone, Copy)]
 pub struct Term {
     pub(crate) inner: Cvc5Term,
+}
+
+impl Clone for Term {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_term_copy(self.inner) } } }
+}
+
+impl Drop for Term {
+    fn drop(&mut self) { unsafe { cvc5_term_release(self.inner) } }
 }
 
 impl Term {

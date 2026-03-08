@@ -8,6 +8,14 @@ pub struct Grammar {
     pub(crate) inner: Cvc5Grammar,
 }
 
+impl Clone for Grammar {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_grammar_copy(self.inner) } } }
+}
+
+impl Drop for Grammar {
+    fn drop(&mut self) { unsafe { cvc5_grammar_release(self.inner) } }
+}
+
 impl Grammar {
     pub(crate) fn from_raw(raw: Cvc5Grammar) -> Self {
         Self { inner: raw }
@@ -53,8 +61,16 @@ impl PartialEq for Grammar {
     }
 }
 
+impl Eq for Grammar {}
+
 impl std::hash::Hash for Grammar {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { cvc5_grammar_hash(self.inner) }.hash(state);
+    }
+}
+
+impl fmt::Debug for Grammar {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Grammar({self})")
     }
 }

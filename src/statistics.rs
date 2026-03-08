@@ -33,6 +33,12 @@ impl Statistics {
     }
 }
 
+impl fmt::Debug for Statistics {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Statistics({self})")
+    }
+}
+
 impl fmt::Display for Statistics {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { cvc5_stats_to_string(self.inner) };
@@ -70,6 +76,12 @@ impl Stat {
             let v = *values.add(i);
             (k, v)
         }).collect()
+    }
+}
+
+impl fmt::Debug for Stat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Stat({self})")
     }
 }
 

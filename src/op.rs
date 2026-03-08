@@ -4,9 +4,16 @@ use std::fmt;
 use crate::Term;
 
 /// A cvc5 operator (indexed operator).
-#[derive(Clone, Copy)]
 pub struct Op {
     pub(crate) inner: Cvc5Op,
+}
+
+impl Clone for Op {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_op_copy(self.inner) } } }
+}
+
+impl Drop for Op {
+    fn drop(&mut self) { unsafe { cvc5_op_release(self.inner) } }
 }
 
 impl Op {

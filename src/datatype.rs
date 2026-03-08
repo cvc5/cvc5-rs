@@ -9,6 +9,14 @@ pub struct DatatypeConstructorDecl {
     pub(crate) inner: Cvc5DatatypeConstructorDecl,
 }
 
+impl Clone for DatatypeConstructorDecl {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_dt_cons_decl_copy(self.inner) } } }
+}
+
+impl Drop for DatatypeConstructorDecl {
+    fn drop(&mut self) { unsafe { cvc5_dt_cons_decl_release(self.inner) } }
+}
+
 impl DatatypeConstructorDecl {
     pub(crate) fn from_raw(raw: Cvc5DatatypeConstructorDecl) -> Self {
         Self { inner: raw }
@@ -50,15 +58,31 @@ impl PartialEq for DatatypeConstructorDecl {
     }
 }
 
+impl Eq for DatatypeConstructorDecl {}
+
 impl std::hash::Hash for DatatypeConstructorDecl {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { cvc5_dt_cons_decl_hash(self.inner) }.hash(state);
     }
 }
 
+impl fmt::Debug for DatatypeConstructorDecl {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "DatatypeConstructorDecl({self})")
+    }
+}
+
 /// A cvc5 datatype declaration.
 pub struct DatatypeDecl {
     pub(crate) inner: Cvc5DatatypeDecl,
+}
+
+impl Clone for DatatypeDecl {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_dt_decl_copy(self.inner) } } }
+}
+
+impl Drop for DatatypeDecl {
+    fn drop(&mut self) { unsafe { cvc5_dt_decl_release(self.inner) } }
 }
 
 impl DatatypeDecl {
@@ -112,16 +136,31 @@ impl PartialEq for DatatypeDecl {
     }
 }
 
+impl Eq for DatatypeDecl {}
+
 impl std::hash::Hash for DatatypeDecl {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { cvc5_dt_decl_hash(self.inner) }.hash(state);
     }
 }
 
+impl fmt::Debug for DatatypeDecl {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "DatatypeDecl({self})")
+    }
+}
+
 /// A cvc5 datatype selector.
-#[derive(Clone, Copy)]
 pub struct DatatypeSelector {
     pub(crate) inner: Cvc5DatatypeSelector,
+}
+
+impl Clone for DatatypeSelector {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_dt_sel_copy(self.inner) } } }
+}
+
+impl Drop for DatatypeSelector {
+    fn drop(&mut self) { unsafe { cvc5_dt_sel_release(self.inner) } }
 }
 
 impl DatatypeSelector {
@@ -166,16 +205,31 @@ impl PartialEq for DatatypeSelector {
     }
 }
 
+impl Eq for DatatypeSelector {}
+
 impl std::hash::Hash for DatatypeSelector {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { cvc5_dt_sel_hash(self.inner) }.hash(state);
     }
 }
 
+impl fmt::Debug for DatatypeSelector {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "DatatypeSelector({self})")
+    }
+}
+
 /// A cvc5 datatype constructor.
-#[derive(Clone, Copy)]
 pub struct DatatypeConstructor {
     pub(crate) inner: Cvc5DatatypeConstructor,
+}
+
+impl Clone for DatatypeConstructor {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_dt_cons_copy(self.inner) } } }
+}
+
+impl Drop for DatatypeConstructor {
+    fn drop(&mut self) { unsafe { cvc5_dt_cons_release(self.inner) } }
 }
 
 impl DatatypeConstructor {
@@ -232,16 +286,31 @@ impl PartialEq for DatatypeConstructor {
     }
 }
 
+impl Eq for DatatypeConstructor {}
+
 impl std::hash::Hash for DatatypeConstructor {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { cvc5_dt_cons_hash(self.inner) }.hash(state);
     }
 }
 
+impl fmt::Debug for DatatypeConstructor {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "DatatypeConstructor({self})")
+    }
+}
+
 /// A cvc5 datatype.
-#[derive(Clone, Copy)]
 pub struct Datatype {
     pub(crate) inner: Cvc5Datatype,
+}
+
+impl Clone for Datatype {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_dt_copy(self.inner) } } }
+}
+
+impl Drop for Datatype {
+    fn drop(&mut self) { unsafe { cvc5_dt_release(self.inner) } }
 }
 
 impl Datatype {
@@ -322,8 +391,16 @@ impl PartialEq for Datatype {
     }
 }
 
+impl Eq for Datatype {}
+
 impl std::hash::Hash for Datatype {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { cvc5_dt_hash(self.inner) }.hash(state);
+    }
+}
+
+impl fmt::Debug for Datatype {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Datatype({self})")
     }
 }

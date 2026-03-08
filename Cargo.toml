@@ -12,7 +12,7 @@ description = "High-level Rust bindings for the cvc5 SMT solver"
 authors = ["the cvc5 team"]
 keywords = ["SMT", "solver", "logic"]
 categories = ["science"]
-homepage = "https://github.com/yaspar-org/yaspar-ir"
+homepage = "https://github.com/cvc5/cvc5-rs"
 
 [features]
 

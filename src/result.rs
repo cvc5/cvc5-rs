@@ -6,6 +6,14 @@ pub struct Result {
     pub(crate) inner: Cvc5Result,
 }
 
+impl Clone for Result {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_result_copy(self.inner) } } }
+}
+
+impl Drop for Result {
+    fn drop(&mut self) { unsafe { cvc5_result_release(self.inner) } }
+}
+
 impl Result {
     pub(crate) fn from_raw(raw: Cvc5Result) -> Self {
         Self { inner: raw }
@@ -45,6 +53,8 @@ impl PartialEq for Result {
         unsafe { cvc5_result_is_equal(self.inner, other.inner) }
     }
 }
+
+impl Eq for Result {}
 
 impl std::hash::Hash for Result {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {

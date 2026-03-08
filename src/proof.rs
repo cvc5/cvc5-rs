@@ -4,9 +4,16 @@ use std::fmt;
 use crate::Term;
 
 /// A cvc5 proof.
-#[derive(Clone, Copy)]
 pub struct Proof {
     pub(crate) inner: Cvc5Proof,
+}
+
+impl Clone for Proof {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_proof_copy(self.inner) } } }
+}
+
+impl Drop for Proof {
+    fn drop(&mut self) { unsafe { cvc5_proof_release(self.inner) } }
 }
 
 impl Proof {
@@ -48,6 +55,8 @@ impl PartialEq for Proof {
         unsafe { cvc5_proof_is_equal(self.inner, other.inner) }
     }
 }
+
+impl Eq for Proof {}
 
 impl std::hash::Hash for Proof {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {

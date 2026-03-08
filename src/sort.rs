@@ -4,9 +4,16 @@ use std::fmt;
 use crate::Datatype;
 
 /// A cvc5 sort (type).
-#[derive(Clone, Copy)]
 pub struct Sort {
     pub(crate) inner: Cvc5Sort,
+}
+
+impl Clone for Sort {
+    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_sort_copy(self.inner) } } }
+}
+
+impl Drop for Sort {
+    fn drop(&mut self) { unsafe { cvc5_sort_release(self.inner) } }
 }
 
 impl Sort {
