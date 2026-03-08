@@ -7,11 +7,17 @@ pub struct SynthResult {
 }
 
 impl Clone for SynthResult {
-    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_synth_result_copy(self.inner) } } }
+    fn clone(&self) -> Self {
+        Self {
+            inner: unsafe { cvc5_synth_result_copy(self.inner) },
+        }
+    }
 }
 
 impl Drop for SynthResult {
-    fn drop(&mut self) { unsafe { cvc5_synth_result_release(self.inner) } }
+    fn drop(&mut self) {
+        unsafe { cvc5_synth_result_release(self.inner) }
+    }
 }
 
 impl SynthResult {
@@ -23,9 +29,15 @@ impl SynthResult {
         unsafe { cvc5_synth_result_is_null(self.inner) }
     }
 
-    pub fn copy(&self) -> SynthResult { SynthResult::from_raw(unsafe { cvc5_synth_result_copy(self.inner) }) }
-    pub fn release(self) { unsafe { cvc5_synth_result_release(self.inner) } }
-    pub fn is_disequal(&self, other: &SynthResult) -> bool { unsafe { cvc5_synth_result_is_disequal(self.inner, other.inner) } }
+    pub fn copy(&self) -> SynthResult {
+        SynthResult::from_raw(unsafe { cvc5_synth_result_copy(self.inner) })
+    }
+    pub fn release(self) {
+        unsafe { cvc5_synth_result_release(self.inner) }
+    }
+    pub fn is_disequal(&self, other: &SynthResult) -> bool {
+        unsafe { cvc5_synth_result_is_disequal(self.inner, other.inner) }
+    }
 
     pub fn has_solution(&self) -> bool {
         unsafe { cvc5_synth_result_has_solution(self.inner) }

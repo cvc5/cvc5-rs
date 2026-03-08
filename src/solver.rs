@@ -15,7 +15,10 @@ pub struct Solver<'tm> {
 
 impl<'tm> Solver<'tm> {
     pub fn new(tm: &'tm TermManager) -> Self {
-        Self { inner: unsafe { cvc5_new(tm.inner) }, _tm: PhantomData }
+        Self {
+            inner: unsafe { cvc5_new(tm.inner) },
+            _tm: PhantomData,
+        }
     }
 
     pub fn get_tm(&self) -> *mut Cvc5TermManager {
@@ -29,10 +32,16 @@ impl<'tm> Solver<'tm> {
         unsafe { cvc5_set_logic(self.inner, c.as_ptr()) }
     }
 
-    pub fn is_logic_set(&self) -> bool { unsafe { cvc5_is_logic_set(self.inner) } }
+    pub fn is_logic_set(&self) -> bool {
+        unsafe { cvc5_is_logic_set(self.inner) }
+    }
 
     pub fn get_logic(&self) -> String {
-        unsafe { std::ffi::CStr::from_ptr(cvc5_get_logic(self.inner)).to_string_lossy().into_owned() }
+        unsafe {
+            std::ffi::CStr::from_ptr(cvc5_get_logic(self.inner))
+                .to_string_lossy()
+                .into_owned()
+        }
     }
 
     pub fn set_option(&mut self, option: &str, value: &str) {
@@ -43,13 +52,23 @@ impl<'tm> Solver<'tm> {
 
     pub fn get_option(&self, option: &str) -> String {
         let o = CString::new(option).unwrap();
-        unsafe { std::ffi::CStr::from_ptr(cvc5_get_option(self.inner, o.as_ptr())).to_string_lossy().into_owned() }
+        unsafe {
+            std::ffi::CStr::from_ptr(cvc5_get_option(self.inner, o.as_ptr()))
+                .to_string_lossy()
+                .into_owned()
+        }
     }
 
     pub fn get_option_names(&self) -> Vec<String> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_option_names(self.inner, &mut size) };
-        (0..size).map(|i| unsafe { std::ffi::CStr::from_ptr(*ptr.add(i)).to_string_lossy().into_owned() }).collect()
+        (0..size)
+            .map(|i| unsafe {
+                std::ffi::CStr::from_ptr(*ptr.add(i))
+                    .to_string_lossy()
+                    .into_owned()
+            })
+            .collect()
     }
 
     pub fn set_info(&mut self, keyword: &str, value: &str) {
@@ -60,7 +79,11 @@ impl<'tm> Solver<'tm> {
 
     pub fn get_info(&self, flag: &str) -> String {
         let f = CString::new(flag).unwrap();
-        unsafe { std::ffi::CStr::from_ptr(cvc5_get_info(self.inner, f.as_ptr())).to_string_lossy().into_owned() }
+        unsafe {
+            std::ffi::CStr::from_ptr(cvc5_get_info(self.inner, f.as_ptr()))
+                .to_string_lossy()
+                .into_owned()
+        }
     }
 
     // ── Assertions & checking ──────────────────────────────────────
@@ -81,7 +104,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_assertions(&self) -> Vec<Term> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_assertions(self.inner, &mut size) };
-        (0..size).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     // ── Simplification ─────────────────────────────────────────────
@@ -100,13 +125,17 @@ impl<'tm> Solver<'tm> {
         let raw: Vec<Cvc5Term> = terms.iter().map(|t| t.inner).collect();
         let mut rsize = 0usize;
         let ptr = unsafe { cvc5_get_values(self.inner, raw.len(), raw.as_ptr(), &mut rsize) };
-        (0..rsize).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..rsize)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     pub fn get_model_domain_elements(&self, sort: Sort) -> Vec<Term> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_model_domain_elements(self.inner, sort.inner, &mut size) };
-        (0..size).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     pub fn is_model_core_symbol(&self, v: Term) -> bool {
@@ -116,7 +145,17 @@ impl<'tm> Solver<'tm> {
     pub fn get_model(&self, sorts: &[Sort], consts: &[Term]) -> String {
         let rs: Vec<Cvc5Sort> = sorts.iter().map(|s| s.inner).collect();
         let rt: Vec<Cvc5Term> = consts.iter().map(|t| t.inner).collect();
-        unsafe { std::ffi::CStr::from_ptr(cvc5_get_model(self.inner, rs.len(), rs.as_ptr(), rt.len(), rt.as_ptr())).to_string_lossy().into_owned() }
+        unsafe {
+            std::ffi::CStr::from_ptr(cvc5_get_model(
+                self.inner,
+                rs.len(),
+                rs.as_ptr(),
+                rt.len(),
+                rt.as_ptr(),
+            ))
+            .to_string_lossy()
+            .into_owned()
+        }
     }
 
     pub fn block_model(&mut self, mode: Cvc5BlockModelsMode) {
@@ -133,7 +172,16 @@ impl<'tm> Solver<'tm> {
     pub fn declare_fun(&mut self, name: &str, domain: &[Sort], codomain: Sort) -> Term {
         let c = CString::new(name).unwrap();
         let raw: Vec<Cvc5Sort> = domain.iter().map(|s| s.inner).collect();
-        Term::from_raw(unsafe { cvc5_declare_fun(self.inner, c.as_ptr(), raw.len(), raw.as_ptr(), codomain.inner, true) })
+        Term::from_raw(unsafe {
+            cvc5_declare_fun(
+                self.inner,
+                c.as_ptr(),
+                raw.len(),
+                raw.as_ptr(),
+                codomain.inner,
+                true,
+            )
+        })
     }
 
     pub fn declare_sort(&mut self, name: &str, arity: u32) -> Sort {
@@ -149,47 +197,108 @@ impl<'tm> Solver<'tm> {
 
     // ── Definitions ────────────────────────────────────────────────
 
-    pub fn define_fun(&mut self, symbol: &str, vars: &[Term], sort: Sort, term: Term, global: bool) -> Term {
+    pub fn define_fun(
+        &mut self,
+        symbol: &str,
+        vars: &[Term],
+        sort: Sort,
+        term: Term,
+        global: bool,
+    ) -> Term {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5Term> = vars.iter().map(|t| t.inner).collect();
-        Term::from_raw(unsafe { cvc5_define_fun(self.inner, c.as_ptr(), raw.len(), raw.as_ptr(), sort.inner, term.inner, global) })
+        Term::from_raw(unsafe {
+            cvc5_define_fun(
+                self.inner,
+                c.as_ptr(),
+                raw.len(),
+                raw.as_ptr(),
+                sort.inner,
+                term.inner,
+                global,
+            )
+        })
     }
 
-    pub fn define_fun_rec(&mut self, symbol: &str, vars: &[Term], sort: Sort, term: Term, global: bool) -> Term {
+    pub fn define_fun_rec(
+        &mut self,
+        symbol: &str,
+        vars: &[Term],
+        sort: Sort,
+        term: Term,
+        global: bool,
+    ) -> Term {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5Term> = vars.iter().map(|t| t.inner).collect();
-        Term::from_raw(unsafe { cvc5_define_fun_rec(self.inner, c.as_ptr(), raw.len(), raw.as_ptr(), sort.inner, term.inner, global) })
+        Term::from_raw(unsafe {
+            cvc5_define_fun_rec(
+                self.inner,
+                c.as_ptr(),
+                raw.len(),
+                raw.as_ptr(),
+                sort.inner,
+                term.inner,
+                global,
+            )
+        })
     }
 
-    pub fn define_fun_rec_from_const(&mut self, fun: Term, vars: &[Term], term: Term, global: bool) -> Term {
+    pub fn define_fun_rec_from_const(
+        &mut self,
+        fun: Term,
+        vars: &[Term],
+        term: Term,
+        global: bool,
+    ) -> Term {
         let raw: Vec<Cvc5Term> = vars.iter().map(|t| t.inner).collect();
-        Term::from_raw(unsafe { cvc5_define_fun_rec_from_const(self.inner, fun.inner, raw.len(), raw.as_ptr(), term.inner, global) })
+        Term::from_raw(unsafe {
+            cvc5_define_fun_rec_from_const(
+                self.inner,
+                fun.inner,
+                raw.len(),
+                raw.as_ptr(),
+                term.inner,
+                global,
+            )
+        })
     }
 
     // ── Scope management ───────────────────────────────────────────
 
-    pub fn push(&mut self, n: u32) { unsafe { cvc5_push(self.inner, n) } }
-    pub fn pop(&mut self, n: u32) { unsafe { cvc5_pop(self.inner, n) } }
-    pub fn reset_assertions(&mut self) { unsafe { cvc5_reset_assertions(self.inner) } }
+    pub fn push(&mut self, n: u32) {
+        unsafe { cvc5_push(self.inner, n) }
+    }
+    pub fn pop(&mut self, n: u32) {
+        unsafe { cvc5_pop(self.inner, n) }
+    }
+    pub fn reset_assertions(&mut self) {
+        unsafe { cvc5_reset_assertions(self.inner) }
+    }
 
     // ── Unsat core / assumptions ───────────────────────────────────
 
     pub fn get_unsat_core(&self) -> Vec<Term> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_unsat_core(self.inner, &mut size) };
-        (0..size).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     pub fn get_unsat_core_lemmas(&self) -> Vec<Term> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_unsat_core_lemmas(self.inner, &mut size) };
-        (0..size).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     pub fn get_unsat_assumptions(&self) -> Vec<Term> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_unsat_assumptions(self.inner, &mut size) };
-        (0..size).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     // ── Proofs ─────────────────────────────────────────────────────
@@ -197,14 +306,33 @@ impl<'tm> Solver<'tm> {
     pub fn get_proof(&self, c: Cvc5ProofComponent) -> Vec<Proof> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_proof(self.inner, c, &mut size) };
-        (0..size).map(|i| Proof::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Proof::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
-    pub fn proof_to_string(&self, proof: Proof, format: Cvc5ProofFormat, assertions: &[Term], names: &[&str]) -> String {
+    pub fn proof_to_string(
+        &self,
+        proof: Proof,
+        format: Cvc5ProofFormat,
+        assertions: &[Term],
+        names: &[&str],
+    ) -> String {
         let rt: Vec<Cvc5Term> = assertions.iter().map(|t| t.inner).collect();
         let cnames: Vec<CString> = names.iter().map(|n| CString::new(*n).unwrap()).collect();
         let mut ptrs: Vec<*const std::ffi::c_char> = cnames.iter().map(|c| c.as_ptr()).collect();
-        unsafe { std::ffi::CStr::from_ptr(cvc5_proof_to_string(self.inner, proof.inner, format, rt.len(), rt.as_ptr(), ptrs.as_mut_ptr())).to_string_lossy().into_owned() }
+        unsafe {
+            std::ffi::CStr::from_ptr(cvc5_proof_to_string(
+                self.inner,
+                proof.inner,
+                format,
+                rt.len(),
+                rt.as_ptr(),
+                ptrs.as_mut_ptr(),
+            ))
+            .to_string_lossy()
+            .into_owned()
+        }
     }
 
     // ── Learned literals / difficulty ──────────────────────────────
@@ -212,7 +340,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_learned_literals(&self, lit_type: Cvc5LearnedLitType) -> Vec<Term> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_learned_literals(self.inner, lit_type, &mut size) };
-        (0..size).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     pub fn get_difficulty(&self) -> (Vec<Term>, Vec<Term>) {
@@ -220,8 +350,12 @@ impl<'tm> Solver<'tm> {
         let mut inputs: *mut Cvc5Term = std::ptr::null_mut();
         let mut values: *mut Cvc5Term = std::ptr::null_mut();
         unsafe { cvc5_get_difficulty(self.inner, &mut size, &mut inputs, &mut values) };
-        let i = (0..size).map(|j| Term::from_raw(unsafe { *inputs.add(j) })).collect();
-        let v = (0..size).map(|j| Term::from_raw(unsafe { *values.add(j) })).collect();
+        let i = (0..size)
+            .map(|j| Term::from_raw(unsafe { *inputs.add(j) }))
+            .collect();
+        let v = (0..size)
+            .map(|j| Term::from_raw(unsafe { *values.add(j) }))
+            .collect();
         (i, v)
     }
 
@@ -231,7 +365,9 @@ impl<'tm> Solver<'tm> {
         let mut result: Cvc5Result = std::ptr::null_mut();
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_timeout_core(self.inner, &mut result, &mut size) };
-        let terms = (0..size).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect();
+        let terms = (0..size)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect();
         (Result::from_raw(result), terms)
     }
 
@@ -239,8 +375,18 @@ impl<'tm> Solver<'tm> {
         let raw: Vec<Cvc5Term> = assumptions.iter().map(|t| t.inner).collect();
         let mut result: Cvc5Result = std::ptr::null_mut();
         let mut rsize = 0usize;
-        let ptr = unsafe { cvc5_get_timeout_core_assuming(self.inner, raw.len(), raw.as_ptr(), &mut result, &mut rsize) };
-        let terms = (0..rsize).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect();
+        let ptr = unsafe {
+            cvc5_get_timeout_core_assuming(
+                self.inner,
+                raw.len(),
+                raw.as_ptr(),
+                &mut result,
+                &mut rsize,
+            )
+        };
+        let terms = (0..rsize)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect();
         (Result::from_raw(result), terms)
     }
 
@@ -273,7 +419,9 @@ impl<'tm> Solver<'tm> {
     pub fn declare_pool(&mut self, symbol: &str, sort: Sort, init_value: &[Term]) -> Term {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5Term> = init_value.iter().map(|t| t.inner).collect();
-        Term::from_raw(unsafe { cvc5_declare_pool(self.inner, c.as_ptr(), sort.inner, raw.len(), raw.as_ptr()) })
+        Term::from_raw(unsafe {
+            cvc5_declare_pool(self.inner, c.as_ptr(), sort.inner, raw.len(), raw.as_ptr())
+        })
     }
 
     // ── Interpolation ──────────────────────────────────────────────
@@ -283,7 +431,9 @@ impl<'tm> Solver<'tm> {
     }
 
     pub fn get_interpolant_with_grammar(&self, conj: Term, grammar: &Grammar) -> Term {
-        Term::from_raw(unsafe { cvc5_get_interpolant_with_grammar(self.inner, conj.inner, grammar.inner) })
+        Term::from_raw(unsafe {
+            cvc5_get_interpolant_with_grammar(self.inner, conj.inner, grammar.inner)
+        })
     }
 
     pub fn get_interpolant_next(&self) -> Term {
@@ -297,7 +447,9 @@ impl<'tm> Solver<'tm> {
     }
 
     pub fn get_abduct_with_grammar(&self, conj: Term, grammar: &Grammar) -> Term {
-        Term::from_raw(unsafe { cvc5_get_abduct_with_grammar(self.inner, conj.inner, grammar.inner) })
+        Term::from_raw(unsafe {
+            cvc5_get_abduct_with_grammar(self.inner, conj.inner, grammar.inner)
+        })
     }
 
     pub fn get_abduct_next(&self) -> Term {
@@ -307,7 +459,11 @@ impl<'tm> Solver<'tm> {
     // ── Instantiations ─────────────────────────────────────────────
 
     pub fn get_instantiations(&self) -> String {
-        unsafe { std::ffi::CStr::from_ptr(cvc5_get_instantiations(self.inner)).to_string_lossy().into_owned() }
+        unsafe {
+            std::ffi::CStr::from_ptr(cvc5_get_instantiations(self.inner))
+                .to_string_lossy()
+                .into_owned()
+        }
     }
 
     // ── SyGuS ──────────────────────────────────────────────────────
@@ -320,19 +476,38 @@ impl<'tm> Solver<'tm> {
     pub fn mk_grammar(&self, bound_vars: &[Term], symbols: &[Term]) -> Grammar {
         let bv: Vec<Cvc5Term> = bound_vars.iter().map(|t| t.inner).collect();
         let sy: Vec<Cvc5Term> = symbols.iter().map(|t| t.inner).collect();
-        Grammar::from_raw(unsafe { cvc5_mk_grammar(self.inner, bv.len(), bv.as_ptr(), sy.len(), sy.as_ptr()) })
+        Grammar::from_raw(unsafe {
+            cvc5_mk_grammar(self.inner, bv.len(), bv.as_ptr(), sy.len(), sy.as_ptr())
+        })
     }
 
     pub fn synth_fun(&mut self, symbol: &str, bound_vars: &[Term], sort: Sort) -> Term {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5Term> = bound_vars.iter().map(|t| t.inner).collect();
-        Term::from_raw(unsafe { cvc5_synth_fun(self.inner, c.as_ptr(), raw.len(), raw.as_ptr(), sort.inner) })
+        Term::from_raw(unsafe {
+            cvc5_synth_fun(self.inner, c.as_ptr(), raw.len(), raw.as_ptr(), sort.inner)
+        })
     }
 
-    pub fn synth_fun_with_grammar(&mut self, symbol: &str, bound_vars: &[Term], sort: Sort, grammar: &Grammar) -> Term {
+    pub fn synth_fun_with_grammar(
+        &mut self,
+        symbol: &str,
+        bound_vars: &[Term],
+        sort: Sort,
+        grammar: &Grammar,
+    ) -> Term {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5Term> = bound_vars.iter().map(|t| t.inner).collect();
-        Term::from_raw(unsafe { cvc5_synth_fun_with_grammar(self.inner, c.as_ptr(), raw.len(), raw.as_ptr(), sort.inner, grammar.inner) })
+        Term::from_raw(unsafe {
+            cvc5_synth_fun_with_grammar(
+                self.inner,
+                c.as_ptr(),
+                raw.len(),
+                raw.as_ptr(),
+                sort.inner,
+                grammar.inner,
+            )
+        })
     }
 
     pub fn add_sygus_constraint(&mut self, term: Term) {
@@ -342,7 +517,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_sygus_constraints(&self) -> Vec<Term> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_sygus_constraints(self.inner, &mut size) };
-        (0..size).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     pub fn add_sygus_assume(&mut self, term: Term) {
@@ -352,11 +529,15 @@ impl<'tm> Solver<'tm> {
     pub fn get_sygus_assumptions(&self) -> Vec<Term> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_sygus_assumptions(self.inner, &mut size) };
-        (0..size).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     pub fn add_sygus_inv_constraint(&mut self, inv: Term, pre: Term, trans: Term, post: Term) {
-        unsafe { cvc5_add_sygus_inv_constraint(self.inner, inv.inner, pre.inner, trans.inner, post.inner) }
+        unsafe {
+            cvc5_add_sygus_inv_constraint(self.inner, inv.inner, pre.inner, trans.inner, post.inner)
+        }
     }
 
     pub fn check_synth(&mut self) -> SynthResult {
@@ -374,7 +555,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_synth_solutions(&self, terms: &[Term]) -> Vec<Term> {
         let raw: Vec<Cvc5Term> = terms.iter().map(|t| t.inner).collect();
         let ptr = unsafe { cvc5_get_synth_solutions(self.inner, raw.len(), raw.as_ptr()) };
-        (0..terms.len()).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..terms.len())
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     pub fn find_synth(&self, target: Cvc5FindSynthTarget) -> Term {
@@ -400,7 +583,10 @@ impl<'tm> Solver<'tm> {
     ) {
         let rf: Vec<Cvc5Term> = funs.iter().map(|t| t.inner).collect();
         let mut nvars: Vec<usize> = vars.iter().map(|v| v.len()).collect();
-        let raw_vars: Vec<Vec<Cvc5Term>> = vars.iter().map(|v| v.iter().map(|t| t.inner).collect()).collect();
+        let raw_vars: Vec<Vec<Cvc5Term>> = vars
+            .iter()
+            .map(|v| v.iter().map(|t| t.inner).collect())
+            .collect();
         let mut var_ptrs: Vec<*const Cvc5Term> = raw_vars.iter().map(|v| v.as_ptr()).collect();
         let rt: Vec<Cvc5Term> = terms.iter().map(|t| t.inner).collect();
         unsafe {
@@ -452,7 +638,11 @@ impl<'tm> Solver<'tm> {
     }
 
     pub fn option_info_to_string(info: &Cvc5OptionInfo) -> String {
-        unsafe { std::ffi::CStr::from_ptr(cvc5_option_info_to_string(info)).to_string_lossy().into_owned() }
+        unsafe {
+            std::ffi::CStr::from_ptr(cvc5_option_info_to_string(info))
+                .to_string_lossy()
+                .into_owned()
+        }
     }
 
     // ── Plugin ─────────────────────────────────────────────────────
@@ -463,26 +653,46 @@ impl<'tm> Solver<'tm> {
 
     // ── Oracle ─────────────────────────────────────────────────────
 
-    pub fn declare_oracle_fun(
+    /// # Safety
+    /// The caller must ensure `state` is valid for the lifetime of the oracle function.
+    pub unsafe fn declare_oracle_fun(
         &mut self,
         symbol: &str,
         sorts: &[Sort],
         sort: Sort,
         state: *mut std::ffi::c_void,
-        fun: Option<unsafe extern "C" fn(usize, *const Cvc5Term, *mut std::ffi::c_void) -> Cvc5Term>,
+        fun: Option<
+            unsafe extern "C" fn(usize, *const Cvc5Term, *mut std::ffi::c_void) -> Cvc5Term,
+        >,
     ) -> Term {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5Sort> = sorts.iter().map(|s| s.inner).collect();
-        Term::from_raw(unsafe { cvc5_declare_oracle_fun(self.inner, c.as_ptr(), raw.len(), raw.as_ptr(), sort.inner, state, fun) })
+        Term::from_raw(unsafe {
+            cvc5_declare_oracle_fun(
+                self.inner,
+                c.as_ptr(),
+                raw.len(),
+                raw.as_ptr(),
+                sort.inner,
+                state,
+                fun,
+            )
+        })
     }
 
     pub fn version(&self) -> String {
-        unsafe { std::ffi::CStr::from_ptr(cvc5_get_version(self.inner)).to_string_lossy().into_owned() }
+        unsafe {
+            std::ffi::CStr::from_ptr(cvc5_get_version(self.inner))
+                .to_string_lossy()
+                .into_owned()
+        }
     }
 }
 
 impl Drop for Solver<'_> {
-    fn drop(&mut self) { unsafe { cvc5_delete(self.inner) } }
+    fn drop(&mut self) {
+        unsafe { cvc5_delete(self.inner) }
+    }
 }
 
 unsafe impl Send for Solver<'_> {}

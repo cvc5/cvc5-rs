@@ -10,11 +10,17 @@ pub struct DatatypeConstructorDecl {
 }
 
 impl Clone for DatatypeConstructorDecl {
-    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_dt_cons_decl_copy(self.inner) } } }
+    fn clone(&self) -> Self {
+        Self {
+            inner: unsafe { cvc5_dt_cons_decl_copy(self.inner) },
+        }
+    }
 }
 
 impl Drop for DatatypeConstructorDecl {
-    fn drop(&mut self) { unsafe { cvc5_dt_cons_decl_release(self.inner) } }
+    fn drop(&mut self) {
+        unsafe { cvc5_dt_cons_decl_release(self.inner) }
+    }
 }
 
 impl DatatypeConstructorDecl {
@@ -22,7 +28,9 @@ impl DatatypeConstructorDecl {
         Self { inner: raw }
     }
 
-    pub fn release(self) { unsafe { cvc5_dt_cons_decl_release(self.inner) } }
+    pub fn release(self) {
+        unsafe { cvc5_dt_cons_decl_release(self.inner) }
+    }
 
     /// Add a selector with the given name and sort.
     pub fn add_selector(&mut self, name: &str, sort: Sort) {
@@ -78,11 +86,17 @@ pub struct DatatypeDecl {
 }
 
 impl Clone for DatatypeDecl {
-    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_dt_decl_copy(self.inner) } } }
+    fn clone(&self) -> Self {
+        Self {
+            inner: unsafe { cvc5_dt_decl_copy(self.inner) },
+        }
+    }
 }
 
 impl Drop for DatatypeDecl {
-    fn drop(&mut self) { unsafe { cvc5_dt_decl_release(self.inner) } }
+    fn drop(&mut self) {
+        unsafe { cvc5_dt_decl_release(self.inner) }
+    }
 }
 
 impl DatatypeDecl {
@@ -90,8 +104,12 @@ impl DatatypeDecl {
         Self { inner: raw }
     }
 
-    pub fn copy(&self) -> DatatypeDecl { DatatypeDecl::from_raw(unsafe { cvc5_dt_decl_copy(self.inner) }) }
-    pub fn release(self) { unsafe { cvc5_dt_decl_release(self.inner) } }
+    pub fn copy(&self) -> DatatypeDecl {
+        DatatypeDecl::from_raw(unsafe { cvc5_dt_decl_copy(self.inner) })
+    }
+    pub fn release(self) {
+        unsafe { cvc5_dt_decl_release(self.inner) }
+    }
 
     /// Add a constructor declaration.
     pub fn add_constructor(&mut self, ctor: &DatatypeConstructorDecl) {
@@ -156,11 +174,17 @@ pub struct DatatypeSelector {
 }
 
 impl Clone for DatatypeSelector {
-    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_dt_sel_copy(self.inner) } } }
+    fn clone(&self) -> Self {
+        Self {
+            inner: unsafe { cvc5_dt_sel_copy(self.inner) },
+        }
+    }
 }
 
 impl Drop for DatatypeSelector {
-    fn drop(&mut self) { unsafe { cvc5_dt_sel_release(self.inner) } }
+    fn drop(&mut self) {
+        unsafe { cvc5_dt_sel_release(self.inner) }
+    }
 }
 
 impl DatatypeSelector {
@@ -168,8 +192,12 @@ impl DatatypeSelector {
         Self { inner: raw }
     }
 
-    pub fn copy(&self) -> DatatypeSelector { DatatypeSelector::from_raw(unsafe { cvc5_dt_sel_copy(self.inner) }) }
-    pub fn release(self) { unsafe { cvc5_dt_sel_release(self.inner) } }
+    pub fn copy(&self) -> DatatypeSelector {
+        DatatypeSelector::from_raw(unsafe { cvc5_dt_sel_copy(self.inner) })
+    }
+    pub fn release(self) {
+        unsafe { cvc5_dt_sel_release(self.inner) }
+    }
 
     pub fn name(&self) -> &str {
         unsafe {
@@ -225,11 +253,17 @@ pub struct DatatypeConstructor {
 }
 
 impl Clone for DatatypeConstructor {
-    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_dt_cons_copy(self.inner) } } }
+    fn clone(&self) -> Self {
+        Self {
+            inner: unsafe { cvc5_dt_cons_copy(self.inner) },
+        }
+    }
 }
 
 impl Drop for DatatypeConstructor {
-    fn drop(&mut self) { unsafe { cvc5_dt_cons_release(self.inner) } }
+    fn drop(&mut self) {
+        unsafe { cvc5_dt_cons_release(self.inner) }
+    }
 }
 
 impl DatatypeConstructor {
@@ -237,7 +271,9 @@ impl DatatypeConstructor {
         Self { inner: raw }
     }
 
-    pub fn release(self) { unsafe { cvc5_dt_cons_release(self.inner) } }
+    pub fn release(self) {
+        unsafe { cvc5_dt_cons_release(self.inner) }
+    }
 
     pub fn name(&self) -> &str {
         unsafe {
@@ -268,7 +304,9 @@ impl DatatypeConstructor {
 
     pub fn selector_by_name(&self, name: &str) -> DatatypeSelector {
         let c = CString::new(name).unwrap();
-        DatatypeSelector::from_raw(unsafe { cvc5_dt_cons_get_selector_by_name(self.inner, c.as_ptr()) })
+        DatatypeSelector::from_raw(unsafe {
+            cvc5_dt_cons_get_selector_by_name(self.inner, c.as_ptr())
+        })
     }
 }
 
@@ -306,11 +344,17 @@ pub struct Datatype {
 }
 
 impl Clone for Datatype {
-    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_dt_copy(self.inner) } } }
+    fn clone(&self) -> Self {
+        Self {
+            inner: unsafe { cvc5_dt_copy(self.inner) },
+        }
+    }
 }
 
 impl Drop for Datatype {
-    fn drop(&mut self) { unsafe { cvc5_dt_release(self.inner) } }
+    fn drop(&mut self) {
+        unsafe { cvc5_dt_release(self.inner) }
+    }
 }
 
 impl Datatype {
@@ -318,8 +362,12 @@ impl Datatype {
         Self { inner: raw }
     }
 
-    pub fn copy(&self) -> Datatype { Datatype::from_raw(unsafe { cvc5_dt_copy(self.inner) }) }
-    pub fn release(self) { unsafe { cvc5_dt_release(self.inner) } }
+    pub fn copy(&self) -> Datatype {
+        Datatype::from_raw(unsafe { cvc5_dt_copy(self.inner) })
+    }
+    pub fn release(self) {
+        unsafe { cvc5_dt_release(self.inner) }
+    }
 
     pub fn constructor(&self, index: usize) -> DatatypeConstructor {
         DatatypeConstructor::from_raw(unsafe { cvc5_dt_get_constructor(self.inner, index) })
@@ -327,7 +375,9 @@ impl Datatype {
 
     pub fn constructor_by_name(&self, name: &str) -> DatatypeConstructor {
         let c = CString::new(name).unwrap();
-        DatatypeConstructor::from_raw(unsafe { cvc5_dt_get_constructor_by_name(self.inner, c.as_ptr()) })
+        DatatypeConstructor::from_raw(unsafe {
+            cvc5_dt_get_constructor_by_name(self.inner, c.as_ptr())
+        })
     }
 
     pub fn selector(&self, name: &str) -> DatatypeSelector {
@@ -349,7 +399,9 @@ impl Datatype {
     pub fn parameters(&self) -> Vec<Sort> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_dt_get_parameters(self.inner, &mut size) };
-        (0..size).map(|i| Sort::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     pub fn is_parametric(&self) -> bool {

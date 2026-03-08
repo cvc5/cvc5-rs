@@ -9,11 +9,17 @@ pub struct Op {
 }
 
 impl Clone for Op {
-    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_op_copy(self.inner) } } }
+    fn clone(&self) -> Self {
+        Self {
+            inner: unsafe { cvc5_op_copy(self.inner) },
+        }
+    }
 }
 
 impl Drop for Op {
-    fn drop(&mut self) { unsafe { cvc5_op_release(self.inner) } }
+    fn drop(&mut self) {
+        unsafe { cvc5_op_release(self.inner) }
+    }
 }
 
 impl Op {
@@ -21,14 +27,26 @@ impl Op {
         Self { inner: raw }
     }
 
-    pub fn kind(&self) -> Cvc5Kind { unsafe { cvc5_op_get_kind(self.inner) } }
+    pub fn kind(&self) -> Cvc5Kind {
+        unsafe { cvc5_op_get_kind(self.inner) }
+    }
 
-    pub fn copy(&self) -> Op { Op::from_raw(unsafe { cvc5_op_copy(self.inner) }) }
-    pub fn release(self) { unsafe { cvc5_op_release(self.inner) } }
-    pub fn is_disequal(&self, other: &Op) -> bool { unsafe { cvc5_op_is_disequal(self.inner, other.inner) } }
+    pub fn copy(&self) -> Op {
+        Op::from_raw(unsafe { cvc5_op_copy(self.inner) })
+    }
+    pub fn release(self) {
+        unsafe { cvc5_op_release(self.inner) }
+    }
+    pub fn is_disequal(&self, other: &Op) -> bool {
+        unsafe { cvc5_op_is_disequal(self.inner, other.inner) }
+    }
 
-    pub fn is_indexed(&self) -> bool { unsafe { cvc5_op_is_indexed(self.inner) } }
-    pub fn num_indices(&self) -> usize { unsafe { cvc5_op_get_num_indices(self.inner) } }
+    pub fn is_indexed(&self) -> bool {
+        unsafe { cvc5_op_is_indexed(self.inner) }
+    }
+    pub fn num_indices(&self) -> usize {
+        unsafe { cvc5_op_get_num_indices(self.inner) }
+    }
 
     pub fn index(&self, i: usize) -> Term {
         Term::from_raw(unsafe { cvc5_op_get_index(self.inner, i) })

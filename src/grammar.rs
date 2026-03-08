@@ -9,11 +9,17 @@ pub struct Grammar {
 }
 
 impl Clone for Grammar {
-    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_grammar_copy(self.inner) } } }
+    fn clone(&self) -> Self {
+        Self {
+            inner: unsafe { cvc5_grammar_copy(self.inner) },
+        }
+    }
 }
 
 impl Drop for Grammar {
-    fn drop(&mut self) { unsafe { cvc5_grammar_release(self.inner) } }
+    fn drop(&mut self) {
+        unsafe { cvc5_grammar_release(self.inner) }
+    }
 }
 
 impl Grammar {
@@ -21,9 +27,15 @@ impl Grammar {
         Self { inner: raw }
     }
 
-    pub fn copy(&self) -> Grammar { Grammar::from_raw(unsafe { cvc5_grammar_copy(self.inner) }) }
-    pub fn release(self) { unsafe { cvc5_grammar_release(self.inner) } }
-    pub fn is_disequal(&self, other: &Grammar) -> bool { unsafe { cvc5_grammar_is_disequal(self.inner, other.inner) } }
+    pub fn copy(&self) -> Grammar {
+        Grammar::from_raw(unsafe { cvc5_grammar_copy(self.inner) })
+    }
+    pub fn release(self) {
+        unsafe { cvc5_grammar_release(self.inner) }
+    }
+    pub fn is_disequal(&self, other: &Grammar) -> bool {
+        unsafe { cvc5_grammar_is_disequal(self.inner, other.inner) }
+    }
 
     /// Add a rule to the given non-terminal symbol.
     pub fn add_rule(&mut self, symbol: Term, rule: Term) {

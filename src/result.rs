@@ -7,11 +7,17 @@ pub struct Result {
 }
 
 impl Clone for Result {
-    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_result_copy(self.inner) } } }
+    fn clone(&self) -> Self {
+        Self {
+            inner: unsafe { cvc5_result_copy(self.inner) },
+        }
+    }
 }
 
 impl Drop for Result {
-    fn drop(&mut self) { unsafe { cvc5_result_release(self.inner) } }
+    fn drop(&mut self) {
+        unsafe { cvc5_result_release(self.inner) }
+    }
 }
 
 impl Result {
@@ -19,15 +25,29 @@ impl Result {
         Self { inner: raw }
     }
 
-    pub fn is_null(&self) -> bool { unsafe { cvc5_result_is_null(self.inner) } }
+    pub fn is_null(&self) -> bool {
+        unsafe { cvc5_result_is_null(self.inner) }
+    }
 
-    pub fn copy(&self) -> Result { Result::from_raw(unsafe { cvc5_result_copy(self.inner) }) }
-    pub fn release(self) { unsafe { cvc5_result_release(self.inner) } }
-    pub fn is_disequal(&self, other: &Result) -> bool { unsafe { cvc5_result_is_disequal(self.inner, other.inner) } }
+    pub fn copy(&self) -> Result {
+        Result::from_raw(unsafe { cvc5_result_copy(self.inner) })
+    }
+    pub fn release(self) {
+        unsafe { cvc5_result_release(self.inner) }
+    }
+    pub fn is_disequal(&self, other: &Result) -> bool {
+        unsafe { cvc5_result_is_disequal(self.inner, other.inner) }
+    }
 
-    pub fn is_sat(&self) -> bool { unsafe { cvc5_result_is_sat(self.inner) } }
-    pub fn is_unsat(&self) -> bool { unsafe { cvc5_result_is_unsat(self.inner) } }
-    pub fn is_unknown(&self) -> bool { unsafe { cvc5_result_is_unknown(self.inner) } }
+    pub fn is_sat(&self) -> bool {
+        unsafe { cvc5_result_is_sat(self.inner) }
+    }
+    pub fn is_unsat(&self) -> bool {
+        unsafe { cvc5_result_is_unsat(self.inner) }
+    }
+    pub fn is_unknown(&self) -> bool {
+        unsafe { cvc5_result_is_unknown(self.inner) }
+    }
 
     pub fn unknown_explanation(&self) -> Cvc5UnknownExplanation {
         unsafe { cvc5_result_get_unknown_explanation(self.inner) }

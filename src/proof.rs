@@ -9,11 +9,17 @@ pub struct Proof {
 }
 
 impl Clone for Proof {
-    fn clone(&self) -> Self { Self { inner: unsafe { cvc5_proof_copy(self.inner) } } }
+    fn clone(&self) -> Self {
+        Self {
+            inner: unsafe { cvc5_proof_copy(self.inner) },
+        }
+    }
 }
 
 impl Drop for Proof {
-    fn drop(&mut self) { unsafe { cvc5_proof_release(self.inner) } }
+    fn drop(&mut self) {
+        unsafe { cvc5_proof_release(self.inner) }
+    }
 }
 
 impl Proof {
@@ -25,9 +31,15 @@ impl Proof {
         unsafe { cvc5_proof_get_rule(self.inner) }
     }
 
-    pub fn copy(&self) -> Proof { Proof::from_raw(unsafe { cvc5_proof_copy(self.inner) }) }
-    pub fn release(self) { unsafe { cvc5_proof_release(self.inner) } }
-    pub fn is_disequal(&self, other: &Proof) -> bool { unsafe { cvc5_proof_is_disequal(self.inner, other.inner) } }
+    pub fn copy(&self) -> Proof {
+        Proof::from_raw(unsafe { cvc5_proof_copy(self.inner) })
+    }
+    pub fn release(self) {
+        unsafe { cvc5_proof_release(self.inner) }
+    }
+    pub fn is_disequal(&self, other: &Proof) -> bool {
+        unsafe { cvc5_proof_is_disequal(self.inner, other.inner) }
+    }
 
     pub fn rewrite_rule(&self) -> Cvc5ProofRewriteRule {
         unsafe { cvc5_proof_get_rewrite_rule(self.inner) }
@@ -40,13 +52,17 @@ impl Proof {
     pub fn children(&self) -> Vec<Proof> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_proof_get_children(self.inner, &mut size) };
-        (0..size).map(|i| Proof::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Proof::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     pub fn arguments(&self) -> Vec<Term> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_proof_get_arguments(self.inner, &mut size) };
-        (0..size).map(|i| Term::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..size)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 }
 

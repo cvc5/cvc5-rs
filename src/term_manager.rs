@@ -10,7 +10,9 @@ pub struct TermManager {
 
 impl TermManager {
     pub fn new() -> Self {
-        Self { inner: unsafe { cvc5_term_manager_new() } }
+        Self {
+            inner: unsafe { cvc5_term_manager_new() },
+        }
     }
 
     /// Release all managed references.
@@ -20,12 +22,24 @@ impl TermManager {
 
     // ── Sort creation ──────────────────────────────────────────────
 
-    pub fn boolean_sort(&self) -> Sort { Sort::from_raw(unsafe { cvc5_get_boolean_sort(self.inner) }) }
-    pub fn integer_sort(&self) -> Sort { Sort::from_raw(unsafe { cvc5_get_integer_sort(self.inner) }) }
-    pub fn real_sort(&self) -> Sort { Sort::from_raw(unsafe { cvc5_get_real_sort(self.inner) }) }
-    pub fn string_sort(&self) -> Sort { Sort::from_raw(unsafe { cvc5_get_string_sort(self.inner) }) }
-    pub fn regexp_sort(&self) -> Sort { Sort::from_raw(unsafe { cvc5_get_regexp_sort(self.inner) }) }
-    pub fn rm_sort(&self) -> Sort { Sort::from_raw(unsafe { cvc5_get_rm_sort(self.inner) }) }
+    pub fn boolean_sort(&self) -> Sort {
+        Sort::from_raw(unsafe { cvc5_get_boolean_sort(self.inner) })
+    }
+    pub fn integer_sort(&self) -> Sort {
+        Sort::from_raw(unsafe { cvc5_get_integer_sort(self.inner) })
+    }
+    pub fn real_sort(&self) -> Sort {
+        Sort::from_raw(unsafe { cvc5_get_real_sort(self.inner) })
+    }
+    pub fn string_sort(&self) -> Sort {
+        Sort::from_raw(unsafe { cvc5_get_string_sort(self.inner) })
+    }
+    pub fn regexp_sort(&self) -> Sort {
+        Sort::from_raw(unsafe { cvc5_get_regexp_sort(self.inner) })
+    }
+    pub fn rm_sort(&self) -> Sort {
+        Sort::from_raw(unsafe { cvc5_get_rm_sort(self.inner) })
+    }
 
     pub fn mk_array_sort(&self, index: Sort, elem: Sort) -> Sort {
         Sort::from_raw(unsafe { cvc5_mk_array_sort(self.inner, index.inner, elem.inner) })
@@ -51,12 +65,16 @@ impl TermManager {
     pub fn mk_dt_sorts(&self, decls: &[DatatypeDecl]) -> Vec<Sort> {
         let raw: Vec<Cvc5DatatypeDecl> = decls.iter().map(|d| d.inner).collect();
         let ptr = unsafe { cvc5_mk_dt_sorts(self.inner, raw.len(), raw.as_ptr()) };
-        (0..decls.len()).map(|i| Sort::from_raw(unsafe { *ptr.add(i) })).collect()
+        (0..decls.len())
+            .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
     }
 
     pub fn mk_fun_sort(&self, domain: &[Sort], codomain: Sort) -> Sort {
         let raw: Vec<Cvc5Sort> = domain.iter().map(|s| s.inner).collect();
-        Sort::from_raw(unsafe { cvc5_mk_fun_sort(self.inner, raw.len(), raw.as_ptr(), codomain.inner) })
+        Sort::from_raw(unsafe {
+            cvc5_mk_fun_sort(self.inner, raw.len(), raw.as_ptr(), codomain.inner)
+        })
     }
 
     pub fn mk_param_sort(&self, symbol: &str) -> Sort {
@@ -73,7 +91,9 @@ impl TermManager {
         let cnames: Vec<CString> = names.iter().map(|n| CString::new(*n).unwrap()).collect();
         let mut ptrs: Vec<*const std::ffi::c_char> = cnames.iter().map(|c| c.as_ptr()).collect();
         let raw: Vec<Cvc5Sort> = sorts.iter().map(|s| s.inner).collect();
-        Sort::from_raw(unsafe { cvc5_mk_record_sort(self.inner, raw.len(), ptrs.as_mut_ptr(), raw.as_ptr()) })
+        Sort::from_raw(unsafe {
+            cvc5_mk_record_sort(self.inner, raw.len(), ptrs.as_mut_ptr(), raw.as_ptr())
+        })
     }
 
     pub fn mk_set_sort(&self, elem: Sort) -> Sort {
@@ -104,7 +124,9 @@ impl TermManager {
 
     pub fn mk_uninterpreted_sort_constructor_sort(&self, arity: usize, symbol: &str) -> Sort {
         let c = CString::new(symbol).unwrap();
-        Sort::from_raw(unsafe { cvc5_mk_uninterpreted_sort_constructor_sort(self.inner, arity, c.as_ptr()) })
+        Sort::from_raw(unsafe {
+            cvc5_mk_uninterpreted_sort_constructor_sort(self.inner, arity, c.as_ptr())
+        })
     }
 
     pub fn mk_tuple_sort(&self, sorts: &[Sort]) -> Sort {
@@ -136,7 +158,9 @@ impl TermManager {
 
     pub fn mk_term_from_op(&self, op: Op, children: &[Term]) -> Term {
         let raw: Vec<Cvc5Term> = children.iter().map(|t| t.inner).collect();
-        Term::from_raw(unsafe { cvc5_mk_term_from_op(self.inner, op.inner, raw.len(), raw.as_ptr()) })
+        Term::from_raw(unsafe {
+            cvc5_mk_term_from_op(self.inner, op.inner, raw.len(), raw.as_ptr())
+        })
     }
 
     pub fn mk_tuple(&self, terms: &[Term]) -> Term {
@@ -180,10 +204,18 @@ impl TermManager {
 
     // ── Constants ──────────────────────────────────────────────────
 
-    pub fn mk_true(&self) -> Term { Term::from_raw(unsafe { cvc5_mk_true(self.inner) }) }
-    pub fn mk_false(&self) -> Term { Term::from_raw(unsafe { cvc5_mk_false(self.inner) }) }
-    pub fn mk_boolean(&self, val: bool) -> Term { Term::from_raw(unsafe { cvc5_mk_boolean(self.inner, val) }) }
-    pub fn mk_pi(&self) -> Term { Term::from_raw(unsafe { cvc5_mk_pi(self.inner) }) }
+    pub fn mk_true(&self) -> Term {
+        Term::from_raw(unsafe { cvc5_mk_true(self.inner) })
+    }
+    pub fn mk_false(&self) -> Term {
+        Term::from_raw(unsafe { cvc5_mk_false(self.inner) })
+    }
+    pub fn mk_boolean(&self, val: bool) -> Term {
+        Term::from_raw(unsafe { cvc5_mk_boolean(self.inner, val) })
+    }
+    pub fn mk_pi(&self) -> Term {
+        Term::from_raw(unsafe { cvc5_mk_pi(self.inner) })
+    }
 
     pub fn mk_integer(&self, val: i64) -> Term {
         Term::from_raw(unsafe { cvc5_mk_integer_int64(self.inner, val) })
@@ -207,9 +239,15 @@ impl TermManager {
         Term::from_raw(unsafe { cvc5_mk_real_num_den(self.inner, num, den) })
     }
 
-    pub fn mk_regexp_all(&self) -> Term { Term::from_raw(unsafe { cvc5_mk_regexp_all(self.inner) }) }
-    pub fn mk_regexp_allchar(&self) -> Term { Term::from_raw(unsafe { cvc5_mk_regexp_allchar(self.inner) }) }
-    pub fn mk_regexp_none(&self) -> Term { Term::from_raw(unsafe { cvc5_mk_regexp_none(self.inner) }) }
+    pub fn mk_regexp_all(&self) -> Term {
+        Term::from_raw(unsafe { cvc5_mk_regexp_all(self.inner) })
+    }
+    pub fn mk_regexp_allchar(&self) -> Term {
+        Term::from_raw(unsafe { cvc5_mk_regexp_allchar(self.inner) })
+    }
+    pub fn mk_regexp_none(&self) -> Term {
+        Term::from_raw(unsafe { cvc5_mk_regexp_none(self.inner) })
+    }
 
     pub fn mk_empty_set(&self, sort: Sort) -> Term {
         Term::from_raw(unsafe { cvc5_mk_empty_set(self.inner, sort.inner) })
@@ -219,7 +257,9 @@ impl TermManager {
         Term::from_raw(unsafe { cvc5_mk_empty_bag(self.inner, sort.inner) })
     }
 
-    pub fn mk_sep_emp(&self) -> Term { Term::from_raw(unsafe { cvc5_mk_sep_emp(self.inner) }) }
+    pub fn mk_sep_emp(&self) -> Term {
+        Term::from_raw(unsafe { cvc5_mk_sep_emp(self.inner) })
+    }
 
     pub fn mk_sep_nil(&self, sort: Sort) -> Term {
         Term::from_raw(unsafe { cvc5_mk_sep_nil(self.inner, sort.inner) })
@@ -285,11 +325,15 @@ impl TermManager {
     }
 
     pub fn mk_fp_from_ieee(&self, sign: Term, exp: Term, sig: Term) -> Term {
-        Term::from_raw(unsafe { cvc5_mk_fp_from_ieee(self.inner, sign.inner, exp.inner, sig.inner) })
+        Term::from_raw(unsafe {
+            cvc5_mk_fp_from_ieee(self.inner, sign.inner, exp.inner, sig.inner)
+        })
     }
 
     pub fn mk_cardinality_constraint(&self, sort: Sort, upper_bound: u32) -> Term {
-        Term::from_raw(unsafe { cvc5_mk_cardinality_constraint(self.inner, sort.inner, upper_bound) })
+        Term::from_raw(unsafe {
+            cvc5_mk_cardinality_constraint(self.inner, sort.inner, upper_bound)
+        })
     }
 
     // ── Variables ──────────────────────────────────────────────────
@@ -316,10 +360,17 @@ impl TermManager {
         DatatypeDecl::from_raw(unsafe { cvc5_mk_dt_decl(self.inner, c.as_ptr(), is_codt) })
     }
 
-    pub fn mk_dt_decl_with_params(&self, name: &str, params: &[Sort], is_codt: bool) -> DatatypeDecl {
+    pub fn mk_dt_decl_with_params(
+        &self,
+        name: &str,
+        params: &[Sort],
+        is_codt: bool,
+    ) -> DatatypeDecl {
         let c = CString::new(name).unwrap();
         let raw: Vec<Cvc5Sort> = params.iter().map(|s| s.inner).collect();
-        DatatypeDecl::from_raw(unsafe { cvc5_mk_dt_decl_with_params(self.inner, c.as_ptr(), raw.len(), raw.as_ptr(), is_codt) })
+        DatatypeDecl::from_raw(unsafe {
+            cvc5_mk_dt_decl_with_params(self.inner, c.as_ptr(), raw.len(), raw.as_ptr(), is_codt)
+        })
     }
 
     pub fn mk_string_from_char32(&self, s: &[char32_t]) -> Term {
@@ -332,7 +383,9 @@ impl TermManager {
 }
 
 impl Default for TermManager {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Drop for TermManager {
