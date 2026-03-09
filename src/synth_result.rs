@@ -1,7 +1,7 @@
 use cvc5_sys::*;
 use std::fmt;
 
-/// The result of a synthesis query.
+/// The result of a synthesis query (SyGuS).
 pub struct SynthResult {
     pub(crate) inner: Cvc5SynthResult,
 }
@@ -25,25 +25,32 @@ impl SynthResult {
         Self { inner: raw }
     }
 
+    /// Return `true` if this is a null (uninitialized) synthesis result.
     pub fn is_null(&self) -> bool {
         unsafe { cvc5_synth_result_is_null(self.inner) }
     }
 
+    /// Create a copy of this synthesis result (increments the internal reference count).
     pub fn copy(&self) -> SynthResult {
         SynthResult::from_raw(unsafe { cvc5_synth_result_copy(self.inner) })
     }
+
+    /// Check disequality with another synthesis result.
     pub fn is_disequal(&self, other: &SynthResult) -> bool {
         unsafe { cvc5_synth_result_is_disequal(self.inner, other.inner) }
     }
 
+    /// Return `true` if a solution was found.
     pub fn has_solution(&self) -> bool {
         unsafe { cvc5_synth_result_has_solution(self.inner) }
     }
 
+    /// Return `true` if it was determined that no solution exists.
     pub fn has_no_solution(&self) -> bool {
         unsafe { cvc5_synth_result_has_no_solution(self.inner) }
     }
 
+    /// Return `true` if the synthesis result is unknown.
     pub fn is_unknown(&self) -> bool {
         unsafe { cvc5_synth_result_is_unknown(self.inner) }
     }

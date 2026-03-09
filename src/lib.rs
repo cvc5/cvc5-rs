@@ -30,6 +30,8 @@
 mod datatype;
 mod grammar;
 mod op;
+#[cfg(feature = "parser")]
+mod parser;
 mod proof;
 mod result;
 mod solver;
@@ -62,3 +64,8 @@ pub use statistics::{Stat, Statistics};
 pub use synth_result::SynthResult;
 pub use term::Term;
 pub use term_manager::TermManager;
+
+#[cfg(feature = "parser")]
+pub use cvc5_sys::Cvc5InputLanguage as InputLanguage;
+#[cfg(feature = "parser")]
+pub use parser::{Command, InputParser, SymbolManager};

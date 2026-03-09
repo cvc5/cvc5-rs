@@ -25,27 +25,37 @@ impl Result {
         Self { inner: raw }
     }
 
+    /// Return `true` if this is a null (uninitialized) result.
     pub fn is_null(&self) -> bool {
         unsafe { cvc5_result_is_null(self.inner) }
     }
 
+    /// Create a copy of this result (increments the internal reference count).
     pub fn copy(&self) -> Result {
         Result::from_raw(unsafe { cvc5_result_copy(self.inner) })
     }
+
+    /// Check disequality with another result.
     pub fn is_disequal(&self, other: &Result) -> bool {
         unsafe { cvc5_result_is_disequal(self.inner, other.inner) }
     }
 
+    /// Return `true` if the query was satisfiable.
     pub fn is_sat(&self) -> bool {
         unsafe { cvc5_result_is_sat(self.inner) }
     }
+
+    /// Return `true` if the query was unsatisfiable.
     pub fn is_unsat(&self) -> bool {
         unsafe { cvc5_result_is_unsat(self.inner) }
     }
+
+    /// Return `true` if the result is unknown.
     pub fn is_unknown(&self) -> bool {
         unsafe { cvc5_result_is_unknown(self.inner) }
     }
 
+    /// Get the explanation for an unknown result.
     pub fn unknown_explanation(&self) -> Cvc5UnknownExplanation {
         unsafe { cvc5_result_get_unknown_explanation(self.inner) }
     }

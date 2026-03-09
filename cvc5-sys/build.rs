@@ -16,11 +16,13 @@ fn main() {
     println!("cargo:rustc-link-lib=static=cvc5");
 
     // Link parser library
-    println!(
-        "cargo:rustc-link-search=native={}",
-        build_dir.join("src/parser").display()
-    );
-    println!("cargo:rustc-link-lib=static=cvc5parser");
+    if cfg!(feature = "parser") {
+        println!(
+            "cargo:rustc-link-search=native={}",
+            build_dir.join("src/parser").display()
+        );
+        println!("cargo:rustc-link-lib=static=cvc5parser");
+    }
 
     // Link dependencies
     let deps_lib = build_dir.join("deps/lib");
@@ -76,26 +78,41 @@ fn main() {
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
 
-    // Also generate the parser bindings
-    let parser_header = include_dir.join("cvc5/c/cvc5_parser.h");
-    if parser_header.exists() {
-        let parser_bindings = bindgen::Builder::default()
-            .header(parser_header.to_string_lossy())
-            .clang_arg(format!("-I{}", include_dir.display()))
-            .clang_arg(format!("-I{}", build_include_dir.display()))
-            .clang_arg("-DCVC5_STATIC_DEFINE")
-            .allowlist_function("cvc5_.*")
-            .allowlist_type("Cvc5.*")
-            .rustified_enum("Cvc5InputLanguage")
-            .generate_comments(true)
-            .derive_default(true)
-            .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-            .generate()
-            .expect("Unable to generate cvc5 parser bindings");
+    // Generate parser bindings if feature enabled
+    if cfg!(feature = "parser") {
+        let parser_header = include_dir.join("cvc5/c/cvc5_parser.h");
+        if parser_header.exists() {
+            let parser_bindings = bindgen::Builder::default()
+                .header(parser_header.to_string_lossy())
+                .clang_arg(format!("-I{}", include_dir.display()))
+                .clang_arg(format!("-I{}", build_include_dir.display()))
+                .clang_arg("-DCVC5_STATIC_DEFINE")
+                .allowlist_function("cvc5_parser_.*")
+                .allowlist_function("cvc5_cmd_.*")
+                .allowlist_function("cvc5_symbol_manager_.*")
+                .allowlist_function("cvc5_sm_.*")
+                .allowlist_type("Cvc5InputParser")
+                .allowlist_type("Cvc5SymbolManager")
+                .allowlist_type("Cvc5Command")
+                .allowlist_type("cvc5_cmd_t")
+                .blocklist_type("Cvc5")
+                .blocklist_type("Cvc5TermManager")
+                .blocklist_type("Cvc5Sort")
+                .blocklist_type("cvc5_sort_t")
+                .blocklist_type("Cvc5Term")
+                .blocklist_type("cvc5_term_t")
+                .blocklist_type("Cvc5InputLanguage")
+                .raw_line("use super::*;")
+                .generate_comments(true)
+                .derive_default(true)
+                .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+                .generate()
+                .expect("Unable to generate cvc5 parser bindings");
 
-        parser_bindings
-            .write_to_file(out_path.join("parser_bindings.rs"))
-            .expect("Couldn't write parser bindings!");
+            parser_bindings
+                .write_to_file(out_path.join("parser_bindings.rs"))
+                .expect("Couldn't write parser bindings!");
+        }
     }
 }
 
