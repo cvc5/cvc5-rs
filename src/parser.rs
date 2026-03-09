@@ -27,8 +27,8 @@
 //! }
 //! ```
 
-use cvc5_sys::parser::*;
 use cvc5_sys::Cvc5InputLanguage as InputLanguage;
+use cvc5_sys::parser::*;
 use std::ffi::CString;
 use std::fmt;
 use std::marker::PhantomData;
