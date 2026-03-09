@@ -37,7 +37,11 @@ impl Statistics {
     pub fn iter_next(&self) -> (String, Stat) {
         let mut name: *const std::os::raw::c_char = std::ptr::null();
         let s = unsafe { cvc5_stats_iter_next(self.inner, &mut name) };
-        let n = unsafe { std::ffi::CStr::from_ptr(name).to_string_lossy().into_owned() };
+        let n = unsafe {
+            std::ffi::CStr::from_ptr(name)
+                .to_string_lossy()
+                .into_owned()
+        };
         (n, Stat { inner: s })
     }
 }
@@ -51,11 +55,9 @@ impl fmt::Debug for Statistics {
 impl fmt::Display for Statistics {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { cvc5_stats_to_string(self.inner) };
-        write!(
-            f,
-            "{}",
-            unsafe { std::ffi::CStr::from_ptr(s).to_string_lossy() }
-        )
+        write!(f, "{}", unsafe {
+            std::ffi::CStr::from_ptr(s).to_string_lossy()
+        })
     }
 }
 
@@ -141,10 +143,8 @@ impl fmt::Debug for Stat {
 impl fmt::Display for Stat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { cvc5_stat_to_string(self.inner) };
-        write!(
-            f,
-            "{}",
-            unsafe { std::ffi::CStr::from_ptr(s).to_string_lossy() }
-        )
+        write!(f, "{}", unsafe {
+            std::ffi::CStr::from_ptr(s).to_string_lossy()
+        })
     }
 }

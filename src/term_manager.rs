@@ -16,7 +16,6 @@ impl TermManager {
         }
     }
 
-
     // ── Sort creation ──────────────────────────────────────────────
 
     /// Get the Boolean sort.
