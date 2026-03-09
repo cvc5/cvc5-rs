@@ -28,9 +28,6 @@ impl DatatypeConstructorDecl {
         Self { inner: raw }
     }
 
-    pub fn release(self) {
-        unsafe { cvc5_dt_cons_decl_release(self.inner) }
-    }
 
     /// Add a selector with the given name and sort.
     pub fn add_selector(&mut self, name: &str, sort: Sort) {
@@ -106,9 +103,6 @@ impl DatatypeDecl {
 
     pub fn copy(&self) -> DatatypeDecl {
         DatatypeDecl::from_raw(unsafe { cvc5_dt_decl_copy(self.inner) })
-    }
-    pub fn release(self) {
-        unsafe { cvc5_dt_decl_release(self.inner) }
     }
 
     /// Add a constructor declaration.
@@ -195,9 +189,6 @@ impl DatatypeSelector {
     pub fn copy(&self) -> DatatypeSelector {
         DatatypeSelector::from_raw(unsafe { cvc5_dt_sel_copy(self.inner) })
     }
-    pub fn release(self) {
-        unsafe { cvc5_dt_sel_release(self.inner) }
-    }
 
     pub fn name(&self) -> &str {
         unsafe {
@@ -271,9 +262,6 @@ impl DatatypeConstructor {
         Self { inner: raw }
     }
 
-    pub fn release(self) {
-        unsafe { cvc5_dt_cons_release(self.inner) }
-    }
 
     pub fn name(&self) -> &str {
         unsafe {
@@ -364,9 +352,6 @@ impl Datatype {
 
     pub fn copy(&self) -> Datatype {
         Datatype::from_raw(unsafe { cvc5_dt_copy(self.inner) })
-    }
-    pub fn release(self) {
-        unsafe { cvc5_dt_release(self.inner) }
     }
 
     pub fn constructor(&self, index: usize) -> DatatypeConstructor {

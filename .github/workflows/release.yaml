@@ -31,6 +31,10 @@ jobs:
       - uses: rust-lang/crates-io-auth-action@v1
         id: auth
 
+      - run: cargo publish -p cvc5-sys
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+
       - run: cargo publish -p cvc5-rs
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}

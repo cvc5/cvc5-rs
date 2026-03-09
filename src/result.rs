@@ -32,9 +32,6 @@ impl Result {
     pub fn copy(&self) -> Result {
         Result::from_raw(unsafe { cvc5_result_copy(self.inner) })
     }
-    pub fn release(self) {
-        unsafe { cvc5_result_release(self.inner) }
-    }
     pub fn is_disequal(&self, other: &Result) -> bool {
         unsafe { cvc5_result_is_disequal(self.inner, other.inner) }
     }

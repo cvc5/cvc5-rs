@@ -35,10 +35,6 @@ impl Term {
     pub fn copy(&self) -> Term {
         Term::from_raw(unsafe { cvc5_term_copy(self.inner) })
     }
-    /// Decrement the internal reference count.
-    pub fn release(self) {
-        unsafe { cvc5_term_release(self.inner) }
-    }
     /// Check disequality (equivalent to `!=`).
     pub fn is_disequal(&self, other: &Term) -> bool {
         unsafe { cvc5_term_is_disequal(self.inner, other.inner) }

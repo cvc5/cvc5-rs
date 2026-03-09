@@ -30,9 +30,6 @@ impl Grammar {
     pub fn copy(&self) -> Grammar {
         Grammar::from_raw(unsafe { cvc5_grammar_copy(self.inner) })
     }
-    pub fn release(self) {
-        unsafe { cvc5_grammar_release(self.inner) }
-    }
     pub fn is_disequal(&self, other: &Grammar) -> bool {
         unsafe { cvc5_grammar_is_disequal(self.inner, other.inner) }
     }

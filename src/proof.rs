@@ -34,9 +34,6 @@ impl Proof {
     pub fn copy(&self) -> Proof {
         Proof::from_raw(unsafe { cvc5_proof_copy(self.inner) })
     }
-    pub fn release(self) {
-        unsafe { cvc5_proof_release(self.inner) }
-    }
     pub fn is_disequal(&self, other: &Proof) -> bool {
         unsafe { cvc5_proof_is_disequal(self.inner, other.inner) }
     }

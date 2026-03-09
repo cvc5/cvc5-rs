@@ -34,9 +34,6 @@ impl Sort {
     pub fn copy(&self) -> Sort {
         Sort::from_raw(unsafe { cvc5_sort_copy(self.inner) })
     }
-    pub fn release(self) {
-        unsafe { cvc5_sort_release(self.inner) }
-    }
     pub fn is_disequal(&self, other: &Sort) -> bool {
         unsafe { cvc5_sort_is_disequal(self.inner, other.inner) }
     }

@@ -34,9 +34,6 @@ impl Op {
     pub fn copy(&self) -> Op {
         Op::from_raw(unsafe { cvc5_op_copy(self.inner) })
     }
-    pub fn release(self) {
-        unsafe { cvc5_op_release(self.inner) }
-    }
     pub fn is_disequal(&self, other: &Op) -> bool {
         unsafe { cvc5_op_is_disequal(self.inner, other.inner) }
     }

@@ -32,9 +32,6 @@ impl SynthResult {
     pub fn copy(&self) -> SynthResult {
         SynthResult::from_raw(unsafe { cvc5_synth_result_copy(self.inner) })
     }
-    pub fn release(self) {
-        unsafe { cvc5_synth_result_release(self.inner) }
-    }
     pub fn is_disequal(&self, other: &SynthResult) -> bool {
         unsafe { cvc5_synth_result_is_disequal(self.inner, other.inner) }
     }

@@ -15,10 +15,6 @@ impl TermManager {
         }
     }
 
-    /// Release all managed references.
-    pub fn release(&mut self) {
-        unsafe { cvc5_term_manager_release(self.inner) }
-    }
 
     // ── Sort creation ──────────────────────────────────────────────
 
