@@ -1,0 +1,337 @@
+//! Safe wrappers for the cvc5 parser API.
+//!
+//! This module is only available when the `parser` feature is enabled.
+//!
+//! # Example
+//!
+//! ```no_run
+//! use cvc5_rs::{TermManager, Solver, InputParser, SymbolManager, InputLanguage};
+//!
+//! let tm = TermManager::new();
+//! let solver = Solver::new(&tm);
+//! let mut sm = SymbolManager::new(&tm);
+//!
+//! let mut parser = InputParser::new(&solver, Some(&sm));
+//! parser.set_str_input(
+//!     InputLanguage::CVC5_INPUT_LANGUAGE_SMT_LIB_2_6,
+//!     "(set-logic QF_LIA)(declare-const x Int)(assert (> x 0))(check-sat)",
+//!     "example",
+//! );
+//!
+//! while !parser.done() {
+//!     match parser.next_command() {
+//!         Ok(Some(cmd)) => { cmd.invoke(&mut Solver::new(&tm), &mut sm); }
+//!         Ok(None) => break,
+//!         Err(e) => panic!("parse error: {e}"),
+//!     }
+//! }
+//! ```
+
+use cvc5_sys::parser::*;
+use cvc5_sys::Cvc5InputLanguage as InputLanguage;
+use std::ffi::CString;
+use std::fmt;
+use std::marker::PhantomData;
+
+use crate::{Solver, Sort, Term, TermManager};
+
+// ---------------------------------------------------------------------------
+// SymbolManager
+// ---------------------------------------------------------------------------
+
+/// Manages symbols for the parser.
+///
+/// Internally tracks a symbol table and meta-information from SMT-LIB inputs
+/// (named assertions, declared functions/sorts, etc.).
+///
+/// A `SymbolManager` can be shared with an [`InputParser`] so that parsed
+/// commands update the same symbol table.
+pub struct SymbolManager<'tm> {
+    pub(crate) inner: *mut Cvc5SymbolManager,
+    _tm: PhantomData<&'tm TermManager>,
+}
+
+impl<'tm> SymbolManager<'tm> {
+    /// Create a new symbol manager associated with the given term manager.
+    pub fn new(tm: &'tm TermManager) -> Self {
+        Self {
+            inner: unsafe { cvc5_symbol_manager_new(tm.inner) },
+            _tm: PhantomData,
+        }
+    }
+
+    /// Return whether the logic has been set.
+    pub fn is_logic_set(&self) -> bool {
+        unsafe { cvc5_sm_is_logic_set(self.inner) }
+    }
+
+    /// Get the logic string (e.g. `"QF_LIA"`).
+    ///
+    /// # Panics
+    ///
+    /// The underlying C API asserts that the logic has been set.
+    pub fn get_logic(&self) -> &str {
+        unsafe {
+            let s = cvc5_sm_get_logic(self.inner);
+            std::ffi::CStr::from_ptr(s).to_str().unwrap_or("")
+        }
+    }
+
+    /// Get the sorts declared via `declare-sort` commands.
+    ///
+    /// These are the sorts printed as part of a `get-model` response.
+    pub fn get_declared_sorts(&self) -> Vec<Sort> {
+        let mut size = 0usize;
+        let ptr = unsafe { cvc5_sm_get_declared_sorts(self.inner, &mut size) };
+        (0..size)
+            .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
+    }
+
+    /// Get the terms declared via `declare-fun` and `declare-const` commands.
+    ///
+    /// These are the terms printed in a `get-model` response.
+    pub fn get_declared_terms(&self) -> Vec<Term> {
+        let mut size = 0usize;
+        let ptr = unsafe { cvc5_sm_get_declared_terms(self.inner, &mut size) };
+        (0..size)
+            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+            .collect()
+    }
+
+    /// Get terms that have been given names via the `:named` attribute.
+    ///
+    /// Returns a list of `(term, name)` pairs.
+    pub fn get_named_terms(&self) -> Vec<(Term, String)> {
+        let mut size = 0usize;
+        let mut terms: *mut cvc5_sys::Cvc5Term = std::ptr::null_mut();
+        let mut names: *mut *const std::os::raw::c_char = std::ptr::null_mut();
+        unsafe { cvc5_sm_get_named_terms(self.inner, &mut size, &mut terms, &mut names) };
+        (0..size)
+            .map(|i| unsafe {
+                let t = Term::from_raw(*terms.add(i));
+                let n = std::ffi::CStr::from_ptr(*names.add(i))
+                    .to_string_lossy()
+                    .into_owned();
+                (t, n)
+            })
+            .collect()
+    }
+}
+
+impl Drop for SymbolManager<'_> {
+    fn drop(&mut self) {
+        unsafe { cvc5_symbol_manager_delete(self.inner) }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Command
+// ---------------------------------------------------------------------------
+
+/// A parsed command (e.g. `assert`, `check-sat`, `declare-const`).
+///
+/// Commands are produced by [`InputParser::next_command`] and can be executed
+/// on a solver and symbol manager via [`Command::invoke`].
+pub struct Command {
+    pub(crate) inner: Cvc5Command,
+}
+
+impl Command {
+    pub(crate) fn from_raw(raw: Cvc5Command) -> Self {
+        Self { inner: raw }
+    }
+
+    /// Return `true` if this is a null (empty) command.
+    pub fn is_null(&self) -> bool {
+        self.inner.is_null()
+    }
+
+    /// Execute this command on the given solver and symbol manager.
+    ///
+    /// Returns any output produced by the command (e.g. `sat`, `unsat`,
+    /// model output, etc.).
+    pub fn invoke(&self, solver: &mut Solver<'_>, sm: &mut SymbolManager<'_>) -> String {
+        unsafe {
+            std::ffi::CStr::from_ptr(cvc5_cmd_invoke(self.inner, solver.inner, sm.inner))
+                .to_string_lossy()
+                .into_owned()
+        }
+    }
+
+    /// Get the name of this command (e.g. `"assert"`, `"check-sat"`).
+    pub fn name(&self) -> &str {
+        unsafe {
+            let s = cvc5_cmd_get_name(self.inner);
+            std::ffi::CStr::from_ptr(s).to_str().unwrap_or("")
+        }
+    }
+}
+
+impl fmt::Display for Command {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = unsafe { cvc5_cmd_to_string(self.inner) };
+        let cs = unsafe { std::ffi::CStr::from_ptr(s) };
+        write!(f, "{}", cs.to_string_lossy())
+    }
+}
+
+impl fmt::Debug for Command {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Command({self})")
+    }
+}
+
+// ---------------------------------------------------------------------------
+// InputParser
+// ---------------------------------------------------------------------------
+
+/// Parses SMT-LIB or SyGuS input into commands and terms.
+///
+/// After construction, configure an input source with one of:
+/// - [`set_file_input`](InputParser::set_file_input) — read from a file
+/// - [`set_str_input`](InputParser::set_str_input) — read from a string
+/// - [`set_inc_str_input`](InputParser::set_inc_str_input) +
+///   [`append_inc_str_input`](InputParser::append_inc_str_input) — incremental string feeding
+///
+/// Then call [`next_command`](InputParser::next_command) or
+/// [`next_term`](InputParser::next_term) in a loop until
+/// [`done`](InputParser::done) returns `true`.
+pub struct InputParser<'s, 'tm> {
+    pub(crate) inner: *mut Cvc5InputParser,
+    _solver: PhantomData<&'s Solver<'tm>>,
+}
+
+impl<'s, 'tm> InputParser<'s, 'tm> {
+    /// Create a new input parser.
+    ///
+    /// - `solver` — the solver that parsed commands will target.
+    /// - `sm` — an optional symbol manager. If `None`, the parser creates its
+    ///   own (initially empty) symbol manager internally.
+    ///
+    /// If both the solver and symbol manager have their logic set, the logics
+    /// must be the same.
+    pub fn new(solver: &'s Solver<'tm>, sm: Option<&SymbolManager<'tm>>) -> Self {
+        let sm_ptr = sm.map_or(std::ptr::null_mut(), |s| s.inner);
+        Self {
+            inner: unsafe { cvc5_parser_new(solver.inner, sm_ptr) },
+            _solver: PhantomData,
+        }
+    }
+
+    /// Get the raw pointer to the associated solver.
+    ///
+    /// This is the solver that was passed to [`InputParser::new`].
+    pub fn get_solver_ptr(&self) -> *mut cvc5_sys::Cvc5 {
+        unsafe { cvc5_parser_get_solver(self.inner) }
+    }
+
+    /// Get the raw pointer to the associated symbol manager.
+    ///
+    /// If no symbol manager was provided at construction, this returns the
+    /// internally created one.
+    pub fn get_sm_ptr(&self) -> *mut Cvc5SymbolManager {
+        unsafe { cvc5_parser_get_sm(self.inner) }
+    }
+
+    /// Configure a file as the input source.
+    ///
+    /// - `lang` — the input language (e.g.
+    ///   [`CVC5_INPUT_LANGUAGE_SMT_LIB_2_6`](cvc5_sys::Cvc5InputLanguage::CVC5_INPUT_LANGUAGE_SMT_LIB_2_6)).
+    /// - `filename` — path to the file.
+    pub fn set_file_input(&mut self, lang: InputLanguage, filename: &str) {
+        let f = CString::new(filename).unwrap();
+        unsafe { cvc5_parser_set_file_input(self.inner, lang, f.as_ptr()) }
+    }
+
+    /// Configure a concrete string as the input source.
+    ///
+    /// - `lang` — the input language.
+    /// - `input` — the input string to parse.
+    /// - `name` — a name used in error messages (e.g. `"<stdin>"`).
+    pub fn set_str_input(&mut self, lang: InputLanguage, input: &str, name: &str) {
+        let i = CString::new(input).unwrap();
+        let n = CString::new(name).unwrap();
+        unsafe { cvc5_parser_set_str_input(self.inner, lang, i.as_ptr(), n.as_ptr()) }
+    }
+
+    /// Configure incremental string input mode.
+    ///
+    /// After calling this, feed input with
+    /// [`append_inc_str_input`](InputParser::append_inc_str_input).
+    ///
+    /// - `lang` — the input language.
+    /// - `name` — a name used in error messages.
+    pub fn set_inc_str_input(&mut self, lang: InputLanguage, name: &str) {
+        let n = CString::new(name).unwrap();
+        unsafe { cvc5_parser_set_inc_str_input(self.inner, lang, n.as_ptr()) }
+    }
+
+    /// Append a string to the incremental input stream.
+    ///
+    /// Must be called after [`set_inc_str_input`](InputParser::set_inc_str_input).
+    pub fn append_inc_str_input(&mut self, input: &str) {
+        let i = CString::new(input).unwrap();
+        unsafe { cvc5_parser_append_inc_str_input(self.inner, i.as_ptr()) }
+    }
+
+    /// Parse and return the next command.
+    ///
+    /// Returns:
+    /// - `Ok(Some(cmd))` — a successfully parsed command.
+    /// - `Ok(None)` — no more commands (end of input).
+    /// - `Err(msg)` — a parse error with the error message.
+    ///
+    /// If no logic has been set, the first command that requires one will
+    /// initialize the logic to `"ALL"`.
+    pub fn next_command(&mut self) -> std::result::Result<Option<Command>, String> {
+        let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
+        let cmd = unsafe { cvc5_parser_next_command(self.inner, &mut error_msg) };
+        if !error_msg.is_null() {
+            let msg = unsafe { std::ffi::CStr::from_ptr(error_msg) }
+                .to_string_lossy()
+                .into_owned();
+            return Err(msg);
+        }
+        if cmd.is_null() {
+            Ok(None)
+        } else {
+            Ok(Some(Command::from_raw(cmd)))
+        }
+    }
+
+    /// Parse and return the next term.
+    ///
+    /// Returns:
+    /// - `Ok(Some(term))` — a successfully parsed term.
+    /// - `Ok(None)` — no more terms (end of input).
+    /// - `Err(msg)` — a parse error with the error message.
+    ///
+    /// The logic must be set before calling this method.
+    pub fn next_term(&mut self) -> std::result::Result<Option<Term>, String> {
+        let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
+        let term = unsafe { cvc5_parser_next_term(self.inner, &mut error_msg) };
+        if !error_msg.is_null() {
+            let msg = unsafe { std::ffi::CStr::from_ptr(error_msg) }
+                .to_string_lossy()
+                .into_owned();
+            return Err(msg);
+        }
+        if term.is_null() {
+            Ok(None)
+        } else {
+            Ok(Some(Term::from_raw(term)))
+        }
+    }
+
+    /// Return `true` if the parser has finished reading all input.
+    pub fn done(&self) -> bool {
+        unsafe { cvc5_parser_done(self.inner) }
+    }
+}
+
+impl Drop for InputParser<'_, '_> {
+    fn drop(&mut self) {
+        unsafe { cvc5_parser_delete(self.inner) }
+    }
+}

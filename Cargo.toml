@@ -15,6 +15,7 @@ categories = ["science"]
 homepage = "https://github.com/cvc5/cvc5-rs"
 
 [features]
+parser = ["cvc5-sys/parser"]
 
 [dependencies]
 cvc5-sys = { path = "cvc5-sys" }

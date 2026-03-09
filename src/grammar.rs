@@ -3,7 +3,9 @@ use std::fmt;
 
 use crate::Term;
 
-/// A cvc5 grammar for SyGuS.
+/// A cvc5 grammar for syntax-guided synthesis (SyGuS).
+///
+/// Grammars constrain the space of candidate solutions in synthesis queries.
 pub struct Grammar {
     pub(crate) inner: Cvc5Grammar,
 }
@@ -27,9 +29,12 @@ impl Grammar {
         Self { inner: raw }
     }
 
+    /// Create a copy of this grammar (increments the internal reference count).
     pub fn copy(&self) -> Grammar {
         Grammar::from_raw(unsafe { cvc5_grammar_copy(self.inner) })
     }
+
+    /// Check disequality with another grammar.
     pub fn is_disequal(&self, other: &Grammar) -> bool {
         unsafe { cvc5_grammar_is_disequal(self.inner, other.inner) }
     }

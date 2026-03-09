@@ -3,7 +3,10 @@ use std::fmt;
 
 use crate::Term;
 
-/// A cvc5 proof.
+/// A cvc5 proof object.
+///
+/// Proofs are produced when the solver is configured with
+/// `set_option("produce-proofs", "true")` and a query returns unsat.
 pub struct Proof {
     pub(crate) inner: Cvc5Proof,
 }
@@ -27,25 +30,32 @@ impl Proof {
         Self { inner: raw }
     }
 
+    /// Get the proof rule used at the root of this proof node.
     pub fn rule(&self) -> Cvc5ProofRule {
         unsafe { cvc5_proof_get_rule(self.inner) }
     }
 
+    /// Create a copy of this proof (increments the internal reference count).
     pub fn copy(&self) -> Proof {
         Proof::from_raw(unsafe { cvc5_proof_copy(self.inner) })
     }
+
+    /// Check disequality with another proof.
     pub fn is_disequal(&self, other: &Proof) -> bool {
         unsafe { cvc5_proof_is_disequal(self.inner, other.inner) }
     }
 
+    /// Get the rewrite rule used at the root of this proof node.
     pub fn rewrite_rule(&self) -> Cvc5ProofRewriteRule {
         unsafe { cvc5_proof_get_rewrite_rule(self.inner) }
     }
 
+    /// Get the conclusion (result) of this proof node as a term.
     pub fn result(&self) -> Term {
         Term::from_raw(unsafe { cvc5_proof_get_result(self.inner) })
     }
 
+    /// Get the child proof nodes.
     pub fn children(&self) -> Vec<Proof> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_proof_get_children(self.inner, &mut size) };
@@ -54,6 +64,7 @@ impl Proof {
             .collect()
     }
 
+    /// Get the arguments of this proof node as terms.
     pub fn arguments(&self) -> Vec<Term> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_proof_get_arguments(self.inner, &mut size) };
