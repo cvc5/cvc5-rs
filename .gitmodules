@@ -1,3 +1,4 @@
 [submodule "cvc5"]
 	path = cvc5
 	url = https://github.com/cvc5/cvc5.git
+    ignore = dirty
