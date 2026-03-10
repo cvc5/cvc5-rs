@@ -187,7 +187,7 @@ fn unsat_core() {
 
     let bool_sort = tm.boolean_sort();
     let a = tm.mk_const(bool_sort.clone(), "a");
-    let not_a = tm.mk_term(Kind::CVC5_KIND_NOT, &[a.clone()]);
+    let not_a = tm.mk_term(Kind::CVC5_KIND_NOT, std::slice::from_ref(&a));
 
     solver.assert_formula(a);
     solver.assert_formula(not_a);
@@ -344,7 +344,7 @@ fn proof_basic() {
 
     let b = tm.boolean_sort();
     let a = tm.mk_const(b.clone(), "a");
-    let not_a = tm.mk_term(Kind::CVC5_KIND_NOT, &[a.clone()]);
+    let not_a = tm.mk_term(Kind::CVC5_KIND_NOT, std::slice::from_ref(&a));
     solver.assert_formula(a);
     solver.assert_formula(not_a);
     assert!(solver.check_sat().is_unsat());
@@ -420,7 +420,7 @@ fn synth_result_basic() {
 
     let int = tm.integer_sort();
     let x = tm.mk_var(int.clone(), "x");
-    let f = solver.synth_fun("f", &[x.clone()], int.clone());
+    let f = solver.synth_fun("f", std::slice::from_ref(&x), int.clone());
 
     let zero = tm.mk_integer(0);
     let fx = tm.mk_term(Kind::CVC5_KIND_APPLY_UF, &[f.clone(), x.clone()]);
@@ -440,10 +440,8 @@ fn synth_result_basic() {
     let _ = format!("{sr:?}");
     // hash
     let mut set = std::collections::HashSet::new();
-    set.insert(std::hash::Hash::hash(
-        &sr,
-        &mut std::collections::hash_map::DefaultHasher::new(),
-    ));
+    std::hash::Hash::hash(&sr, &mut std::collections::hash_map::DefaultHasher::new());
+    set.insert(());
 
     let _ = solver.get_synth_solution(f);
 }
@@ -461,7 +459,7 @@ fn grammar_basic() {
     let x = tm.mk_var(int.clone(), "x");
     let start = tm.mk_var(int.clone(), "start");
 
-    let mut g = solver.mk_grammar(&[x.clone()], &[start.clone()]);
+    let mut g = solver.mk_grammar(std::slice::from_ref(&x), std::slice::from_ref(&start));
     g.add_rule(start.clone(), tm.mk_integer(0));
     g.add_rules(start.clone(), &[tm.mk_integer(1), x.clone()]);
     g.add_any_constant(start.clone());
@@ -473,10 +471,8 @@ fn grammar_basic() {
     let _ = format!("{g}");
     let _ = format!("{g:?}");
     let mut set = std::collections::HashSet::new();
-    set.insert(std::hash::Hash::hash(
-        &g,
-        &mut std::collections::hash_map::DefaultHasher::new(),
-    ));
+    std::hash::Hash::hash(&g, &mut std::collections::hash_map::DefaultHasher::new());
+    set.insert(());
 
     let f = solver.synth_fun_with_grammar("f", &[x], int, &g);
     let sr = solver.check_synth();
@@ -1149,7 +1145,7 @@ fn dt_parametric() {
     let tm = TermManager::new();
 
     let t = tm.mk_param_sort("T");
-    let mut decl = tm.mk_dt_decl_with_params("Opt", &[t.clone()], false);
+    let mut decl = tm.mk_dt_decl_with_params("Opt", std::slice::from_ref(&t), false);
     assert!(decl.is_parametric());
 
     let none = tm.mk_dt_cons_decl("None");

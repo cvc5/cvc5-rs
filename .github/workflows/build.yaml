@@ -43,7 +43,7 @@ jobs:
         run: |
           cd cvc5
           if [ ! -f build/src/libcvc5.a ]; then
-            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install
+            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
             cd build && make -j$(nproc)
           fi
 
@@ -56,7 +56,7 @@ jobs:
     name: Test Suite
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
@@ -90,14 +90,14 @@ jobs:
         run: |
           cd cvc5
           if [ ! -f build/src/libcvc5.a ]; then
-            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install
+            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
             cd build && make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
           fi
 
       - uses: Swatinem/rust-cache@v2
 
       - name: Run tests
-        run: cargo test
+        run: cargo test --all-features
 
   lints:
     name: Lints
@@ -131,7 +131,7 @@ jobs:
         run: |
           cd cvc5
           if [ ! -f build/src/libcvc5.a ]; then
-            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install
+            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
             cd build && make -j$(nproc)
           fi
 
@@ -172,7 +172,7 @@ jobs:
         run: |
           cd cvc5
           if [ ! -f build/src/libcvc5.a ]; then
-            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install
+            ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
             cd build && make -j$(nproc)
           fi
 
