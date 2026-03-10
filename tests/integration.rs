@@ -210,7 +210,10 @@ fn qf_alia_arrays() {
     let val = tm.mk_integer(42);
 
     // store(a, 0, 42)
-    let store = tm.mk_term(Kind::CVC5_KIND_STORE, &[a.clone(), idx.clone(), val.clone()]);
+    let store = tm.mk_term(
+        Kind::CVC5_KIND_STORE,
+        &[a.clone(), idx.clone(), val.clone()],
+    );
     // select(store(a, 0, 42), 0) = 42
     let sel = tm.mk_term(Kind::CVC5_KIND_SELECT, &[store, idx]);
     let eq = tm.mk_term(Kind::CVC5_KIND_EQUAL, &[sel, val]);
@@ -237,7 +240,10 @@ fn simple_datatype() {
     assert_eq!(dt.name(), "Color");
 
     let c = tm.mk_const(color_sort, "c");
-    let red_term = tm.mk_term(Kind::CVC5_KIND_APPLY_CONSTRUCTOR, &[dt.constructor(0).term()]);
+    let red_term = tm.mk_term(
+        Kind::CVC5_KIND_APPLY_CONSTRUCTOR,
+        &[dt.constructor(0).term()],
+    );
     let eq = tm.mk_term(Kind::CVC5_KIND_EQUAL, &[c, red_term]);
     solver.assert_formula(eq);
 
@@ -388,10 +394,18 @@ fn statistics_basic() {
         let _ = format!("{stat}");
         let _ = format!("{stat:?}");
         // type checks
-        if stat.is_int() { let _ = stat.get_int(); }
-        if stat.is_double() { let _ = stat.get_double(); }
-        if stat.is_string() { let _ = stat.get_string(); }
-        if stat.is_histogram() { let _ = stat.get_histogram(); }
+        if stat.is_int() {
+            let _ = stat.get_int();
+        }
+        if stat.is_double() {
+            let _ = stat.get_double();
+        }
+        if stat.is_string() {
+            let _ = stat.get_string();
+        }
+        if stat.is_histogram() {
+            let _ = stat.get_histogram();
+        }
     }
 }
 
@@ -426,7 +440,10 @@ fn synth_result_basic() {
     let _ = format!("{sr:?}");
     // hash
     let mut set = std::collections::HashSet::new();
-    set.insert(std::hash::Hash::hash(&sr, &mut std::collections::hash_map::DefaultHasher::new()));
+    set.insert(std::hash::Hash::hash(
+        &sr,
+        &mut std::collections::hash_map::DefaultHasher::new(),
+    ));
 
     let _ = solver.get_synth_solution(f);
 }
@@ -456,7 +473,10 @@ fn grammar_basic() {
     let _ = format!("{g}");
     let _ = format!("{g:?}");
     let mut set = std::collections::HashSet::new();
-    set.insert(std::hash::Hash::hash(&g, &mut std::collections::hash_map::DefaultHasher::new()));
+    set.insert(std::hash::Hash::hash(
+        &g,
+        &mut std::collections::hash_map::DefaultHasher::new(),
+    ));
 
     let f = solver.synth_fun_with_grammar("f", &[x], int, &g);
     let sr = solver.check_synth();
@@ -566,7 +586,10 @@ fn sort_collection_element_sorts() {
 
     assert_eq!(tm.mk_set_sort(int.clone()).set_element_sort(), int);
     assert_eq!(tm.mk_bag_sort(int.clone()).bag_element_sort(), int);
-    assert_eq!(tm.mk_sequence_sort(int.clone()).sequence_element_sort(), int);
+    assert_eq!(
+        tm.mk_sequence_sort(int.clone()).sequence_element_sort(),
+        int
+    );
 }
 
 // ── Sort: tuple accessors ──────────────────────────────────────────
@@ -738,9 +761,18 @@ fn sort_ord() {
 #[test]
 fn sort_kind() {
     let tm = TermManager::new();
-    assert_eq!(tm.boolean_sort().kind(), cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_BOOLEAN_SORT);
-    assert_eq!(tm.integer_sort().kind(), cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_INTEGER_SORT);
-    assert_eq!(tm.real_sort().kind(), cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_REAL_SORT);
+    assert_eq!(
+        tm.boolean_sort().kind(),
+        cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_BOOLEAN_SORT
+    );
+    assert_eq!(
+        tm.integer_sort().kind(),
+        cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_INTEGER_SORT
+    );
+    assert_eq!(
+        tm.real_sort().kind(),
+        cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_REAL_SORT
+    );
 }
 
 // ── Sort: substitute ───────────────────────────────────────────────
@@ -774,10 +806,7 @@ fn sort_substitute_sorts() {
 #[test]
 fn sort_record() {
     let tm = TermManager::new();
-    let rec = tm.mk_record_sort(
-        &["x", "y"],
-        &[tm.integer_sort(), tm.boolean_sort()],
-    );
+    let rec = tm.mk_record_sort(&["x", "y"], &[tm.integer_sort(), tm.boolean_sort()]);
     assert!(rec.is_record());
     assert!(rec.is_dt()); // records are datatypes internally
 }
@@ -789,7 +818,10 @@ fn sort_abstract() {
     let tm = TermManager::new();
     let abs = tm.mk_abstract_sort(cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_BITVECTOR_SORT);
     assert!(abs.is_abstract());
-    assert_eq!(abs.abstract_kind(), cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_BITVECTOR_SORT);
+    assert_eq!(
+        abs.abstract_kind(),
+        cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_BITVECTOR_SORT
+    );
 }
 
 // ── Sort: Clone trait ──────────────────────────────────────────────
@@ -870,10 +902,7 @@ fn dt_constructor_by_name() {
     let mut solver = Solver::new(&tm);
     solver.set_logic("ALL");
 
-    let sort = solver.declare_dt(
-        "AB",
-        &[tm.mk_dt_cons_decl("A"), tm.mk_dt_cons_decl("B")],
-    );
+    let sort = solver.declare_dt("AB", &[tm.mk_dt_cons_decl("A"), tm.mk_dt_cons_decl("B")]);
     let dt = sort.datatype();
     let a = dt.constructor_by_name("A");
     assert_eq!(a.name(), "A");
