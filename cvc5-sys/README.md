@@ -1,6 +1,7 @@
 # cvc5-sys
 
-Low-level FFI bindings for the [cvc5](https://cvc5.github.io/) SMT solver, generated via [bindgen](https://github.com/rust-lang/rust-bindgen) from the cvc5 C API header (`cvc5/c/cvc5.h`).
+Low-level FFI bindings for the [cvc5](https://cvc5.github.io/) SMT solver, generated
+via [bindgen](https://github.com/rust-lang/rust-bindgen) from the cvc5 C API header (`cvc5/c/cvc5.h`).
 
 For a safe, idiomatic Rust API, see the higher-level [`cvc5-rs`](https://github.com/cvc5/cvc5-rs) crate.
 
@@ -26,7 +27,8 @@ cd build && make -j$(nproc)
 The build script locates cvc5 in one of two ways (checked in order):
 
 1. **`CVC5_DIR` environment variable** — set to the cvc5 source root containing `include/` and `build/` directories.
-2. **Sibling `cvc5/` directory** — a built cvc5 checkout next to the `cvc5-sys` crate (the default when using the git submodule).
+2. **Sibling `cvc5/` directory** — a built cvc5 checkout next to the `cvc5-sys` crate (the default when using the git
+   submodule).
 
 ```bash
 # Option 1: explicit path
@@ -36,10 +38,18 @@ CVC5_DIR=/path/to/cvc5 cargo build
 cargo build
 ```
 
+An application can set `CVC5_DIR` in its `.cargo/` folder in the project root to capture cvc5's submodule,
+if one exists:
+
+```toml
+[env]
+CVC5_DIR = { value = "cvc5", relative = true }
+```
+
 ## Features
 
-| Feature  | Description                                      |
-|----------|--------------------------------------------------|
+| Feature  | Description                                       |
+|----------|---------------------------------------------------|
 | `parser` | Also generate and link bindings for `cvc5parser`. |
 
 Enable with:
@@ -56,24 +66,24 @@ All symbols mirror the C API directly. Every call is `unsafe`.
 use cvc5_sys::*;
 
 unsafe {
-    let tm = cvc5_term_manager_new();
-    let slv = cvc5_new(tm);
+let tm = cvc5_term_manager_new();
+let slv = cvc5_new(tm);
 
-    cvc5_set_logic(slv, c"QF_LIA".as_ptr());
-    cvc5_set_option(slv, c"produce-models".as_ptr(), c"true".as_ptr());
+cvc5_set_logic(slv, c"QF_LIA".as_ptr());
+cvc5_set_option(slv, c"produce-models".as_ptr(), c"true".as_ptr());
 
-    let int_sort = cvc5_get_integer_sort(tm);
-    let x = cvc5_mk_const(tm, int_sort, c"x".as_ptr());
-    let zero = cvc5_mk_integer_int64(tm, 0);
+let int_sort = cvc5_get_integer_sort(tm);
+let x = cvc5_mk_const(tm, int_sort, c"x".as_ptr());
+let zero = cvc5_mk_integer_int64(tm, 0);
 
-    let gt = cvc5_mk_term(tm, Cvc5Kind::CVC5_KIND_GT, 2, [x, zero].as_ptr());
-    cvc5_assert_formula(slv, gt);
+let gt = cvc5_mk_term(tm, Cvc5Kind::CVC5_KIND_GT, 2, [x, zero].as_ptr());
+cvc5_assert_formula(slv, gt);
 
-    let result = cvc5_check_sat(slv);
-    assert!(cvc5_result_is_sat(result));
+let result = cvc5_check_sat(slv);
+assert ! (cvc5_result_is_sat(result));
 
-    cvc5_delete(slv);
-    cvc5_term_manager_delete(tm);
+cvc5_delete(slv);
+cvc5_term_manager_delete(tm);
 }
 ```
 
