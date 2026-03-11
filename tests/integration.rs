@@ -81,6 +81,9 @@ fn qf_bv_sat() {
     solver.assert_formula(neq);
 
     assert!(solver.check_sat().is_sat());
+    let x_val = solver.get_value(x);
+    assert!(x_val.is_bv_value());
+    assert_ne!(x_val.bv_value(10), "0");
 }
 
 // ── QF_LRA: linear real arithmetic ─────────────────────────────────
@@ -98,6 +101,9 @@ fn qf_lra_sat() {
     assert!(solver.check_sat().is_sat());
     let val = solver.get_value(x);
     assert!(val.is_real_value());
+    let (num, den) = val.real32_value();
+    assert_eq!(num, 1);
+    assert_eq!(den, 2);
 }
 
 // ── Boolean logic ──────────────────────────────────────────────────
@@ -299,7 +305,8 @@ fn result_full_api() {
     assert!(!sat.is_disequal(&sat2));
     let sat3 = sat.clone();
     assert_eq!(sat, sat3);
-    let _ = format!("{sat:?}");
+    let dbg = format!("{sat:?}");
+    assert!(!dbg.is_empty());
     let mut set = std::collections::HashSet::new();
     set.insert(sat2);
 
@@ -338,7 +345,9 @@ fn result_full_api() {
     solver3.assert_formula(tm3.mk_term(Kind::CVC5_KIND_GT, &[z, two]));
     let unk = solver3.check_sat();
     if unk.is_unknown() {
-        let _ = unk.unknown_explanation();
+        let expl = unk.unknown_explanation();
+        let expl_dbg = format!("{expl:?}");
+        assert!(!expl_dbg.is_empty());
     }
 }
 
@@ -390,8 +399,9 @@ fn op_bv_extract() {
     let x = tm.mk_const(bv8, "x");
     let ext = tm.mk_term_from_op(op, &[x]);
     assert!(ext.has_op());
-    let _ = ext.op();
-    let _ = format!("{:?}", tm.mk_op(Kind::CVC5_KIND_BITVECTOR_EXTRACT, &[3, 1]));
+    assert_eq!(ext.op().kind(), Kind::CVC5_KIND_BITVECTOR_EXTRACT);
+    let dbg = format!("{:?}", tm.mk_op(Kind::CVC5_KIND_BITVECTOR_EXTRACT, &[3, 1]));
+    assert!(!dbg.is_empty());
     // hash
     let mut set = std::collections::HashSet::new();
     set.insert(op3);
@@ -417,17 +427,24 @@ fn proof_basic() {
     assert!(!proofs.is_empty());
 
     let p = &proofs[0];
-    let _ = p.rule();
-    let _ = p.result();
-    let _ = p.children();
-    let _ = p.arguments();
+    let rule = p.rule();
+    assert!(!format!("{rule:?}").is_empty());
+    let result = p.result();
+    assert!(result.sort().is_boolean());
+    let children = p.children();
+    // proof tree has structure
+    let _ = children;
+    let arguments = p.arguments();
+    let _ = arguments;
     let p2 = p.copy();
     assert_eq!(p, &p2);
     assert!(!p.is_disequal(&p2));
-    let _ = format!("{:?}", p);
+    let dbg = format!("{:?}", p);
+    assert!(!dbg.is_empty());
     // hash
     let mut set = std::collections::HashSet::new();
     set.insert(p.copy());
+    assert_eq!(set.len(), 1);
 }
 
 // ── Statistics ─────────────────────────────────────────────────────
@@ -445,32 +462,25 @@ fn statistics_basic() {
     solver.check_sat();
 
     let stats = solver.get_statistics();
-    let _ = format!("{stats}");
-    let _ = format!("{stats:?}");
+    let display = format!("{stats}");
+    assert!(!display.is_empty());
+    let debug = format!("{stats:?}");
+    assert!(!debug.is_empty());
 
-    // iterate
+    // iterate — after check_sat there must be at least one stat
     stats.iter_init(false, false);
-    if stats.iter_has_next() {
-        let (name, stat) = stats.iter_next();
-        assert!(!name.is_empty());
-        let _ = stat.is_internal();
-        let _ = stat.is_default();
-        let _ = format!("{stat}");
-        let _ = format!("{stat:?}");
-        // type checks
-        if stat.is_int() {
-            let _ = stat.get_int();
-        }
-        if stat.is_double() {
-            let _ = stat.get_double();
-        }
-        if stat.is_string() {
-            let _ = stat.get_string();
-        }
-        if stat.is_histogram() {
-            let _ = stat.get_histogram();
-        }
-    }
+    assert!(stats.iter_has_next());
+    let (name, stat) = stats.iter_next();
+    assert!(!name.is_empty());
+    // every stat is either internal or not, default or not — just ensure booleans return
+    let _internal = stat.is_internal();
+    let _default = stat.is_default();
+    let stat_display = format!("{stat}");
+    assert!(!stat_display.is_empty());
+    let stat_debug = format!("{stat:?}");
+    assert!(!stat_debug.is_empty());
+    // at least one type predicate must be true
+    assert!(stat.is_int() || stat.is_double() || stat.is_string() || stat.is_histogram());
 }
 
 // ── SynthResult ────────────────────────────────────────────────────
@@ -500,14 +510,18 @@ fn synth_result_basic() {
     let sr2 = sr.copy();
     assert_eq!(sr, sr2);
     assert!(!sr.is_disequal(&sr2));
-    let _ = format!("{sr}");
-    let _ = format!("{sr:?}");
+    let display = format!("{sr}");
+    assert!(!display.is_empty());
+    let debug = format!("{sr:?}");
+    assert!(!debug.is_empty());
     // hash
     let mut set = std::collections::HashSet::new();
     std::hash::Hash::hash(&sr, &mut std::collections::hash_map::DefaultHasher::new());
     set.insert(());
 
-    let _ = solver.get_synth_solution(f);
+    let sol = solver.get_synth_solution(f);
+    // solution is a term (e.g. a lambda body); verify it's non-null
+    assert!(!format!("{sol}").is_empty());
 }
 
 // ── Grammar ────────────────────────────────────────────────────────
@@ -532,8 +546,10 @@ fn grammar_basic() {
     let g2 = g.copy();
     assert_eq!(g, g2);
     assert!(!g.is_disequal(&g2));
-    let _ = format!("{g}");
-    let _ = format!("{g:?}");
+    let display = format!("{g}");
+    assert!(!display.is_empty());
+    let debug = format!("{g:?}");
+    assert!(!debug.is_empty());
     let mut set = std::collections::HashSet::new();
     std::hash::Hash::hash(&g, &mut std::collections::hash_map::DefaultHasher::new());
     set.insert(());
@@ -541,7 +557,8 @@ fn grammar_basic() {
     let f = solver.synth_fun_with_grammar("f", &[x], int, &g);
     let sr = solver.check_synth();
     assert!(sr.has_solution());
-    let _ = solver.get_synth_solution(f);
+    let sol = solver.get_synth_solution(f);
+    assert!(!format!("{sol}").is_empty());
 }
 
 // ── Sort: type predicates ──────────────────────────────────────────
@@ -2295,9 +2312,13 @@ fn solver_is_model_core_symbol() {
     let one = tm.mk_integer(1);
     solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x.clone(), one]));
     assert!(solver.check_sat().is_sat());
-    // just exercise the API — y is unconstrained so not in core
-    let _ = solver.is_model_core_symbol(x);
-    assert!(!solver.is_model_core_symbol(y));
+    // x is constrained, y is not — at minimum y should not be in core
+    let x_in_core = solver.is_model_core_symbol(x);
+    let y_in_core = solver.is_model_core_symbol(y);
+    // y is unconstrained so must not be in core; x may or may not be
+    assert!(!y_in_core);
+    // if x is in core, that's expected; if not, the solver simplified it away
+    let _ = x_in_core;
 }
 
 // ── get_unsat_core_lemmas ──────────────────────────────────────────
@@ -2316,7 +2337,11 @@ fn solver_unsat_core_lemmas() {
     solver.assert_formula(a);
     solver.assert_formula(not_a);
     assert!(solver.check_sat().is_unsat());
-    let _lemmas = solver.get_unsat_core_lemmas();
+    let lemmas = solver.get_unsat_core_lemmas();
+    // lemmas is a valid vec; each element should be a boolean term
+    for lemma in &lemmas {
+        assert!(lemma.sort().is_boolean());
+    }
 }
 
 // ── proof_to_string ────────────────────────────────────────────────
@@ -2360,9 +2385,13 @@ fn solver_get_learned_literals() {
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
     solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]));
-    solver.check_sat();
-    let _lits =
+    assert!(solver.check_sat().is_sat());
+    let lits =
         solver.get_learned_literals(cvc5_sys::Cvc5LearnedLitType::CVC5_LEARNED_LIT_TYPE_INPUT);
+    // returned vec may be empty but should not panic; verify it's a valid vec
+    for lit in &lits {
+        assert!(lit.sort().is_boolean());
+    }
 }
 
 // ── get_difficulty ─────────────────────────────────────────────────
@@ -2391,7 +2420,8 @@ fn solver_declare_pool() {
     let int = tm.integer_sort();
     let one = tm.mk_integer(1);
     let two = tm.mk_integer(2);
-    let _pool = solver.declare_pool("p", int, &[one, two]);
+    let pool = solver.declare_pool("p", int.clone(), &[one, two]);
+    assert!(pool.sort().is_set());
 }
 
 // ── get_interpolant ────────────────────────────────────────────────
@@ -2525,8 +2555,10 @@ fn solver_sep_logic() {
     solver.assert_formula(pto);
     assert!(solver.check_sat().is_sat());
 
-    let _heap = solver.get_value_sep_heap();
-    let _nil = solver.get_value_sep_nil();
+    let heap = solver.get_value_sep_heap();
+    assert!(!format!("{heap}").is_empty());
+    let nil = solver.get_value_sep_nil();
+    assert!(!format!("{nil}").is_empty());
 }
 
 // ── get_instantiations ─────────────────────────────────────────────
@@ -2554,10 +2586,10 @@ fn solver_get_instantiations() {
     let neg = tm.mk_term(Kind::CVC5_KIND_LT, &[fc, tm.mk_integer(0)]);
     solver.assert_formula(neg);
 
-    let _result = solver.check_sat();
+    let result = solver.check_sat();
+    assert!(result.is_unsat());
     let inst = solver.get_instantiations();
-    // just verify it returns a string without crashing
-    let _ = inst;
+    assert!(!inst.is_empty());
 }
 
 // ── find_synth_with_grammar ─────────────────────────────────────────
@@ -2697,7 +2729,9 @@ fn solver_get_timeout_core() {
     let (result, terms) = solver.get_timeout_core();
     // simple problem should be sat, not timeout
     assert!(result.is_sat() || result.is_unknown());
-    let _ = terms;
+    for t in &terms {
+        assert!(t.sort().is_boolean());
+    }
 }
 
 // ── get_timeout_core_assuming ──────────────────────────────────────
@@ -2717,7 +2751,9 @@ fn solver_get_timeout_core_assuming() {
 
     let (result, terms) = solver.get_timeout_core_assuming(&[gt]);
     assert!(result.is_sat() || result.is_unknown());
-    let _ = terms;
+    for t in &terms {
+        assert!(t.sort().is_boolean());
+    }
 }
 
 // ── get_interpolant_next ───────────────────────────────────────────
