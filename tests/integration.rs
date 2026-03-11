@@ -405,6 +405,7 @@ fn op_bv_extract() {
     // hash
     let mut set = std::collections::HashSet::new();
     set.insert(op3);
+    assert_eq!(set.len(), 1);
 }
 
 // ── Proof ──────────────────────────────────────────────────────────
@@ -432,10 +433,13 @@ fn proof_basic() {
     let result = p.result();
     assert!(result.sort().is_boolean());
     let children = p.children();
-    // proof tree has structure
-    let _ = children;
+    for child in &children {
+        assert!(child.result().sort().is_boolean());
+    }
     let arguments = p.arguments();
-    let _ = arguments;
+    for arg in &arguments {
+        assert!(arg.id() > 0);
+    }
     let p2 = p.copy();
     assert_eq!(p, &p2);
     assert!(!p.is_disequal(&p2));
@@ -472,9 +476,9 @@ fn statistics_basic() {
     assert!(stats.iter_has_next());
     let (name, stat) = stats.iter_next();
     assert!(!name.is_empty());
-    // every stat is either internal or not, default or not — just ensure booleans return
-    let _internal = stat.is_internal();
-    let _default = stat.is_default();
+    // iter_init(false, false) = skip internal, skip default → only changed non-internal stats
+    assert!(!stat.is_internal());
+    assert!(!stat.is_default());
     let stat_display = format!("{stat}");
     assert!(!stat_display.is_empty());
     let stat_debug = format!("{stat:?}");
@@ -1977,9 +1981,9 @@ fn tm_mk_const() {
 #[test]
 fn tm_print_stats_safe() {
     let tm = TermManager::new();
-    // write to /dev/null (fd obtained via open); just verify no crash
-    // Use fd 2 (stderr) as a safe target
     tm.print_stats_safe(2);
+    // tm still usable after printing stats
+    assert!(tm.boolean_sort().is_boolean());
 }
 
 // ── TermManager: mk_string with escape sequences ──────────────────
@@ -2158,7 +2162,8 @@ fn solver_define_fun() {
     let x = tm.mk_var(int.clone(), "x");
     let one = tm.mk_integer(1);
     let body = tm.mk_term(Kind::CVC5_KIND_ADD, &[x.clone(), one]);
-    let _f = solver.define_fun("inc", &[x], int, body, true);
+    let f = solver.define_fun("inc", &[x], int, body, true);
+    assert!(f.sort().is_fun());
 }
 
 // ── define_fun_rec ─────────────────────────────────────────────────
@@ -2175,7 +2180,8 @@ fn solver_define_fun_rec() {
     let zero = tm.mk_integer(0);
     // define f(x) = if x <= 0 then 0 else x + f(x-1)
     // For simplicity, just define f(x) = 0 recursively
-    let _f = solver.define_fun_rec("f", &[x], int, zero, true);
+    let f = solver.define_fun_rec("f", &[x], int, zero, true);
+    assert!(f.sort().is_fun());
 }
 
 // ── define_fun_rec_from_const ──────────────────────────────────────
@@ -2191,7 +2197,8 @@ fn solver_define_fun_rec_from_const() {
     let fun = solver.declare_fun("g", std::slice::from_ref(&int), int.clone());
     let x = tm.mk_var(int.clone(), "x");
     let zero = tm.mk_integer(0);
-    let _f = solver.define_fun_rec_from_const(fun, &[x], zero, true);
+    let f = solver.define_fun_rec_from_const(fun, &[x], zero, true);
+    assert!(f.sort().is_fun());
 }
 
 // ── define_funs_rec ────────────────────────────────────────────────
@@ -2209,6 +2216,8 @@ fn solver_define_funs_rec() {
     let xg = tm.mk_var(int.clone(), "xg");
     let zero = tm.mk_integer(0);
     solver.define_funs_rec(&[f, g], &[&[xf], &[xg]], &[zero.clone(), zero], true);
+    // definitions accepted — verify solver recorded them
+    assert_eq!(solver.get_assertions().len(), 2);
 }
 
 // ── get_model ──────────────────────────────────────────────────────
@@ -2304,12 +2313,9 @@ fn solver_is_model_core_symbol() {
     solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x.clone(), one]));
     assert!(solver.check_sat().is_sat());
     // x is constrained, y is not — at minimum y should not be in core
-    let x_in_core = solver.is_model_core_symbol(x);
-    let y_in_core = solver.is_model_core_symbol(y);
-    // y is unconstrained so must not be in core; x may or may not be
-    assert!(!y_in_core);
-    // if x is in core, that's expected; if not, the solver simplified it away
-    let _ = x_in_core;
+    // x_in_core may vary by solver heuristics, just exercise the API
+    solver.is_model_core_symbol(x);
+    assert!(!solver.is_model_core_symbol(y));
 }
 
 // ── get_unsat_core_lemmas ──────────────────────────────────────────
@@ -2522,8 +2528,9 @@ fn solver_is_output_on() {
 fn solver_print_stats_safe() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    // write to stderr (fd 2), just verify no crash
     solver.print_stats_safe(2);
+    // solver still usable after printing stats
+    assert!(!solver.version().is_empty());
 }
 
 // ── separation logic ──────────────────────────────────────────────
@@ -2694,12 +2701,12 @@ fn solver_quantifier_elimination() {
 fn solver_output_file() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    // Use a temp file path
     let path = "/tmp/cvc5_rs_test_output.txt";
     solver.get_output("inst", path);
     solver.close_output(path);
-    // clean up
-    let _ = std::fs::remove_file(path);
+    // get_output + close_output should not panic; verify solver still usable
+    assert!(!solver.version().is_empty());
+    std::fs::remove_file(path).ok();
 }
 
 // ── get_timeout_core ───────────────────────────────────────────────
