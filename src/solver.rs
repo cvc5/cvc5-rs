@@ -724,35 +724,6 @@ impl<'tm> Solver<'tm> {
         unsafe { cvc5_add_plugin(self.inner, plugin) }
     }
 
-    // ── Oracle ─────────────────────────────────────────────────────
-
-    /// # Safety
-    /// The caller must ensure `state` is valid for the lifetime of the oracle function.
-    pub unsafe fn declare_oracle_fun(
-        &mut self,
-        symbol: &str,
-        sorts: &[Sort],
-        sort: Sort,
-        state: *mut std::ffi::c_void,
-        fun: Option<
-            unsafe extern "C" fn(usize, *const Cvc5Term, *mut std::ffi::c_void) -> Cvc5Term,
-        >,
-    ) -> Term {
-        let c = CString::new(symbol).unwrap();
-        let raw: Vec<Cvc5Sort> = sorts.iter().map(|s| s.inner).collect();
-        Term::from_raw(unsafe {
-            cvc5_declare_oracle_fun(
-                self.inner,
-                c.as_ptr(),
-                raw.len(),
-                raw.as_ptr(),
-                sort.inner,
-                state,
-                fun,
-            )
-        })
-    }
-
     /// Get the cvc5 version string.
     pub fn version(&self) -> String {
         unsafe {
@@ -768,5 +739,3 @@ impl Drop for Solver<'_> {
         unsafe { cvc5_delete(self.inner) }
     }
 }
-
-unsafe impl Send for Solver<'_> {}
