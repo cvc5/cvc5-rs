@@ -160,6 +160,7 @@ fn push_pop() {
 fn check_sat_assuming() {
     let tm = TermManager::new();
     let mut solver = Solver::new(&tm);
+    solver.set_option("produce-unsat-assumptions", "true");
     solver.set_logic("QF_UF");
 
     let bool_sort = tm.boolean_sort();
@@ -172,8 +173,10 @@ fn check_sat_assuming() {
 
     // Assume p AND NOT q — should be unsat
     let not_q = tm.mk_term(Kind::CVC5_KIND_NOT, &[q]);
-    let result = solver.check_sat_assuming(&[p, not_q]);
+    let result = solver.check_sat_assuming(&[p.clone(), not_q.clone()]);
     assert!(result.is_unsat());
+    let unsat_assumptions = solver.get_unsat_assumptions();
+    assert_eq!(unsat_assumptions, vec![p.clone(), not_q.clone()]);
 }
 
 // ── Unsat core ─────────────────────────────────────────────────────
