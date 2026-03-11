@@ -16,7 +16,7 @@ algebraic datatypes, and more.
 ## Prerequisites
 
 - Rust 2024 edition (1.85+)
-- A built cvc5 from source (see [cvc5-sys/README.md](cvc5-sys/README.md) for details)
+- cvc5 1.3.1 built from source (see [cvc5-sys/README.md](cvc5-sys/README.md) for details)
 
 ### Quick Start
 

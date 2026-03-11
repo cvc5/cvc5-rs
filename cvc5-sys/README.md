@@ -7,7 +7,9 @@ For a safe, idiomatic Rust API, see the higher-level [`cvc5-rs`](https://github.
 
 ## Prerequisites
 
-cvc5 must be built from source before building this crate. You need:
+cvc5 1.3.1 must be built from source before building this crate. The build script
+verifies the version and will reject a mismatch (the expected version is declared in
+`Cargo.toml` under `[package.metadata.cvc5]`). You need:
 
 - A C/C++ compiler (GCC or Clang)
 - CMake ≥ 3.16

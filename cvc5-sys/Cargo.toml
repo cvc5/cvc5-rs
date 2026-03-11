@@ -1,6 +1,6 @@
 [package]
 name = "cvc5-sys"
-version = "1.3.1"
+version = "0.1.0"
 edition = "2024"
 build = "build.rs"
 links = "cvc5"
@@ -9,8 +9,12 @@ license = "BSD-3-Clause"
 keywords = ["FFI", "SMT", "solver", "cvc5"]
 categories = ["external-ffi-bindings"]
 
+[package.metadata.cvc5]
+version = "1.3.1"
+
 [features]
 parser = []
 
 [build-dependencies]
 bindgen = { version = "0.72", default-features = false, features = ["runtime"] }
+toml = "0.8"

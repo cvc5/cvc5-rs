@@ -4,6 +4,9 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
 
     let cvc5_dir = find_cvc5_dir();
+    let expected = read_expected_cvc5_version();
+    check_cvc5_version(&cvc5_dir, &expected);
+
     let include_dir = cvc5_dir.join("include");
     let build_dir = cvc5_dir.join("build");
     let build_include_dir = build_dir.join("include");
@@ -114,6 +117,44 @@ fn main() {
                 .expect("Couldn't write parser bindings!");
         }
     }
+}
+
+fn read_expected_cvc5_version() -> String {
+    let manifest = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("Cargo.toml");
+    let content = std::fs::read_to_string(&manifest).expect("Failed to read Cargo.toml");
+    let table: toml::Table = content.parse().expect("Failed to parse Cargo.toml");
+    table["package"]["metadata"]["cvc5"]["version"]
+        .as_str()
+        .expect("Missing version in [package.metadata.cvc5]")
+        .to_string()
+}
+
+fn check_cvc5_version(cvc5_dir: &PathBuf, expected: &str) {
+    let version_file = cvc5_dir.join("cmake/version-base.cmake");
+    assert!(
+        version_file.exists(),
+        "cvc5 version file not found at {}",
+        version_file.display()
+    );
+
+    let content = std::fs::read_to_string(&version_file)
+        .unwrap_or_else(|e| panic!("Failed to read {}: {e}", version_file.display()));
+
+    let version = content
+        .lines()
+        .find_map(|line| {
+            line.strip_prefix("set(CVC5_LAST_RELEASE \"")
+                .and_then(|rest| rest.strip_suffix("\")"))
+        })
+        .unwrap_or_else(|| panic!("CVC5_LAST_RELEASE not found in {}", version_file.display()));
+
+    assert_eq!(
+        version, expected,
+        "cvc5 version mismatch: found {version}, expected {expected}. \
+         Update the cvc5 submodule or change version in [package.metadata.cvc5] in Cargo.toml."
+    );
+
+    println!("cargo:rerun-if-changed={}", version_file.display());
 }
 
 fn find_cvc5_dir() -> PathBuf {
