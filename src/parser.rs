@@ -219,21 +219,6 @@ impl<'s, 'tm> InputParser<'s, 'tm> {
         }
     }
 
-    /// Get the raw pointer to the associated solver.
-    ///
-    /// This is the solver that was passed to [`InputParser::new`].
-    pub fn get_solver_ptr(&self) -> *mut cvc5_sys::Cvc5 {
-        unsafe { cvc5_parser_get_solver(self.inner) }
-    }
-
-    /// Get the raw pointer to the associated symbol manager.
-    ///
-    /// If no symbol manager was provided at construction, this returns the
-    /// internally created one.
-    pub fn get_sm_ptr(&self) -> *mut Cvc5SymbolManager {
-        unsafe { cvc5_parser_get_sm(self.inner) }
-    }
-
     /// Configure a file as the input source.
     ///
     /// - `lang` — the input language (e.g.

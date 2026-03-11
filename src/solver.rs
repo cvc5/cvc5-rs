@@ -22,11 +22,6 @@ impl<'tm> Solver<'tm> {
         }
     }
 
-    /// Get the raw pointer to the underlying term manager.
-    pub fn get_tm(&self) -> *mut Cvc5TermManager {
-        unsafe { cvc5_get_tm(self.inner) }
-    }
-
     // ── Configuration ──────────────────────────────────────────────
 
     /// Set the logic for this solver (e.g. , ).
