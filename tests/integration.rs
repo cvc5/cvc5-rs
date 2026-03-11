@@ -281,6 +281,67 @@ fn result_display() {
     assert!(s == "sat" || s == "unsat" || s == "unknown");
 }
 
+#[test]
+fn result_full_api() {
+    // sat result
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    let sat = solver.check_sat();
+    assert!(sat.is_sat());
+    assert!(!sat.is_unsat());
+    assert!(!sat.is_unknown());
+    assert!(!sat.is_null());
+
+    // copy, clone, eq, hash, debug
+    let sat2 = sat.copy();
+    assert_eq!(sat, sat2);
+    assert!(!sat.is_disequal(&sat2));
+    let sat3 = sat.clone();
+    assert_eq!(sat, sat3);
+    let _ = format!("{sat:?}");
+    let mut set = std::collections::HashSet::new();
+    set.insert(sat2);
+
+    // unsat result — compare with sat
+    let tm2 = TermManager::new();
+    let mut solver2 = Solver::new(&tm2);
+    solver2.set_logic("QF_LIA");
+    let b = tm2.boolean_sort();
+    let a = tm2.mk_const(b.clone(), "a");
+    let not_a = tm2.mk_term(Kind::CVC5_KIND_NOT, std::slice::from_ref(&a));
+    solver2.assert_formula(a);
+    solver2.assert_formula(not_a);
+    let unsat = solver2.check_sat();
+    assert!(unsat.is_unsat());
+    assert!(sat.is_disequal(&unsat));
+    assert_ne!(sat, unsat);
+
+    // unknown result
+    let tm3 = TermManager::new();
+    let mut solver3 = Solver::new(&tm3);
+    solver3.set_logic("QF_NIA");
+    solver3.set_option("tlimit-per", "1");
+    let int = tm3.integer_sort();
+    let x = tm3.mk_const(int.clone(), "x");
+    let y = tm3.mk_const(int.clone(), "y");
+    let z = tm3.mk_const(int, "z");
+    // Fermat-like: x^3 + y^3 = z^3, x,y,z > 1 — likely times out
+    let two = tm3.mk_integer(2);
+    let x3 = tm3.mk_term(Kind::CVC5_KIND_POW, &[x.clone(), tm3.mk_integer(3)]);
+    let y3 = tm3.mk_term(Kind::CVC5_KIND_POW, &[y.clone(), tm3.mk_integer(3)]);
+    let z3 = tm3.mk_term(Kind::CVC5_KIND_POW, &[z.clone(), tm3.mk_integer(3)]);
+    let sum = tm3.mk_term(Kind::CVC5_KIND_ADD, &[x3, y3]);
+    solver3.assert_formula(tm3.mk_term(Kind::CVC5_KIND_EQUAL, &[sum, z3]));
+    solver3.assert_formula(tm3.mk_term(Kind::CVC5_KIND_GT, &[x, two.clone()]));
+    solver3.assert_formula(tm3.mk_term(Kind::CVC5_KIND_GT, &[y, two.clone()]));
+    solver3.assert_formula(tm3.mk_term(Kind::CVC5_KIND_GT, &[z, two]));
+    let unk = solver3.check_sat();
+    if unk.is_unknown() {
+        let _ = unk.unknown_explanation();
+    }
+}
+
 // ── Multiple solvers ───────────────────────────────────────────────
 
 #[test]
@@ -1955,4 +2016,753 @@ fn tm_all_rounding_modes() {
         assert!(t.is_rm_value());
         assert_eq!(t.rm_value(), rm);
     }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Additional solver.rs coverage tests
+// ══════════════════════════════════════════════════════════════════
+
+// ── set_info / get_info ────────────────────────────────────────────
+
+#[test]
+fn solver_set_get_info() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_info("source", "test-suite");
+    let info = solver.get_info("name");
+    assert!(!info.is_empty());
+}
+
+// ── get_option_names ───────────────────────────────────────────────
+
+#[test]
+fn solver_get_option_names() {
+    let tm = TermManager::new();
+    let solver = Solver::new(&tm);
+    let names = solver.get_option_names();
+    assert!(!names.is_empty());
+    assert!(names.iter().any(|n| n == "produce-models"));
+}
+
+// ── get_option_info / option_info_to_string ────────────────────────
+
+#[test]
+fn solver_option_info() {
+    let tm = TermManager::new();
+    let solver = Solver::new(&tm);
+    let info = solver.get_option_info("produce-models");
+    let s = Solver::option_info_to_string(&info);
+    assert!(!s.is_empty());
+}
+
+// ── simplify ───────────────────────────────────────────────────────
+
+#[test]
+fn solver_simplify() {
+    setup!(tm, solver, "QF_LIA");
+    let t = tm.mk_term(Kind::CVC5_KIND_AND, &[tm.mk_true(), tm.mk_true()]);
+    let simplified = solver.simplify(t, false);
+    assert!(simplified.is_boolean_value());
+    assert!(simplified.boolean_value());
+}
+
+// ── get_assertions ─────────────────────────────────────────────────
+
+#[test]
+fn solver_get_assertions() {
+    setup!(tm, solver, "QF_LIA");
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int, "x");
+    let zero = tm.mk_integer(0);
+    let gt = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
+    solver.assert_formula(gt.clone());
+    let assertions = solver.get_assertions();
+    assert_eq!(assertions.len(), 1);
+    assert_eq!(assertions[0], gt);
+}
+
+// ── get_values ─────────────────────────────────────────────────────
+
+#[test]
+fn solver_get_values() {
+    setup!(tm, solver, "QF_LIA");
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int.clone(), "x");
+    let y = tm.mk_const(int, "y");
+    let one = tm.mk_integer(1);
+    let two = tm.mk_integer(2);
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x.clone(), one]));
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[y.clone(), two]));
+    assert!(solver.check_sat().is_sat());
+    let vals = solver.get_values(&[x, y]);
+    assert_eq!(vals.len(), 2);
+    assert_eq!(vals[0].int32_value(), 1);
+    assert_eq!(vals[1].int32_value(), 2);
+}
+
+// ── reset_assertions ───────────────────────────────────────────────
+
+#[test]
+fn solver_reset_assertions() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_option("produce-models", "true");
+    solver.set_logic("QF_LIA");
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int, "x");
+    let zero = tm.mk_integer(0);
+    // assert contradiction
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero.clone()]));
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_LT, &[x, zero]));
+    assert!(solver.check_sat().is_unsat());
+    solver.reset_assertions();
+    // after reset, no assertions → sat
+    assert!(solver.check_sat().is_sat());
+}
+
+// ── declare_fun ────────────────────────────────────────────────────
+
+#[test]
+fn solver_declare_fun() {
+    setup!(tm, solver, "QF_UFLIA");
+    let int = tm.integer_sort();
+    let f = solver.declare_fun("f", std::slice::from_ref(&int), int.clone());
+    let x = tm.mk_const(int, "x");
+    let fx = tm.mk_term(Kind::CVC5_KIND_APPLY_UF, &[f, x]);
+    assert!(fx.sort().is_integer());
+}
+
+// ── declare_sort ───────────────────────────────────────────────────
+
+#[test]
+fn solver_declare_sort() {
+    setup!(tm, solver, "QF_UF");
+    let u = solver.declare_sort("U", 0);
+    assert!(u.is_uninterpreted_sort());
+}
+
+// ── define_fun ─────────────────────────────────────────────────────
+
+#[test]
+fn solver_define_fun() {
+    setup!(tm, solver, "QF_LIA");
+    let int = tm.integer_sort();
+    let x = tm.mk_var(int.clone(), "x");
+    let one = tm.mk_integer(1);
+    let body = tm.mk_term(Kind::CVC5_KIND_ADD, &[x.clone(), one]);
+    let _f = solver.define_fun("inc", &[x], int, body, true);
+}
+
+// ── define_fun_rec ─────────────────────────────────────────────────
+
+#[test]
+fn solver_define_fun_rec() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("UFLIA");
+    solver.set_option("produce-models", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_var(int.clone(), "x");
+    let zero = tm.mk_integer(0);
+    // define f(x) = if x <= 0 then 0 else x + f(x-1)
+    // For simplicity, just define f(x) = 0 recursively
+    let _f = solver.define_fun_rec("f", &[x], int, zero, true);
+}
+
+// ── define_fun_rec_from_const ──────────────────────────────────────
+
+#[test]
+fn solver_define_fun_rec_from_const() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("UFLIA");
+    solver.set_option("produce-models", "true");
+
+    let int = tm.integer_sort();
+    let fun = solver.declare_fun("g", std::slice::from_ref(&int), int.clone());
+    let x = tm.mk_var(int.clone(), "x");
+    let zero = tm.mk_integer(0);
+    let _f = solver.define_fun_rec_from_const(fun, &[x], zero, true);
+}
+
+// ── define_funs_rec ────────────────────────────────────────────────
+
+#[test]
+fn solver_define_funs_rec() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("UFLIA");
+
+    let int = tm.integer_sort();
+    let f = solver.declare_fun("f", std::slice::from_ref(&int), int.clone());
+    let g = solver.declare_fun("g", std::slice::from_ref(&int), int.clone());
+    let xf = tm.mk_var(int.clone(), "xf");
+    let xg = tm.mk_var(int.clone(), "xg");
+    let zero = tm.mk_integer(0);
+    solver.define_funs_rec(&[f, g], &[&[xf], &[xg]], &[zero.clone(), zero], true);
+}
+
+// ── get_model ──────────────────────────────────────────────────────
+
+#[test]
+fn solver_get_model() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_UF");
+    solver.set_option("produce-models", "true");
+
+    let u = solver.declare_sort("U", 0);
+    let x = tm.mk_const(u.clone(), "x");
+    assert!(solver.check_sat().is_sat());
+    let model = solver.get_model(&[u], &[x]);
+    assert!(!model.is_empty());
+}
+
+// ── block_model / block_model_values ───────────────────────────────
+
+#[test]
+fn solver_block_model() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-models", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int.clone(), "x");
+    let zero = tm.mk_integer(0);
+    let ten = tm.mk_integer(10);
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GEQ, &[x.clone(), zero]));
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_LEQ, &[x.clone(), ten]));
+    assert!(solver.check_sat().is_sat());
+    let v1 = solver.get_value(x.clone()).int32_value();
+    solver.block_model(cvc5_sys::Cvc5BlockModelsMode::CVC5_BLOCK_MODELS_MODE_VALUES);
+    assert!(solver.check_sat().is_sat());
+    let v2 = solver.get_value(x).int32_value();
+    assert_ne!(v1, v2);
+}
+
+#[test]
+fn solver_block_model_values() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-models", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int, "x");
+    let zero = tm.mk_integer(0);
+    let ten = tm.mk_integer(10);
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GEQ, &[x.clone(), zero]));
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_LEQ, &[x.clone(), ten]));
+    assert!(solver.check_sat().is_sat());
+    let v1 = solver.get_value(x.clone()).int32_value();
+    solver.block_model_values(std::slice::from_ref(&x));
+    assert!(solver.check_sat().is_sat());
+    let v2 = solver.get_value(x).int32_value();
+    assert_ne!(v1, v2);
+}
+
+// ── get_model_domain_elements / is_model_core_symbol ───────────────
+
+#[test]
+fn solver_model_domain_elements() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_UF");
+    solver.set_option("produce-models", "true");
+
+    let u = solver.declare_sort("U", 0);
+    let x = tm.mk_const(u.clone(), "x");
+    let y = tm.mk_const(u.clone(), "y");
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_DISTINCT, &[x.clone(), y.clone()]));
+    assert!(solver.check_sat().is_sat());
+    let elems = solver.get_model_domain_elements(u);
+    assert!(elems.len() >= 2);
+}
+
+#[test]
+fn solver_is_model_core_symbol() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-models", "true");
+    solver.set_option("model-cores", "simple");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int.clone(), "x");
+    let y = tm.mk_const(int, "y");
+    let one = tm.mk_integer(1);
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x.clone(), one]));
+    assert!(solver.check_sat().is_sat());
+    // just exercise the API — y is unconstrained so not in core
+    let _ = solver.is_model_core_symbol(x);
+    assert!(!solver.is_model_core_symbol(y));
+}
+
+// ── get_unsat_core_lemmas ──────────────────────────────────────────
+
+#[test]
+fn solver_unsat_core_lemmas() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_UF");
+    solver.set_option("produce-unsat-cores", "true");
+    solver.set_option("produce-proofs", "true");
+
+    let b = tm.boolean_sort();
+    let a = tm.mk_const(b, "a");
+    let not_a = tm.mk_term(Kind::CVC5_KIND_NOT, std::slice::from_ref(&a));
+    solver.assert_formula(a);
+    solver.assert_formula(not_a);
+    assert!(solver.check_sat().is_unsat());
+    let _lemmas = solver.get_unsat_core_lemmas();
+}
+
+// ── proof_to_string ────────────────────────────────────────────────
+
+#[test]
+fn solver_proof_to_string() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_UF");
+    solver.set_option("produce-proofs", "true");
+
+    let b = tm.boolean_sort();
+    let a = tm.mk_const(b, "a");
+    let not_a = tm.mk_term(Kind::CVC5_KIND_NOT, std::slice::from_ref(&a));
+    solver.assert_formula(a.clone());
+    solver.assert_formula(not_a.clone());
+    assert!(solver.check_sat().is_unsat());
+
+    let proofs = solver.get_proof(cvc5_sys::Cvc5ProofComponent::CVC5_PROOF_COMPONENT_FULL);
+    assert!(!proofs.is_empty());
+    let s = solver.proof_to_string(
+        proofs[0].copy(),
+        cvc5_sys::Cvc5ProofFormat::CVC5_PROOF_FORMAT_DEFAULT,
+        &[a, not_a],
+        &["a", "not_a"],
+    );
+    assert!(!s.is_empty());
+}
+
+// ── get_learned_literals ───────────────────────────────────────────
+
+#[test]
+fn solver_get_learned_literals() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-models", "true");
+    solver.set_option("produce-learned-literals", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int, "x");
+    let zero = tm.mk_integer(0);
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]));
+    solver.check_sat();
+    let _lits =
+        solver.get_learned_literals(cvc5_sys::Cvc5LearnedLitType::CVC5_LEARNED_LIT_TYPE_INPUT);
+}
+
+// ── get_difficulty ─────────────────────────────────────────────────
+
+#[test]
+fn solver_get_difficulty() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-difficulty", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int, "x");
+    let zero = tm.mk_integer(0);
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]));
+    solver.check_sat();
+    let (inputs, values) = solver.get_difficulty();
+    assert_eq!(inputs.len(), values.len());
+}
+
+// ── declare_pool ───────────────────────────────────────────────────
+
+#[test]
+fn solver_declare_pool() {
+    setup!(tm, solver, "ALL");
+    let int = tm.integer_sort();
+    let one = tm.mk_integer(1);
+    let two = tm.mk_integer(2);
+    let _pool = solver.declare_pool("p", int, &[one, two]);
+}
+
+// ── get_interpolant ────────────────────────────────────────────────
+
+#[test]
+fn solver_get_interpolant() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-interpolants", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int.clone(), "x");
+    let y = tm.mk_const(int, "y");
+    let zero = tm.mk_integer(0);
+    // A: x > 0 AND x = y
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero.clone()]));
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x, y.clone()]));
+    // B (conjecture): y > 0
+    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[y, zero]);
+    let interp = solver.get_interpolant(conj);
+    assert!(interp.sort().is_boolean());
+}
+
+// ── get_abduct ─────────────────────────────────────────────────────
+
+#[test]
+fn solver_get_abduct() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-abducts", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int, "x");
+    let zero = tm.mk_integer(0);
+    // conjecture: x > 0
+    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
+    let abd = solver.get_abduct(conj);
+    assert!(abd.sort().is_boolean());
+}
+
+// ── declare_sygus_var / get_sygus_constraints / get_sygus_assumptions ──
+
+#[test]
+fn solver_sygus_var_and_queries() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("LIA");
+    solver.set_option("sygus", "true");
+
+    let int = tm.integer_sort();
+    let x = solver.declare_sygus_var("x", int.clone());
+    assert!(x.sort().is_integer());
+
+    let f = solver.synth_fun("f", &[], int.clone());
+    let zero = tm.mk_integer(0);
+    // constraint: f() >= 0
+    let ge = tm.mk_term(Kind::CVC5_KIND_GEQ, &[f.clone(), zero.clone()]);
+    solver.add_sygus_constraint(ge);
+    let constraints = solver.get_sygus_constraints();
+    assert_eq!(constraints.len(), 1);
+
+    // assumption
+    let assume = tm.mk_term(Kind::CVC5_KIND_GT, &[f.clone(), zero]);
+    solver.add_sygus_assume(assume);
+    let assumptions = solver.get_sygus_assumptions();
+    assert_eq!(assumptions.len(), 1);
+
+    let sr = solver.check_synth();
+    assert!(sr.has_solution());
+}
+
+// ── get_synth_solutions (multiple) ─────────────────────────────────
+
+#[test]
+fn solver_get_synth_solutions() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("LIA");
+    solver.set_option("sygus", "true");
+
+    let int = tm.integer_sort();
+    let f = solver.synth_fun("f", &[], int.clone());
+    let g = solver.synth_fun("g", &[], int.clone());
+    let zero = tm.mk_integer(0);
+    solver.add_sygus_constraint(tm.mk_term(Kind::CVC5_KIND_GEQ, &[f.clone(), zero.clone()]));
+    solver.add_sygus_constraint(tm.mk_term(Kind::CVC5_KIND_GEQ, &[g.clone(), zero]));
+    assert!(solver.check_synth().has_solution());
+    let sols = solver.get_synth_solutions(&[f, g]);
+    assert_eq!(sols.len(), 2);
+}
+
+// ── is_output_on ───────────────────────────────────────────────────
+
+#[test]
+fn solver_is_output_on() {
+    let tm = TermManager::new();
+    let solver = Solver::new(&tm);
+    // by default, most output tags are off
+    assert!(!solver.is_output_on("inst"));
+}
+
+// ── print_stats_safe ───────────────────────────────────────────────
+
+#[test]
+fn solver_print_stats_safe() {
+    let tm = TermManager::new();
+    let solver = Solver::new(&tm);
+    // write to stderr (fd 2), just verify no crash
+    solver.print_stats_safe(2);
+}
+
+// ── separation logic ──────────────────────────────────────────────
+
+#[test]
+fn solver_sep_logic() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_ALL");
+    solver.set_option("produce-models", "true");
+    solver.set_option("incremental", "false");
+
+    let int = tm.integer_sort();
+    solver.declare_sep_heap(int.clone(), int.clone());
+
+    let x = tm.mk_const(int.clone(), "x");
+    let one = tm.mk_integer(1);
+    // x pto 1
+    let pto = tm.mk_term(Kind::CVC5_KIND_SEP_PTO, &[x.clone(), one]);
+    solver.assert_formula(pto);
+    assert!(solver.check_sat().is_sat());
+
+    let _heap = solver.get_value_sep_heap();
+    let _nil = solver.get_value_sep_nil();
+}
+
+// ── get_instantiations ─────────────────────────────────────────────
+
+#[test]
+fn solver_get_instantiations() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("UFLIA");
+    solver.set_option("produce-models", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_var(int.clone(), "x");
+    let f = solver.declare_fun("f", std::slice::from_ref(&int), int.clone());
+    let fx = tm.mk_term(Kind::CVC5_KIND_APPLY_UF, &[f.clone(), x.clone()]);
+    let zero = tm.mk_integer(0);
+    let ge = tm.mk_term(Kind::CVC5_KIND_GEQ, &[fx, zero]);
+    // forall x. f(x) >= 0
+    let bound = tm.mk_term(Kind::CVC5_KIND_VARIABLE_LIST, &[x]);
+    let forall = tm.mk_term(Kind::CVC5_KIND_FORALL, &[bound, ge]);
+    solver.assert_formula(forall);
+
+    let c = tm.mk_const(int, "c");
+    let fc = tm.mk_term(Kind::CVC5_KIND_APPLY_UF, &[f, c]);
+    let neg = tm.mk_term(Kind::CVC5_KIND_LT, &[fc, tm.mk_integer(0)]);
+    solver.assert_formula(neg);
+
+    let _result = solver.check_sat();
+    let inst = solver.get_instantiations();
+    // just verify it returns a string without crashing
+    let _ = inst;
+}
+
+// ── find_synth_with_grammar ─────────────────────────────────────────
+
+// Note: find_synth, find_synth_with_grammar, and find_synth_next require
+// specific SyGuS setup that is difficult to test in isolation. They are
+// exercised indirectly through the SyGuS workflow tests above.
+
+// ── check_synth_next ───────────────────────────────────────────────
+
+#[test]
+fn solver_check_synth_next() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("LIA");
+    solver.set_option("sygus", "true");
+    solver.set_option("incremental", "true");
+
+    let int = tm.integer_sort();
+    let f = solver.synth_fun("f", &[], int.clone());
+    let zero = tm.mk_integer(0);
+    solver.add_sygus_constraint(tm.mk_term(Kind::CVC5_KIND_GEQ, &[f.clone(), zero]));
+    assert!(solver.check_synth().has_solution());
+    let sr2 = solver.check_synth_next();
+    assert!(sr2.has_solution());
+}
+
+// ── get_interpolant_with_grammar ────────────────────────────────────
+
+#[test]
+fn solver_get_interpolant_with_grammar() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-interpolants", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int.clone(), "x");
+    let y = tm.mk_const(int, "y");
+    let zero = tm.mk_integer(0);
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero.clone()]));
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x, y.clone()]));
+    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[y, zero]);
+
+    let start = tm.mk_var(tm.boolean_sort(), "start");
+    let mut g = solver.mk_grammar(&[], std::slice::from_ref(&start));
+    g.add_rule(start.clone(), tm.mk_true());
+    g.add_rule(start, conj.clone());
+
+    let interp = solver.get_interpolant_with_grammar(conj, &g);
+    assert!(interp.sort().is_boolean());
+}
+
+// ── get_abduct_with_grammar ────────────────────────────────────────
+
+#[test]
+fn solver_get_abduct_with_grammar() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-abducts", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int, "x");
+    let zero = tm.mk_integer(0);
+    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
+
+    let start = tm.mk_var(tm.boolean_sort(), "start");
+    let mut g = solver.mk_grammar(&[], std::slice::from_ref(&start));
+    g.add_rule(start.clone(), conj.clone());
+    g.add_rule(start, tm.mk_true());
+
+    let abd = solver.get_abduct_with_grammar(conj, &g);
+    assert!(abd.sort().is_boolean());
+}
+
+// ── get_quantifier_elimination ─────────────────────────────────────
+
+#[test]
+fn solver_quantifier_elimination() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("LIA");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_var(int.clone(), "x");
+    let y = tm.mk_const(int, "y");
+    let zero = tm.mk_integer(0);
+
+    // exists x. (x > 0 AND y = x)  =>  y > 0
+    let body = tm.mk_term(
+        Kind::CVC5_KIND_AND,
+        &[
+            tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero]),
+            tm.mk_term(Kind::CVC5_KIND_EQUAL, &[y, x.clone()]),
+        ],
+    );
+    let bound = tm.mk_term(Kind::CVC5_KIND_VARIABLE_LIST, &[x]);
+    let exists = tm.mk_term(Kind::CVC5_KIND_EXISTS, &[bound, body]);
+
+    let result = solver.get_quantifier_elimination(exists.clone());
+    assert!(result.sort().is_boolean());
+
+    let partial = solver.get_quantifier_elimination_disjunct(exists);
+    assert!(partial.sort().is_boolean());
+}
+
+// ── get_output / close_output ──────────────────────────────────────
+
+#[test]
+fn solver_output_file() {
+    let tm = TermManager::new();
+    let solver = Solver::new(&tm);
+    // Use a temp file path
+    let path = "/tmp/cvc5_rs_test_output.txt";
+    solver.get_output("inst", path);
+    solver.close_output(path);
+    // clean up
+    let _ = std::fs::remove_file(path);
+}
+
+// ── get_timeout_core ───────────────────────────────────────────────
+
+#[test]
+fn solver_get_timeout_core() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-unsat-cores", "true");
+    solver.set_option("timeout-core-timeout", "100");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int, "x");
+    let one = tm.mk_integer(1);
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x, one]));
+
+    let (result, terms) = solver.get_timeout_core();
+    // simple problem should be sat, not timeout
+    assert!(result.is_sat() || result.is_unknown());
+    let _ = terms;
+}
+
+// ── get_timeout_core_assuming ──────────────────────────────────────
+
+#[test]
+fn solver_get_timeout_core_assuming() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-unsat-cores", "true");
+    solver.set_option("timeout-core-timeout", "100");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int, "x");
+    let zero = tm.mk_integer(0);
+    let gt = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
+
+    let (result, terms) = solver.get_timeout_core_assuming(&[gt]);
+    assert!(result.is_sat() || result.is_unknown());
+    let _ = terms;
+}
+
+// ── get_interpolant_next ───────────────────────────────────────────
+
+#[test]
+fn solver_get_interpolant_next() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-interpolants", "true");
+    solver.set_option("incremental", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int.clone(), "x");
+    let y = tm.mk_const(int, "y");
+    let zero = tm.mk_integer(0);
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero.clone()]));
+    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x, y.clone()]));
+    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[y, zero]);
+
+    let interp1 = solver.get_interpolant(conj.clone());
+    assert!(interp1.sort().is_boolean());
+
+    let interp2 = solver.get_interpolant_next();
+    assert!(interp2.sort().is_boolean());
+}
+
+// ── get_abduct_next ────────────────────────────────────────────────
+
+#[test]
+fn solver_get_abduct_next() {
+    let tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
+    solver.set_logic("QF_LIA");
+    solver.set_option("produce-abducts", "true");
+    solver.set_option("incremental", "true");
+
+    let int = tm.integer_sort();
+    let x = tm.mk_const(int, "x");
+    let zero = tm.mk_integer(0);
+    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
+
+    let abd1 = solver.get_abduct(conj.clone());
+    assert!(abd1.sort().is_boolean());
+
+    let abd2 = solver.get_abduct_next();
+    assert!(abd2.sort().is_boolean());
 }
