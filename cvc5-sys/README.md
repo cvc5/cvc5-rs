@@ -7,20 +7,22 @@ For a safe, idiomatic Rust API, see the higher-level [`cvc5-rs`](https://github.
 
 ## Prerequisites
 
-cvc5 1.3.1 must be built from source before building this crate. The build script
-verifies the version and will reject a mismatch (the expected version is declared in
-`Cargo.toml` under `[package.metadata.cvc5]`). You need:
+This crate wraps cvc5 1.3.1 (the expected version is declared in `Cargo.toml` under
+`[package.metadata.cvc5]`). If cvc5 has not been compiled yet, the build script runs
+`configure.sh --static --auto-download` and `make` automatically. You need:
 
 - A C/C++ compiler (GCC or Clang)
 - CMake ≥ 3.16
 - libclang (required by bindgen)
 
-### Building cvc5
+### Building cvc5 manually (optional)
+
+The build script handles this automatically, but you can also build cvc5 yourself:
 
 ```bash
 git submodule update --init
 cd cvc5
-./configure.sh --static --auto-download
+./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
 cd build && make -j$(nproc)
 ```
 
