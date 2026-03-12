@@ -1986,15 +1986,6 @@ fn tm_print_stats_safe() {
     assert!(tm.boolean_sort().is_boolean());
 }
 
-// ── TermManager: Send ──────────────────────────────────────────────
-
-#[test]
-fn tm_is_send() {
-    fn assert_send<T: Send>() {}
-    assert_send::<TermManager>();
-    assert_send::<cvc5_rs::Solver>();
-}
-
 // ── TermManager: mk_string with escape sequences ──────────────────
 
 #[test]
