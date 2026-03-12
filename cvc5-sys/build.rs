@@ -1,4 +1,5 @@
-use std::{env, path::PathBuf};
+use std::path::Path;
+use std::{env, path::PathBuf, process::Command};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
@@ -6,6 +7,7 @@ fn main() {
     let cvc5_dir = find_cvc5_dir();
     let expected = read_expected_cvc5_version();
     check_cvc5_version(&cvc5_dir, &expected);
+    ensure_cvc5_built(&cvc5_dir);
 
     let include_dir = cvc5_dir.join("include");
     let build_dir = cvc5_dir.join("build");
@@ -129,7 +131,7 @@ fn read_expected_cvc5_version() -> String {
         .to_string()
 }
 
-fn check_cvc5_version(cvc5_dir: &PathBuf, expected: &str) {
+fn check_cvc5_version(cvc5_dir: &Path, expected: &str) {
     let version_file = cvc5_dir.join("cmake/version-base.cmake");
     assert!(
         version_file.exists(),
@@ -155,6 +157,55 @@ fn check_cvc5_version(cvc5_dir: &PathBuf, expected: &str) {
     );
 
     println!("cargo:rerun-if-changed={}", version_file.display());
+}
+
+#[cfg(unix)]
+fn ensure_cvc5_built(cvc5_dir: &PathBuf) {
+    if cvc5_dir.join("build/src/libcvc5.a").exists() {
+        return;
+    }
+
+    eprintln!("cvc5 not yet built — running configure and make (this may take a while)...");
+
+    let configure = cvc5_dir.join("configure.sh");
+    assert!(
+        configure.exists(),
+        "configure.sh not found at {}",
+        configure.display()
+    );
+
+    let build_dir = cvc5_dir.join("build");
+
+    let status = Command::new("bash")
+        .arg(&configure)
+        .arg("--static")
+        .arg("--auto-download")
+        .arg(format!("--prefix={}/install", build_dir.display()))
+        .arg("-DBUILD_GMP=1")
+        .current_dir(cvc5_dir)
+        .status()
+        .expect("Failed to run configure.sh");
+    assert!(status.success(), "cvc5 configure.sh failed");
+
+    let jobs = std::thread::available_parallelism()
+        .map(|n| n.get().to_string())
+        .unwrap_or_else(|_| "4".to_string());
+
+    let status = Command::new("make")
+        .arg(format!("-j{jobs}"))
+        .current_dir(cvc5_dir.join("build"))
+        .status()
+        .expect("Failed to run make");
+    assert!(status.success(), "cvc5 build failed");
+}
+
+#[cfg(not(unix))]
+fn ensure_cvc5_built(cvc5_dir: &PathBuf) {
+    assert!(
+        cvc5_dir.join("build/src/libcvc5.a").exists(),
+        "cvc5 is not built and automatic building is only supported on Unix. \
+         Please build cvc5 manually before running cargo build."
+    );
 }
 
 fn find_cvc5_dir() -> PathBuf {

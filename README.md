@@ -16,7 +16,8 @@ algebraic datatypes, and more.
 ## Prerequisites
 
 - Rust 2024 edition (1.85+)
-- cvc5 1.3.1 built from source (see [cvc5-sys/README.md](cvc5-sys/README.md) for details)
+- cvc5 1.3.1 source (included as a git submodule; built automatically by `cvc5-sys` if needed)
+- A C/C++ compiler, CMake ≥ 3.16, and libclang (for bindgen)
 
 ### Quick Start
 
@@ -24,12 +25,7 @@ algebraic datatypes, and more.
 git clone --recurse-submodules https://github.com/cvc5/cvc5-rs.git
 cd cvc5-rs
 
-# Build cvc5 from source
-cd cvc5
-./configure.sh --static --auto-download
-cd build && make -j$(nproc) && cd ../..
-
-# Build the Rust crates
+# Build everything (cvc5 is compiled automatically on first run)
 cargo build
 ```
 
