@@ -35,7 +35,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cvc5-rs = { path = "path/to/cvc5-rs" }
+cvc5-rs = "0.1"
 ```
 
 An application can set `CVC5_DIR` in its `.cargo/` folder in the project root to capture cvc5's submodule,
