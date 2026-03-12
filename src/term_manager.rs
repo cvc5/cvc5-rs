@@ -466,5 +466,3 @@ impl Drop for TermManager {
         unsafe { cvc5_term_manager_delete(self.inner) }
     }
 }
-
-unsafe impl Send for TermManager {}
