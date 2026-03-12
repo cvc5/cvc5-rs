@@ -6,6 +6,7 @@ build = "build.rs"
 links = "cvc5"
 description = "Low-level FFI bindings for the cvc5 SMT solver"
 license = "BSD-3-Clause"
+repository = "https://github.com/cvc5/cvc5-rs"
 keywords = ["FFI", "SMT", "solver", "cvc5"]
 categories = ["external-ffi-bindings"]
 

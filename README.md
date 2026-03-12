@@ -16,8 +16,9 @@ algebraic datatypes, and more.
 ## Prerequisites
 
 - Rust 2024 edition (1.85+)
-- cvc5 1.3.1 source (included as a git submodule; built automatically by `cvc5-sys` if needed)
+- cvc5 1.3.1 source (included as a git submodule in `cvc5-sys/cvc5`; built automatically by `cvc5-sys` if needed)
 - A C/C++ compiler, CMake ≥ 3.16, and libclang (for bindgen)
+- Git (for automatic source download when installed from crates.io)
 
 ### Quick Start
 
@@ -38,8 +39,8 @@ Add to your `Cargo.toml`:
 cvc5-rs = "0.1"
 ```
 
-An application can set `CVC5_DIR` in its `.cargo/` folder in the project root to capture cvc5's submodule,
-if one exists, so that `cvc5-sys` can build against a proper `cvc5`:
+An application can set `CVC5_DIR` in its `.cargo/config.toml` to point to a local cvc5 checkout
+so that `cvc5-sys` can build against it:
 
 ```toml
 [env]

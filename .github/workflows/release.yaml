@@ -24,7 +24,7 @@ jobs:
 
       - name: Build cvc5
         run: |
-          cd cvc5
+          cd cvc5-sys/cvc5
           ./configure.sh --static --auto-download --prefix=$(pwd)/build/install
           cd build && make -j$(nproc)
 
