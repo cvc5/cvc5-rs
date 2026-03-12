@@ -218,18 +218,28 @@ fn find_cvc5_dir() -> PathBuf {
         }
     }
 
-    // 2. Check for sibling cvc5 directory (submodule)
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    let sibling = manifest_dir.parent().unwrap().join("cvc5");
-    if sibling.join("include/cvc5/c/cvc5.h").exists() {
-        return sibling;
+
+    // 2. Check for cvc5 directory inside cvc5-sys (submodule or clone)
+    let local = manifest_dir.join("cvc5");
+    if local.join("include/cvc5/c/cvc5.h").exists() {
+        return local;
     }
 
-    panic!(
-        "Could not find cvc5. Set CVC5_DIR to the cvc5 source root \
-         (containing include/ and build/ directories), or place a built \
-         cvc5 checkout as a sibling directory."
-    );
+    // 3. Auto-clone cvc5 at the expected version (crates.io scenario)
+    let expected = read_expected_cvc5_version();
+    let tag = format!("cvc5-{expected}");
+    eprintln!("cvc5 source not found — cloning tag {tag} from GitHub...");
+
+    let status = Command::new("git")
+        .args(["clone", "--depth", "1", "--branch", &tag])
+        .arg("https://github.com/cvc5/cvc5.git")
+        .arg(&local)
+        .status()
+        .expect("Failed to run git clone — is git installed?");
+    assert!(status.success(), "git clone of cvc5 tag {tag} failed");
+
+    local
 }
 
 fn link_cxx_stdlib() {

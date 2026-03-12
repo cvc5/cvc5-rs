@@ -35,13 +35,13 @@ jobs:
       - name: Cache cvc5 build
         uses: actions/cache@v4
         with:
-          path: cvc5/build
-          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5/**/*.cmake', 'cvc5/CMakeLists.txt') }}
+          path: cvc5-sys/cvc5/build
+          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5-sys/cvc5/**/*.cmake', 'cvc5-sys/cvc5/CMakeLists.txt') }}
           restore-keys: ${{ runner.os }}-cvc5-
 
       - name: Build cvc5
         run: |
-          cd cvc5
+          cd cvc5-sys/cvc5
           if [ ! -f build/src/libcvc5.a ]; then
             ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
             cd build && make -j$(nproc)
@@ -82,13 +82,13 @@ jobs:
       - name: Cache cvc5 build
         uses: actions/cache@v4
         with:
-          path: cvc5/build
-          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5/**/*.cmake', 'cvc5/CMakeLists.txt') }}
+          path: cvc5-sys/cvc5/build
+          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5-sys/cvc5/**/*.cmake', 'cvc5-sys/cvc5/CMakeLists.txt') }}
           restore-keys: ${{ runner.os }}-cvc5-
 
       - name: Build cvc5
         run: |
-          cd cvc5
+          cd cvc5-sys/cvc5
           if [ ! -f build/src/libcvc5.a ]; then
             ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
             cd build && make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
@@ -123,13 +123,13 @@ jobs:
       - name: Cache cvc5 build
         uses: actions/cache@v4
         with:
-          path: cvc5/build
-          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5/**/*.cmake', 'cvc5/CMakeLists.txt') }}
+          path: cvc5-sys/cvc5/build
+          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5-sys/cvc5/**/*.cmake', 'cvc5-sys/cvc5/CMakeLists.txt') }}
           restore-keys: ${{ runner.os }}-cvc5-
 
       - name: Build cvc5
         run: |
-          cd cvc5
+          cd cvc5-sys/cvc5
           if [ ! -f build/src/libcvc5.a ]; then
             ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
             cd build && make -j$(nproc)
@@ -164,13 +164,13 @@ jobs:
       - name: Cache cvc5 build
         uses: actions/cache@v4
         with:
-          path: cvc5/build
-          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5/**/*.cmake', 'cvc5/CMakeLists.txt') }}
+          path: cvc5-sys/cvc5/build
+          key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5-sys/cvc5/**/*.cmake', 'cvc5-sys/cvc5/CMakeLists.txt') }}
           restore-keys: ${{ runner.os }}-cvc5-
 
       - name: Build cvc5
         run: |
-          cd cvc5
+          cd cvc5-sys/cvc5
           if [ ! -f build/src/libcvc5.a ]; then
             ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
             cd build && make -j$(nproc)
