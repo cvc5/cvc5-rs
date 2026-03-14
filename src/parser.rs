@@ -29,9 +29,9 @@
 
 use cvc5_sys::Cvc5InputLanguage as InputLanguage;
 use cvc5_sys::parser::*;
+use std::borrow::Borrow;
 use std::ffi::CString;
 use std::fmt;
-use std::marker::PhantomData;
 
 use crate::{Solver, Sort, Term, TermManager};
 
@@ -46,17 +46,18 @@ use crate::{Solver, Sort, Term, TermManager};
 ///
 /// A `SymbolManager` can be shared with an [`InputParser`] so that parsed
 /// commands update the same symbol table.
-pub struct SymbolManager<'tm> {
+pub struct SymbolManager {
     pub(crate) inner: *mut Cvc5SymbolManager,
-    _tm: PhantomData<&'tm TermManager>,
+    _tm: TermManager,
 }
 
-impl<'tm> SymbolManager<'tm> {
+impl SymbolManager {
     /// Create a new symbol manager associated with the given term manager.
-    pub fn new(tm: &'tm TermManager) -> Self {
+    pub fn new(tm: impl Borrow<TermManager>) -> Self {
+        let tm = tm.borrow().clone();
         Self {
-            inner: unsafe { cvc5_symbol_manager_new(tm.inner) },
-            _tm: PhantomData,
+            inner: unsafe { cvc5_symbol_manager_new(tm.ptr()) },
+            _tm: tm,
         }
     }
 
@@ -119,7 +120,7 @@ impl<'tm> SymbolManager<'tm> {
     }
 }
 
-impl Drop for SymbolManager<'_> {
+impl Drop for SymbolManager {
     fn drop(&mut self) {
         unsafe { cvc5_symbol_manager_delete(self.inner) }
     }
@@ -151,7 +152,7 @@ impl Command {
     ///
     /// Returns any output produced by the command (e.g. `sat`, `unsat`,
     /// model output, etc.).
-    pub fn invoke(&self, solver: &mut Solver<'_>, sm: &mut SymbolManager<'_>) -> String {
+    pub fn invoke(&self, solver: &mut Solver, sm: &mut SymbolManager) -> String {
         unsafe {
             std::ffi::CStr::from_ptr(cvc5_cmd_invoke(self.inner, solver.inner, sm.inner))
                 .to_string_lossy()
@@ -197,12 +198,12 @@ impl fmt::Debug for Command {
 /// Then call [`next_command`](InputParser::next_command) or
 /// [`next_term`](InputParser::next_term) in a loop until
 /// [`done`](InputParser::done) returns `true`.
-pub struct InputParser<'s, 'tm> {
+pub struct InputParser {
     pub(crate) inner: *mut Cvc5InputParser,
-    _solver: PhantomData<&'s Solver<'tm>>,
+    _tm: TermManager,
 }
 
-impl<'s, 'tm> InputParser<'s, 'tm> {
+impl InputParser {
     /// Create a new input parser.
     ///
     /// - `solver` — the solver that parsed commands will target.
@@ -211,11 +212,11 @@ impl<'s, 'tm> InputParser<'s, 'tm> {
     ///
     /// If both the solver and symbol manager have their logic set, the logics
     /// must be the same.
-    pub fn new(solver: &'s Solver<'tm>, sm: Option<&SymbolManager<'tm>>) -> Self {
+    pub fn new(solver: &Solver, sm: Option<&SymbolManager>) -> Self {
         let sm_ptr = sm.map_or(std::ptr::null_mut(), |s| s.inner);
         Self {
             inner: unsafe { cvc5_parser_new(solver.inner, sm_ptr) },
-            _solver: PhantomData,
+            _tm: solver._tm.clone(),
         }
     }
 
@@ -315,7 +316,7 @@ impl<'s, 'tm> InputParser<'s, 'tm> {
     }
 }
 
-impl Drop for InputParser<'_, '_> {
+impl Drop for InputParser {
     fn drop(&mut self) {
         unsafe { cvc5_parser_delete(self.inner) }
     }
