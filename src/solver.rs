@@ -1,6 +1,6 @@
 use cvc5_sys::*;
+use std::borrow::Borrow;
 use std::ffi::CString;
-use std::marker::PhantomData;
 
 use crate::{
     DatatypeConstructorDecl, Grammar, Proof, Result, Sort, Statistics, SynthResult, Term,
@@ -8,17 +8,21 @@ use crate::{
 };
 
 /// A cvc5 solver instance.
-pub struct Solver<'tm> {
+///
+/// Holds a clone of the [`TermManager`] that created it, ensuring the
+/// underlying C term manager outlives this solver.
+pub struct Solver {
     pub(crate) inner: *mut Cvc5,
-    _tm: PhantomData<&'tm TermManager>,
+    pub(crate) _tm: TermManager,
 }
 
-impl<'tm> Solver<'tm> {
-    /// Create a new solver instance tied to the given term manager.
-    pub fn new(tm: &'tm TermManager) -> Self {
+impl Solver {
+    /// Create a new solver instance from the given term manager.
+    pub fn new(tm: impl Borrow<TermManager>) -> Self {
+        let tm = tm.borrow().clone();
         Self {
-            inner: unsafe { cvc5_new(tm.inner) },
-            _tm: PhantomData,
+            inner: unsafe { cvc5_new(tm.ptr()) },
+            _tm: tm,
         }
     }
 
@@ -734,7 +738,7 @@ impl<'tm> Solver<'tm> {
     }
 }
 
-impl Drop for Solver<'_> {
+impl Drop for Solver {
     fn drop(&mut self) {
         unsafe { cvc5_delete(self.inner) }
     }
