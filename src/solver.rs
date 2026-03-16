@@ -13,7 +13,7 @@ use crate::{
 /// underlying C term manager outlives this solver.
 pub struct Solver {
     pub(crate) inner: *mut Cvc5,
-    pub(crate) _tm: TermManager,
+    pub(crate) tm: TermManager,
 }
 
 impl Solver {
@@ -22,8 +22,13 @@ impl Solver {
         let tm = tm.borrow().clone();
         Self {
             inner: unsafe { cvc5_new(tm.ptr()) },
-            _tm: tm,
+            tm,
         }
+    }
+
+    /// Return the underlying term manager
+    pub fn term_manager(&self) -> TermManager {
+        self.tm.clone()
     }
 
     // ── Configuration ──────────────────────────────────────────────

@@ -48,7 +48,7 @@ use crate::{Solver, Sort, Term, TermManager};
 /// commands update the same symbol table.
 pub struct SymbolManager {
     pub(crate) inner: *mut Cvc5SymbolManager,
-    _tm: TermManager,
+    tm: TermManager,
 }
 
 impl SymbolManager {
@@ -57,8 +57,13 @@ impl SymbolManager {
         let tm = tm.borrow().clone();
         Self {
             inner: unsafe { cvc5_symbol_manager_new(tm.ptr()) },
-            _tm: tm,
+            tm,
         }
+    }
+
+    /// Return the underlying term manager
+    pub fn term_manager(&self) -> TermManager {
+        self.tm.clone()
     }
 
     /// Return whether the logic has been set.
@@ -216,7 +221,7 @@ impl InputParser {
         let sm_ptr = sm.map_or(std::ptr::null_mut(), |s| s.inner);
         Self {
             inner: unsafe { cvc5_parser_new(solver.inner, sm_ptr) },
-            _tm: solver._tm.clone(),
+            _tm: solver.tm.clone(),
         }
     }
 
