@@ -47,6 +47,21 @@ so that `cvc5-sys` can build against it:
 CVC5_DIR = { value = "cvc5", relative = true }
 ```
 
+### Linking Against a Prebuilt cvc5
+
+If you already have cvc5 built, you can skip the automatic build by setting `CVC5_LIB_DIR` to the
+directory containing the static libraries (`libcvc5.a`, etc.):
+
+```bash
+CVC5_LIB_DIR=/path/to/cvc5/build/lib cargo build
+```
+
+Headers are expected at `$CVC5_LIB_DIR/../include` by default. To override, set `CVC5_INCLUDE_DIR`:
+
+```bash
+CVC5_LIB_DIR=/path/to/libs CVC5_INCLUDE_DIR=/path/to/include cargo build
+```
+
 ### Example: Linear Integer Arithmetic
 
 ```rust

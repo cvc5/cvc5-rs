@@ -3,6 +3,13 @@ use std::{env, path::PathBuf, process::Command};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-env-changed=CVC5_LIB_DIR");
+
+    // If CVC5_LIB_DIR is set, link directly without building cvc5.
+    if let Ok(lib_dir) = env::var("CVC5_LIB_DIR") {
+        link_prebuilt(&PathBuf::from(lib_dir));
+        return;
+    }
 
     let cvc5_dir = find_cvc5_dir();
     let expected = read_expected_cvc5_version();
@@ -44,6 +51,11 @@ fn main() {
     // Link C++ stdlib
     link_cxx_stdlib();
 
+    // Generate bindings
+    generate_bindings(&include_dir, &build_include_dir);
+}
+
+fn generate_bindings(include_dir: &Path, build_include_dir: &Path) {
     // Generate bindings from the C API header
     let header = include_dir.join("cvc5/c/cvc5.h");
     assert!(
@@ -244,6 +256,51 @@ fn find_cvc5_dir() -> PathBuf {
     assert!(status.success(), "git clone of cvc5 tag {tag} failed");
 
     out
+}
+
+/// Link against prebuilt cvc5 libraries and generate bindings.
+///
+/// `lib_dir` is the directory containing the static libraries (libcvc5.a, etc.).
+/// Headers are located via `CVC5_INCLUDE_DIR` env var, or `<lib_dir>/../include`.
+fn link_prebuilt(lib_dir: &Path) {
+    println!("cargo:rerun-if-env-changed=CVC5_INCLUDE_DIR");
+
+    assert!(
+        lib_dir.exists(),
+        "CVC5_LIB_DIR does not exist: {}",
+        lib_dir.display()
+    );
+
+    // Find include directory
+    let include_dir = match env::var("CVC5_INCLUDE_DIR") {
+        Ok(d) => PathBuf::from(d),
+        Err(_) => lib_dir.join("../include"),
+    };
+    let include_dir = include_dir.canonicalize().unwrap_or_else(|_| {
+        panic!(
+            "Include directory not found. Set CVC5_INCLUDE_DIR or ensure \
+             {}/include exists.",
+            lib_dir.join("..").display()
+        )
+    });
+
+    // Link
+    println!("cargo:rustc-link-search=native={}", lib_dir.display());
+    println!("cargo:rustc-link-lib=static=cvc5");
+
+    if cfg!(feature = "parser") {
+        println!("cargo:rustc-link-lib=static=cvc5parser");
+    }
+
+    // Link bundled dependencies if present
+    for lib in &["cadical", "picpoly", "picpolyxx", "gmp"] {
+        if lib_dir.join(format!("lib{lib}.a")).exists() {
+            println!("cargo:rustc-link-lib=static={lib}");
+        }
+    }
+
+    link_cxx_stdlib();
+    generate_bindings(&include_dir, &include_dir);
 }
 
 fn link_cxx_stdlib() {
