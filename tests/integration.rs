@@ -2440,7 +2440,7 @@ fn solver_get_interpolant() {
     // B (conjecture): y > 0
     let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[y, zero]);
     let interp = solver.get_interpolant(conj);
-    assert!(interp.sort().is_boolean());
+    assert!(interp.unwrap().sort().is_boolean());
 }
 
 // ── get_abduct ─────────────────────────────────────────────────────
@@ -2458,7 +2458,7 @@ fn solver_get_abduct() {
     // conjecture: x > 0
     let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
     let abd = solver.get_abduct(conj);
-    assert!(abd.sort().is_boolean());
+    assert!(abd.unwrap().sort().is_boolean());
 }
 
 // ── declare_sygus_var / get_sygus_constraints / get_sygus_assumptions ──
@@ -2638,7 +2638,7 @@ fn solver_get_interpolant_with_grammar() {
     g.add_rule(start, conj.clone());
 
     let interp = solver.get_interpolant_with_grammar(conj, &g);
-    assert!(interp.sort().is_boolean());
+    assert!(interp.unwrap().sort().is_boolean());
 }
 
 // ── get_abduct_with_grammar ────────────────────────────────────────
@@ -2661,7 +2661,7 @@ fn solver_get_abduct_with_grammar() {
     g.add_rule(start, tm.mk_true());
 
     let abd = solver.get_abduct_with_grammar(conj, &g);
-    assert!(abd.sort().is_boolean());
+    assert!(abd.unwrap().sort().is_boolean());
 }
 
 // ── get_quantifier_elimination ─────────────────────────────────────
@@ -2773,10 +2773,10 @@ fn solver_get_interpolant_next() {
     let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[y, zero]);
 
     let interp1 = solver.get_interpolant(conj.clone());
-    assert!(interp1.sort().is_boolean());
+    assert!(interp1.unwrap().sort().is_boolean());
 
     let interp2 = solver.get_interpolant_next();
-    assert!(interp2.sort().is_boolean());
+    assert!(interp2.unwrap().sort().is_boolean());
 }
 
 // ── get_abduct_next ────────────────────────────────────────────────
@@ -2795,8 +2795,8 @@ fn solver_get_abduct_next() {
     let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
 
     let abd1 = solver.get_abduct(conj.clone());
-    assert!(abd1.sort().is_boolean());
+    assert!(abd1.unwrap().sort().is_boolean());
 
     let abd2 = solver.get_abduct_next();
-    assert!(abd2.sort().is_boolean());
+    assert!(abd2.unwrap().sort().is_boolean());
 }
