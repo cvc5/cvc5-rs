@@ -4,7 +4,7 @@ resolver = "3"
 
 [package]
 name = "cvc5-rs"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 readme = "README.md"
 license = "BSD-3-Clause"
@@ -18,4 +18,4 @@ homepage = "https://github.com/cvc5/cvc5-rs"
 parser = ["cvc5-sys/parser"]
 
 [dependencies]
-cvc5-sys = { path = "cvc5-sys", version = "=0.2.0" }
+cvc5-sys = { path = "cvc5-sys", version = "=0.3.0" }
