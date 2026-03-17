@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use std::ffi::CString;
 use std::rc::Rc;
 
-use crate::{DatatypeConstructorDecl, DatatypeDecl, Op, Sort, Term};
+use crate::{DatatypeConstructorDecl, DatatypeDecl, Op, Sort, Statistics, Term};
 
 /// Manages creation of sorts, terms, and operators.
 ///
@@ -470,9 +470,19 @@ impl TermManager {
         })
     }
 
+    /// Create a string constant from a null-terminated `wchar_t` array.
+    pub fn mk_string_from_wchar(&self, s: &[wchar_t]) -> Term {
+        Term::from_raw(unsafe { cvc5_mk_string_from_wchar(self.ptr_mut(), s.as_ptr()) })
+    }
+
     /// Create a string constant from a null-terminated `char32_t` array.
     pub fn mk_string_from_char32(&self, s: &[char32_t]) -> Term {
         Term::from_raw(unsafe { cvc5_mk_string_from_char32(self.ptr_mut(), s.as_ptr()) })
+    }
+
+    /// Get the term manager statistics.
+    pub fn get_statistics(&self) -> Statistics {
+        Statistics::from_raw(unsafe { cvc5_term_manager_get_statistics(self.ptr()) })
     }
 
     /// Print term manager statistics to the given file descriptor (async-signal-safe).
