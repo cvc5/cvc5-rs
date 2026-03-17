@@ -477,39 +477,54 @@ impl Solver {
     // ── Interpolation ──────────────────────────────────────────────
 
     /// Compute an interpolant for the given conjecture.
-    pub fn get_interpolant(&self, conj: Term) -> Term {
-        Term::from_raw(unsafe { cvc5_get_interpolant(self.inner, conj.inner) })
+    ///
+    /// Returns `None` if no interpolant exists.
+    pub fn get_interpolant(&self, conj: Term) -> Option<Term> {
+        let raw = unsafe { cvc5_get_interpolant(self.inner, conj.inner) };
+        (!raw.is_null()).then(|| Term::from_raw(raw))
     }
 
     /// Compute an interpolant constrained by the given grammar.
-    pub fn get_interpolant_with_grammar(&self, conj: Term, grammar: &Grammar) -> Term {
-        Term::from_raw(unsafe {
-            cvc5_get_interpolant_with_grammar(self.inner, conj.inner, grammar.inner)
-        })
+    ///
+    /// Returns `None` if no interpolant exists.
+    pub fn get_interpolant_with_grammar(&self, conj: Term, grammar: &Grammar) -> Option<Term> {
+        let raw =
+            unsafe { cvc5_get_interpolant_with_grammar(self.inner, conj.inner, grammar.inner) };
+        (!raw.is_null()).then(|| Term::from_raw(raw))
     }
 
     /// Get the next interpolant (after a previous `get_interpolant` call).
-    pub fn get_interpolant_next(&self) -> Term {
-        Term::from_raw(unsafe { cvc5_get_interpolant_next(self.inner) })
+    ///
+    /// Returns `None` if no further interpolant can be found.
+    pub fn get_interpolant_next(&self) -> Option<Term> {
+        let raw = unsafe { cvc5_get_interpolant_next(self.inner) };
+        (!raw.is_null()).then(|| Term::from_raw(raw))
     }
 
     // ── Abduction ──────────────────────────────────────────────────
 
     /// Compute an abduct for the given conjecture.
-    pub fn get_abduct(&self, conj: Term) -> Term {
-        Term::from_raw(unsafe { cvc5_get_abduct(self.inner, conj.inner) })
+    ///
+    /// Returns `None` if no abduct can be found.
+    pub fn get_abduct(&self, conj: Term) -> Option<Term> {
+        let raw = unsafe { cvc5_get_abduct(self.inner, conj.inner) };
+        (!raw.is_null()).then(|| Term::from_raw(raw))
     }
 
     /// Compute an abduct constrained by the given grammar.
-    pub fn get_abduct_with_grammar(&self, conj: Term, grammar: &Grammar) -> Term {
-        Term::from_raw(unsafe {
-            cvc5_get_abduct_with_grammar(self.inner, conj.inner, grammar.inner)
-        })
+    ///
+    /// Returns `None` if no abduct can be found.
+    pub fn get_abduct_with_grammar(&self, conj: Term, grammar: &Grammar) -> Option<Term> {
+        let raw = unsafe { cvc5_get_abduct_with_grammar(self.inner, conj.inner, grammar.inner) };
+        (!raw.is_null()).then(|| Term::from_raw(raw))
     }
 
     /// Get the next abduct (after a previous `get_abduct` call).
-    pub fn get_abduct_next(&self) -> Term {
-        Term::from_raw(unsafe { cvc5_get_abduct_next(self.inner) })
+    ///
+    /// Returns `None` if no further abduct can be found.
+    pub fn get_abduct_next(&self) -> Option<Term> {
+        let raw = unsafe { cvc5_get_abduct_next(self.inner) };
+        (!raw.is_null()).then(|| Term::from_raw(raw))
     }
 
     // ── Instantiations ─────────────────────────────────────────────
@@ -631,18 +646,31 @@ impl Solver {
     }
 
     /// Find a synthesis target of the given type.
-    pub fn find_synth(&self, target: Cvc5FindSynthTarget) -> Term {
-        Term::from_raw(unsafe { cvc5_find_synth(self.inner, target) })
+    ///
+    /// Returns `None` if the call failed.
+    pub fn find_synth(&self, target: Cvc5FindSynthTarget) -> Option<Term> {
+        let raw = unsafe { cvc5_find_synth(self.inner, target) };
+        (!raw.is_null()).then(|| Term::from_raw(raw))
     }
 
     /// Find a synthesis target constrained by the given grammar.
-    pub fn find_synth_with_grammar(&self, target: Cvc5FindSynthTarget, grammar: &Grammar) -> Term {
-        Term::from_raw(unsafe { cvc5_find_synth_with_grammar(self.inner, target, grammar.inner) })
+    ///
+    /// Returns `None` if the call failed.
+    pub fn find_synth_with_grammar(
+        &self,
+        target: Cvc5FindSynthTarget,
+        grammar: &Grammar,
+    ) -> Option<Term> {
+        let raw = unsafe { cvc5_find_synth_with_grammar(self.inner, target, grammar.inner) };
+        (!raw.is_null()).then(|| Term::from_raw(raw))
     }
 
     /// Get the next synthesis target.
-    pub fn find_synth_next(&self) -> Term {
-        Term::from_raw(unsafe { cvc5_find_synth_next(self.inner) })
+    ///
+    /// Returns `None` if the call failed.
+    pub fn find_synth_next(&self) -> Option<Term> {
+        let raw = unsafe { cvc5_find_synth_next(self.inner) };
+        (!raw.is_null()).then(|| Term::from_raw(raw))
     }
 
     // ── Mutually recursive definitions ─────────────────────────────
