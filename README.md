@@ -36,7 +36,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cvc5-rs = "0.1"
+cvc5-rs = "0.2"
 ```
 
 An application can set `CVC5_DIR` in its `.cargo/config.toml` to point to a local cvc5 checkout
