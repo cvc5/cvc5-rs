@@ -150,6 +150,11 @@ impl TermManager {
         Sort::from_raw(unsafe { cvc5_mk_uninterpreted_sort(self.ptr_mut(), c.as_ptr()) })
     }
 
+    /// Create an anonymous uninterpreted sort (no symbol).
+    pub fn mk_anonymous_uninterpreted_sort(&self) -> Sort {
+        Sort::from_raw(unsafe { cvc5_mk_uninterpreted_sort(self.ptr_mut(), std::ptr::null()) })
+    }
+
     /// Create an unresolved datatype sort placeholder for mutual recursion.
     pub fn mk_unresolved_dt_sort(&self, symbol: &str, arity: usize) -> Sort {
         let c = CString::new(symbol).unwrap();
@@ -161,6 +166,13 @@ impl TermManager {
         let c = CString::new(symbol).unwrap();
         Sort::from_raw(unsafe {
             cvc5_mk_uninterpreted_sort_constructor_sort(self.ptr_mut(), arity, c.as_ptr())
+        })
+    }
+
+    /// Create an anonymous uninterpreted sort constructor of the given arity.
+    pub fn mk_anonymous_uninterpreted_sort_constructor_sort(&self, arity: usize) -> Sort {
+        Sort::from_raw(unsafe {
+            cvc5_mk_uninterpreted_sort_constructor_sort(self.ptr_mut(), arity, std::ptr::null())
         })
     }
 
@@ -428,10 +440,20 @@ impl TermManager {
         Term::from_raw(unsafe { cvc5_mk_const(self.ptr_mut(), sort.inner, c.as_ptr()) })
     }
 
+    /// Create an anonymous constant (free variable) of the given sort.
+    pub fn mk_anonymous_const(&self, sort: Sort) -> Term {
+        Term::from_raw(unsafe { cvc5_mk_const(self.ptr_mut(), sort.inner, std::ptr::null()) })
+    }
+
     /// Create a bound variable of the given sort.
     pub fn mk_var(&self, sort: Sort, name: &str) -> Term {
         let c = CString::new(name).unwrap();
         Term::from_raw(unsafe { cvc5_mk_var(self.ptr_mut(), sort.inner, c.as_ptr()) })
+    }
+
+    /// Create an anonymous bound variable of the given sort.
+    pub fn mk_anonymous_var(&self, sort: Sort) -> Term {
+        Term::from_raw(unsafe { cvc5_mk_var(self.ptr_mut(), sort.inner, std::ptr::null()) })
     }
 
     // ── Datatype declarations ──────────────────────────────────────

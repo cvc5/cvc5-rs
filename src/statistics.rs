@@ -44,6 +44,11 @@ impl Statistics {
         };
         (n, Stat { inner: s })
     }
+
+    /// Advance the iterator and return only the next [`Stat`], ignoring the name.
+    pub fn iter_next_stat(&self) -> Stat {
+        self.iter_next().1
+    }
 }
 
 impl fmt::Debug for Statistics {
