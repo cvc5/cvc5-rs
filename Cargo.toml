@@ -19,3 +19,6 @@ parser = ["cvc5-sys/parser"]
 
 [dependencies]
 cvc5-sys = { path = "cvc5-sys", version = "=0.3.0" }
+
+[package.metadata.docs.rs]
+features = ["parser"]
