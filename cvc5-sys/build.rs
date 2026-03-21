@@ -4,6 +4,23 @@ use std::{env, path::PathBuf, process::Command};
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=CVC5_LIB_DIR");
+    println!("cargo:rerun-if-env-changed=DOCS_RS");
+
+    // On docs.rs, skip building/linking cvc5 and use pre-generated bindings.
+    if env::var("DOCS_RS").is_ok() {
+        let out = PathBuf::from(env::var("OUT_DIR").unwrap());
+        let manifest = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+        std::fs::copy(manifest.join("prebuilt/bindings.rs"), out.join("bindings.rs"))
+            .expect("Failed to copy pre-generated bindings");
+        if cfg!(feature = "parser") {
+            std::fs::copy(
+                manifest.join("prebuilt/parser_bindings.rs"),
+                out.join("parser_bindings.rs"),
+            )
+            .expect("Failed to copy pre-generated parser bindings");
+        }
+        return;
+    }
 
     // If CVC5_LIB_DIR is set, link directly without building cvc5.
     if let Ok(lib_dir) = env::var("CVC5_LIB_DIR") {

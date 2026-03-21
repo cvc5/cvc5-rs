@@ -20,3 +20,6 @@ parser = []
 [build-dependencies]
 bindgen = { version = "0.72", default-features = false, features = ["runtime"] }
 toml = "0.8"
+
+[package.metadata.docs.rs]
+features = ["parser"]
