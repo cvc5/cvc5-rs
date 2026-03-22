@@ -10,8 +10,11 @@ fn main() {
     if env::var("DOCS_RS").is_ok() {
         let out = PathBuf::from(env::var("OUT_DIR").unwrap());
         let manifest = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-        std::fs::copy(manifest.join("prebuilt/bindings.rs"), out.join("bindings.rs"))
-            .expect("Failed to copy pre-generated bindings");
+        std::fs::copy(
+            manifest.join("prebuilt/bindings.rs"),
+            out.join("bindings.rs"),
+        )
+        .expect("Failed to copy pre-generated bindings");
         if cfg!(feature = "parser") {
             std::fs::copy(
                 manifest.join("prebuilt/parser_bindings.rs"),
