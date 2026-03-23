@@ -4,7 +4,7 @@
 //!
 //! # Example
 //!
-//! ```no_run
+//! ```rust
 //! use cvc5_rs::{TermManager, Solver, Kind};
 //!
 //! let tm = TermManager::new();
@@ -74,6 +74,9 @@ pub use term_manager::TermManager;
 pub use cvc5_sys::Cvc5InputLanguage as InputLanguage;
 #[cfg(feature = "parser")]
 pub use parser::{Command, InputParser, SymbolManager};
+
+// Re-export PhantomData-related marker so users don't need to import it
+// (the lifetime is inferred automatically in most cases)
 
 /// Get a string representation of an [`InputLanguage`].
 #[cfg(feature = "parser")]

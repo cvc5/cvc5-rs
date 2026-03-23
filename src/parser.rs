@@ -4,7 +4,7 @@
 //!
 //! # Example
 //!
-//! ```no_run
+//! ```rust
 //! use cvc5_rs::{TermManager, Solver, InputParser, SymbolManager, InputLanguage};
 //!
 //! let tm = TermManager::new();
@@ -86,7 +86,7 @@ impl SymbolManager {
     /// Get the sorts declared via `declare-sort` commands.
     ///
     /// These are the sorts printed as part of a `get-model` response.
-    pub fn get_declared_sorts(&self) -> Vec<Sort> {
+    pub fn get_declared_sorts(&self) -> Vec<Sort<'_>> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_sm_get_declared_sorts(self.inner, &mut size) };
         (0..size)
@@ -97,7 +97,7 @@ impl SymbolManager {
     /// Get the terms declared via `declare-fun` and `declare-const` commands.
     ///
     /// These are the terms printed in a `get-model` response.
-    pub fn get_declared_terms(&self) -> Vec<Term> {
+    pub fn get_declared_terms(&self) -> Vec<Term<'_>> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_sm_get_declared_terms(self.inner, &mut size) };
         (0..size)
@@ -108,7 +108,7 @@ impl SymbolManager {
     /// Get terms that have been given names via the `:named` attribute.
     ///
     /// Returns a list of `(term, name)` pairs.
-    pub fn get_named_terms(&self) -> Vec<(Term, String)> {
+    pub fn get_named_terms(&self) -> Vec<(Term<'_>, String)> {
         let mut size = 0usize;
         let mut terms: *mut cvc5_sys::Cvc5Term = std::ptr::null_mut();
         let mut names: *mut *const std::os::raw::c_char = std::ptr::null_mut();
@@ -157,7 +157,7 @@ impl Command {
     ///
     /// Returns any output produced by the command (e.g. `sat`, `unsat`,
     /// model output, etc.).
-    pub fn invoke(&self, solver: &mut Solver, sm: &mut SymbolManager) -> String {
+    pub fn invoke(&self, solver: &mut Solver<'_>, sm: &mut SymbolManager) -> String {
         unsafe {
             std::ffi::CStr::from_ptr(cvc5_cmd_invoke(self.inner, solver.inner, sm.inner))
                 .to_string_lossy()
@@ -217,7 +217,7 @@ impl InputParser {
     ///
     /// If both the solver and symbol manager have their logic set, the logics
     /// must be the same.
-    pub fn new(solver: &Solver, sm: Option<&SymbolManager>) -> Self {
+    pub fn new(solver: &Solver<'_>, sm: Option<&SymbolManager>) -> Self {
         let sm_ptr = sm.map_or(std::ptr::null_mut(), |s| s.inner);
         Self {
             inner: unsafe { cvc5_parser_new(solver.inner, sm_ptr) },
@@ -299,7 +299,7 @@ impl InputParser {
     /// - `Err(msg)` — a parse error with the error message.
     ///
     /// The logic must be set before calling this method.
-    pub fn next_term(&mut self) -> std::result::Result<Option<Term>, String> {
+    pub fn next_term(&mut self) -> std::result::Result<Option<Term<'_>>, String> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
         let term = unsafe { cvc5_parser_next_term(self.inner, &mut error_msg) };
         if !error_msg.is_null() {
