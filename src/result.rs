@@ -1,28 +1,34 @@
 use cvc5_sys::*;
 use std::fmt;
+use std::marker::PhantomData;
 
 /// The result of a satisfiability check.
-pub struct Result {
+pub struct Result<'tm> {
     pub(crate) inner: cvc5_sys::Result,
+    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for Result {
+impl Clone for Result<'_> {
     fn clone(&self) -> Self {
         Self {
             inner: unsafe { result_copy(self.inner) },
+            _phantom: PhantomData,
         }
     }
 }
 
-impl Drop for Result {
+impl Drop for Result<'_> {
     fn drop(&mut self) {
         unsafe { result_release(self.inner) }
     }
 }
 
-impl Result {
+impl<'tm> Result<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Result) -> Self {
-        Self { inner: raw }
+        Self {
+            inner: raw,
+            _phantom: PhantomData,
+        }
     }
 
     /// Return `true` if this is a null (uninitialized) result.
@@ -31,7 +37,7 @@ impl Result {
     }
 
     /// Create a copy of this result (increments the internal reference count).
-    pub fn copy(&self) -> Result {
+    pub fn copy(&self) -> Result<'tm> {
         Result::from_raw(unsafe { result_copy(self.inner) })
     }
 
@@ -61,7 +67,7 @@ impl Result {
     }
 }
 
-impl fmt::Display for Result {
+impl fmt::Display for Result<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { result_to_string(self.inner) };
         let cs = unsafe { std::ffi::CStr::from_ptr(s) };
@@ -69,21 +75,21 @@ impl fmt::Display for Result {
     }
 }
 
-impl fmt::Debug for Result {
+impl fmt::Debug for Result<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Result({self})")
     }
 }
 
-impl PartialEq for Result {
+impl PartialEq for Result<'_> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { result_is_equal(self.inner, other.inner) }
     }
 }
 
-impl Eq for Result {}
+impl Eq for Result<'_> {}
 
-impl std::hash::Hash for Result {
+impl std::hash::Hash for Result<'_> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { result_hash(self.inner) }.hash(state);
     }

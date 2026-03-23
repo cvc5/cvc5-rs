@@ -1,5 +1,6 @@
 use cvc5_sys::*;
 use std::fmt;
+use std::marker::PhantomData;
 
 use crate::Term;
 
@@ -7,27 +8,32 @@ use crate::Term;
 ///
 /// Proofs are produced when the solver is configured with
 /// `set_option("produce-proofs", "true")` and a query returns unsat.
-pub struct Proof {
+pub struct Proof<'tm> {
     pub(crate) inner: cvc5_sys::Proof,
+    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for Proof {
+impl Clone for Proof<'_> {
     fn clone(&self) -> Self {
         Self {
             inner: unsafe { proof_copy(self.inner) },
+            _phantom: PhantomData,
         }
     }
 }
 
-impl Drop for Proof {
+impl Drop for Proof<'_> {
     fn drop(&mut self) {
         unsafe { proof_release(self.inner) }
     }
 }
 
-impl Proof {
+impl<'tm> Proof<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Proof) -> Self {
-        Self { inner: raw }
+        Self {
+            inner: raw,
+            _phantom: PhantomData,
+        }
     }
 
     /// Get the proof rule used at the root of this proof node.
@@ -36,7 +42,7 @@ impl Proof {
     }
 
     /// Create a copy of this proof (increments the internal reference count).
-    pub fn copy(&self) -> Proof {
+    pub fn copy(&self) -> Proof<'tm> {
         Proof::from_raw(unsafe { proof_copy(self.inner) })
     }
 
@@ -51,12 +57,12 @@ impl Proof {
     }
 
     /// Get the conclusion (result) of this proof node as a term.
-    pub fn result(&self) -> Term {
+    pub fn result(&self) -> Term<'tm> {
         Term::from_raw(unsafe { proof_get_result(self.inner) })
     }
 
     /// Get the child proof nodes.
-    pub fn children(&self) -> Vec<Proof> {
+    pub fn children(&self) -> Vec<Proof<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { proof_get_children(self.inner, &mut size) };
         (0..size)
@@ -65,7 +71,7 @@ impl Proof {
     }
 
     /// Get the arguments of this proof node as terms.
-    pub fn arguments(&self) -> Vec<Term> {
+    pub fn arguments(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { proof_get_arguments(self.inner, &mut size) };
         (0..size)
@@ -74,21 +80,21 @@ impl Proof {
     }
 }
 
-impl PartialEq for Proof {
+impl PartialEq for Proof<'_> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { proof_is_equal(self.inner, other.inner) }
     }
 }
 
-impl Eq for Proof {}
+impl Eq for Proof<'_> {}
 
-impl std::hash::Hash for Proof {
+impl std::hash::Hash for Proof<'_> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { proof_hash(self.inner) }.hash(state);
     }
 }
 
-impl fmt::Debug for Proof {
+impl fmt::Debug for Proof<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Proof({:?})", self.rule())
     }
