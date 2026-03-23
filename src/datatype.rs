@@ -1,6 +1,7 @@
 use cvc5_sys::*;
 use std::ffi::CString;
 use std::fmt;
+use std::marker::PhantomData;
 
 use crate::{Sort, Term};
 
@@ -9,27 +10,32 @@ use crate::{Sort, Term};
 // ---------------------------------------------------------------------------
 
 /// A declaration for a datatype constructor (before the datatype is resolved).
-pub struct DatatypeConstructorDecl {
+pub struct DatatypeConstructorDecl<'tm> {
     pub(crate) inner: cvc5_sys::DatatypeConstructorDecl,
+    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for DatatypeConstructorDecl {
+impl Clone for DatatypeConstructorDecl<'_> {
     fn clone(&self) -> Self {
         Self {
             inner: unsafe { dt_cons_decl_copy(self.inner) },
+            _phantom: PhantomData,
         }
     }
 }
 
-impl Drop for DatatypeConstructorDecl {
+impl Drop for DatatypeConstructorDecl<'_> {
     fn drop(&mut self) {
         unsafe { dt_cons_decl_release(self.inner) }
     }
 }
 
-impl DatatypeConstructorDecl {
+impl<'tm> DatatypeConstructorDecl<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeConstructorDecl) -> Self {
-        Self { inner: raw }
+        Self {
+            inner: raw,
+            _phantom: PhantomData,
+        }
     }
 
     /// Add a selector with the given name and codomain sort.
@@ -52,7 +58,7 @@ impl DatatypeConstructorDecl {
     }
 }
 
-impl fmt::Display for DatatypeConstructorDecl {
+impl fmt::Display for DatatypeConstructorDecl<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { dt_cons_decl_to_string(self.inner) };
         write!(f, "{}", unsafe {
@@ -61,20 +67,20 @@ impl fmt::Display for DatatypeConstructorDecl {
     }
 }
 
-impl PartialEq for DatatypeConstructorDecl {
+impl PartialEq for DatatypeConstructorDecl<'_> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { dt_cons_decl_is_equal(self.inner, other.inner) }
     }
 }
-impl Eq for DatatypeConstructorDecl {}
+impl Eq for DatatypeConstructorDecl<'_> {}
 
-impl std::hash::Hash for DatatypeConstructorDecl {
+impl std::hash::Hash for DatatypeConstructorDecl<'_> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { dt_cons_decl_hash(self.inner) }.hash(state);
     }
 }
 
-impl fmt::Debug for DatatypeConstructorDecl {
+impl fmt::Debug for DatatypeConstructorDecl<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "DatatypeConstructorDecl({self})")
     }
@@ -85,31 +91,36 @@ impl fmt::Debug for DatatypeConstructorDecl {
 // ---------------------------------------------------------------------------
 
 /// A declaration for a datatype (before it is resolved into a sort).
-pub struct DatatypeDecl {
+pub struct DatatypeDecl<'tm> {
     pub(crate) inner: cvc5_sys::DatatypeDecl,
+    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for DatatypeDecl {
+impl Clone for DatatypeDecl<'_> {
     fn clone(&self) -> Self {
         Self {
             inner: unsafe { dt_decl_copy(self.inner) },
+            _phantom: PhantomData,
         }
     }
 }
 
-impl Drop for DatatypeDecl {
+impl Drop for DatatypeDecl<'_> {
     fn drop(&mut self) {
         unsafe { dt_decl_release(self.inner) }
     }
 }
 
-impl DatatypeDecl {
+impl<'tm> DatatypeDecl<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeDecl) -> Self {
-        Self { inner: raw }
+        Self {
+            inner: raw,
+            _phantom: PhantomData,
+        }
     }
 
     /// Create a copy of this declaration (increments the internal reference count).
-    pub fn copy(&self) -> DatatypeDecl {
+    pub fn copy(&self) -> DatatypeDecl<'tm> {
         DatatypeDecl::from_raw(unsafe { dt_decl_copy(self.inner) })
     }
 
@@ -143,7 +154,7 @@ impl DatatypeDecl {
     }
 }
 
-impl fmt::Display for DatatypeDecl {
+impl fmt::Display for DatatypeDecl<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { dt_decl_to_string(self.inner) };
         write!(f, "{}", unsafe {
@@ -152,20 +163,20 @@ impl fmt::Display for DatatypeDecl {
     }
 }
 
-impl PartialEq for DatatypeDecl {
+impl PartialEq for DatatypeDecl<'_> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { dt_decl_is_equal(self.inner, other.inner) }
     }
 }
-impl Eq for DatatypeDecl {}
+impl Eq for DatatypeDecl<'_> {}
 
-impl std::hash::Hash for DatatypeDecl {
+impl std::hash::Hash for DatatypeDecl<'_> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { dt_decl_hash(self.inner) }.hash(state);
     }
 }
 
-impl fmt::Debug for DatatypeDecl {
+impl fmt::Debug for DatatypeDecl<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "DatatypeDecl({self})")
     }
@@ -176,31 +187,36 @@ impl fmt::Debug for DatatypeDecl {
 // ---------------------------------------------------------------------------
 
 /// A selector of a resolved datatype constructor.
-pub struct DatatypeSelector {
+pub struct DatatypeSelector<'tm> {
     pub(crate) inner: cvc5_sys::DatatypeSelector,
+    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for DatatypeSelector {
+impl Clone for DatatypeSelector<'_> {
     fn clone(&self) -> Self {
         Self {
             inner: unsafe { dt_sel_copy(self.inner) },
+            _phantom: PhantomData,
         }
     }
 }
 
-impl Drop for DatatypeSelector {
+impl Drop for DatatypeSelector<'_> {
     fn drop(&mut self) {
         unsafe { dt_sel_release(self.inner) }
     }
 }
 
-impl DatatypeSelector {
+impl<'tm> DatatypeSelector<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeSelector) -> Self {
-        Self { inner: raw }
+        Self {
+            inner: raw,
+            _phantom: PhantomData,
+        }
     }
 
     /// Create a copy of this selector (increments the internal reference count).
-    pub fn copy(&self) -> DatatypeSelector {
+    pub fn copy(&self) -> DatatypeSelector<'tm> {
         DatatypeSelector::from_raw(unsafe { dt_sel_copy(self.inner) })
     }
 
@@ -214,22 +230,22 @@ impl DatatypeSelector {
     }
 
     /// Get the selector function as a term.
-    pub fn term(&self) -> Term {
+    pub fn term(&self) -> Term<'tm> {
         Term::from_raw(unsafe { dt_sel_get_term(self.inner) })
     }
 
     /// Get the updater function as a term.
-    pub fn updater_term(&self) -> Term {
+    pub fn updater_term(&self) -> Term<'tm> {
         Term::from_raw(unsafe { dt_sel_get_updater_term(self.inner) })
     }
 
     /// Get the codomain (return) sort of this selector.
-    pub fn codomain_sort(&self) -> Sort {
+    pub fn codomain_sort(&self) -> Sort<'tm> {
         Sort::from_raw(unsafe { dt_sel_get_codomain_sort(self.inner) })
     }
 }
 
-impl fmt::Display for DatatypeSelector {
+impl fmt::Display for DatatypeSelector<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { dt_sel_to_string(self.inner) };
         write!(f, "{}", unsafe {
@@ -238,20 +254,20 @@ impl fmt::Display for DatatypeSelector {
     }
 }
 
-impl PartialEq for DatatypeSelector {
+impl PartialEq for DatatypeSelector<'_> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { dt_sel_is_equal(self.inner, other.inner) }
     }
 }
-impl Eq for DatatypeSelector {}
+impl Eq for DatatypeSelector<'_> {}
 
-impl std::hash::Hash for DatatypeSelector {
+impl std::hash::Hash for DatatypeSelector<'_> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { dt_sel_hash(self.inner) }.hash(state);
     }
 }
 
-impl fmt::Debug for DatatypeSelector {
+impl fmt::Debug for DatatypeSelector<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "DatatypeSelector({self})")
     }
@@ -262,27 +278,32 @@ impl fmt::Debug for DatatypeSelector {
 // ---------------------------------------------------------------------------
 
 /// A constructor of a resolved datatype.
-pub struct DatatypeConstructor {
+pub struct DatatypeConstructor<'tm> {
     pub(crate) inner: cvc5_sys::DatatypeConstructor,
+    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for DatatypeConstructor {
+impl Clone for DatatypeConstructor<'_> {
     fn clone(&self) -> Self {
         Self {
             inner: unsafe { dt_cons_copy(self.inner) },
+            _phantom: PhantomData,
         }
     }
 }
 
-impl Drop for DatatypeConstructor {
+impl Drop for DatatypeConstructor<'_> {
     fn drop(&mut self) {
         unsafe { dt_cons_release(self.inner) }
     }
 }
 
-impl DatatypeConstructor {
+impl<'tm> DatatypeConstructor<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeConstructor) -> Self {
-        Self { inner: raw }
+        Self {
+            inner: raw,
+            _phantom: PhantomData,
+        }
     }
 
     /// Get the name of this constructor.
@@ -295,17 +316,17 @@ impl DatatypeConstructor {
     }
 
     /// Get the constructor function as a term.
-    pub fn term(&self) -> Term {
+    pub fn term(&self) -> Term<'tm> {
         Term::from_raw(unsafe { dt_cons_get_term(self.inner) })
     }
 
     /// Get the constructor term instantiated for the given parametric datatype sort.
-    pub fn instantiated_term(&self, sort: Sort) -> Term {
+    pub fn instantiated_term(&self, sort: Sort) -> Term<'tm> {
         Term::from_raw(unsafe { dt_cons_get_instantiated_term(self.inner, sort.inner) })
     }
 
     /// Get the tester (discriminator) function as a term.
-    pub fn tester_term(&self) -> Term {
+    pub fn tester_term(&self) -> Term<'tm> {
         Term::from_raw(unsafe { dt_cons_get_tester_term(self.inner) })
     }
 
@@ -315,18 +336,18 @@ impl DatatypeConstructor {
     }
 
     /// Get the selector at the given index.
-    pub fn selector(&self, index: usize) -> DatatypeSelector {
+    pub fn selector(&self, index: usize) -> DatatypeSelector<'tm> {
         DatatypeSelector::from_raw(unsafe { dt_cons_get_selector(self.inner, index) })
     }
 
     /// Get a selector by name.
-    pub fn selector_by_name(&self, name: &str) -> DatatypeSelector {
+    pub fn selector_by_name(&self, name: &str) -> DatatypeSelector<'tm> {
         let c = CString::new(name).unwrap();
         DatatypeSelector::from_raw(unsafe { dt_cons_get_selector_by_name(self.inner, c.as_ptr()) })
     }
 }
 
-impl fmt::Display for DatatypeConstructor {
+impl fmt::Display for DatatypeConstructor<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { dt_cons_to_string(self.inner) };
         write!(f, "{}", unsafe {
@@ -335,20 +356,20 @@ impl fmt::Display for DatatypeConstructor {
     }
 }
 
-impl PartialEq for DatatypeConstructor {
+impl PartialEq for DatatypeConstructor<'_> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { dt_cons_is_equal(self.inner, other.inner) }
     }
 }
-impl Eq for DatatypeConstructor {}
+impl Eq for DatatypeConstructor<'_> {}
 
-impl std::hash::Hash for DatatypeConstructor {
+impl std::hash::Hash for DatatypeConstructor<'_> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { dt_cons_hash(self.inner) }.hash(state);
     }
 }
 
-impl fmt::Debug for DatatypeConstructor {
+impl fmt::Debug for DatatypeConstructor<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "DatatypeConstructor({self})")
     }
@@ -362,47 +383,52 @@ impl fmt::Debug for DatatypeConstructor {
 ///
 /// Obtained from a sort via [`Sort::datatype`] after the datatype has been
 /// created with [`TermManager::mk_dt_sort`](crate::TermManager::mk_dt_sort).
-pub struct Datatype {
+pub struct Datatype<'tm> {
     pub(crate) inner: cvc5_sys::Datatype,
+    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for Datatype {
+impl Clone for Datatype<'_> {
     fn clone(&self) -> Self {
         Self {
             inner: unsafe { dt_copy(self.inner) },
+            _phantom: PhantomData,
         }
     }
 }
 
-impl Drop for Datatype {
+impl Drop for Datatype<'_> {
     fn drop(&mut self) {
         unsafe { dt_release(self.inner) }
     }
 }
 
-impl Datatype {
+impl<'tm> Datatype<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Datatype) -> Self {
-        Self { inner: raw }
+        Self {
+            inner: raw,
+            _phantom: PhantomData,
+        }
     }
 
     /// Create a copy of this datatype (increments the internal reference count).
-    pub fn copy(&self) -> Datatype {
+    pub fn copy(&self) -> Datatype<'tm> {
         Datatype::from_raw(unsafe { dt_copy(self.inner) })
     }
 
     /// Get the constructor at the given index.
-    pub fn constructor(&self, index: usize) -> DatatypeConstructor {
+    pub fn constructor(&self, index: usize) -> DatatypeConstructor<'tm> {
         DatatypeConstructor::from_raw(unsafe { dt_get_constructor(self.inner, index) })
     }
 
     /// Get a constructor by name.
-    pub fn constructor_by_name(&self, name: &str) -> DatatypeConstructor {
+    pub fn constructor_by_name(&self, name: &str) -> DatatypeConstructor<'tm> {
         let c = CString::new(name).unwrap();
         DatatypeConstructor::from_raw(unsafe { dt_get_constructor_by_name(self.inner, c.as_ptr()) })
     }
 
     /// Get a selector by name (searches all constructors).
-    pub fn selector(&self, name: &str) -> DatatypeSelector {
+    pub fn selector(&self, name: &str) -> DatatypeSelector<'tm> {
         let c = CString::new(name).unwrap();
         DatatypeSelector::from_raw(unsafe { dt_get_selector(self.inner, c.as_ptr()) })
     }
@@ -422,7 +448,7 @@ impl Datatype {
     }
 
     /// Get the sort parameters of a parametric datatype.
-    pub fn parameters(&self) -> Vec<Sort> {
+    pub fn parameters(&self) -> Vec<Sort<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { dt_get_parameters(self.inner, &mut size) };
         (0..size)
@@ -461,7 +487,7 @@ impl Datatype {
     }
 }
 
-impl fmt::Display for Datatype {
+impl fmt::Display for Datatype<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { dt_to_string(self.inner) };
         write!(f, "{}", unsafe {
@@ -470,20 +496,20 @@ impl fmt::Display for Datatype {
     }
 }
 
-impl PartialEq for Datatype {
+impl PartialEq for Datatype<'_> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { dt_is_equal(self.inner, other.inner) }
     }
 }
-impl Eq for Datatype {}
+impl Eq for Datatype<'_> {}
 
-impl std::hash::Hash for Datatype {
+impl std::hash::Hash for Datatype<'_> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { dt_hash(self.inner) }.hash(state);
     }
 }
 
-impl fmt::Debug for Datatype {
+impl fmt::Debug for Datatype<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Datatype({self})")
     }

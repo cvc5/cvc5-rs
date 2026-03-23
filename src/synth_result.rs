@@ -1,28 +1,34 @@
 use cvc5_sys::*;
 use std::fmt;
+use std::marker::PhantomData;
 
 /// The result of a synthesis query (SyGuS).
-pub struct SynthResult {
+pub struct SynthResult<'tm> {
     pub(crate) inner: cvc5_sys::SynthResult,
+    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for SynthResult {
+impl Clone for SynthResult<'_> {
     fn clone(&self) -> Self {
         Self {
             inner: unsafe { synth_result_copy(self.inner) },
+            _phantom: PhantomData,
         }
     }
 }
 
-impl Drop for SynthResult {
+impl Drop for SynthResult<'_> {
     fn drop(&mut self) {
         unsafe { synth_result_release(self.inner) }
     }
 }
 
-impl SynthResult {
+impl<'tm> SynthResult<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::SynthResult) -> Self {
-        Self { inner: raw }
+        Self {
+            inner: raw,
+            _phantom: PhantomData,
+        }
     }
 
     /// Return `true` if this is a null (uninitialized) synthesis result.
@@ -31,7 +37,7 @@ impl SynthResult {
     }
 
     /// Create a copy of this synthesis result (increments the internal reference count).
-    pub fn copy(&self) -> SynthResult {
+    pub fn copy(&self) -> SynthResult<'tm> {
         SynthResult::from_raw(unsafe { synth_result_copy(self.inner) })
     }
 
@@ -56,7 +62,7 @@ impl SynthResult {
     }
 }
 
-impl fmt::Display for SynthResult {
+impl fmt::Display for SynthResult<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { synth_result_to_string(self.inner) };
         let cs = unsafe { std::ffi::CStr::from_ptr(s) };
@@ -64,21 +70,21 @@ impl fmt::Display for SynthResult {
     }
 }
 
-impl PartialEq for SynthResult {
+impl PartialEq for SynthResult<'_> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { synth_result_is_equal(self.inner, other.inner) }
     }
 }
 
-impl Eq for SynthResult {}
+impl Eq for SynthResult<'_> {}
 
-impl std::hash::Hash for SynthResult {
+impl std::hash::Hash for SynthResult<'_> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { synth_result_hash(self.inner) }.hash(state);
     }
 }
 
-impl fmt::Debug for SynthResult {
+impl fmt::Debug for SynthResult<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "SynthResult({self})")
     }

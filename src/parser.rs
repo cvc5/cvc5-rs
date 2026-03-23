@@ -95,7 +95,7 @@ impl SymbolManager {
     /// Get the sorts declared via `declare-sort` commands.
     ///
     /// These are the sorts printed as part of a `get-model` response.
-    pub fn get_declared_sorts(&self) -> Vec<Sort> {
+    pub fn get_declared_sorts(&self) -> Vec<Sort<'_>> {
         let mut size = 0usize;
         let ptr = unsafe { sm_get_declared_sorts(self.ptr(), &mut size) };
         (0..size)
@@ -106,7 +106,7 @@ impl SymbolManager {
     /// Get the terms declared via `declare-fun` and `declare-const` commands.
     ///
     /// These are the terms printed in a `get-model` response.
-    pub fn get_declared_terms(&self) -> Vec<Term> {
+    pub fn get_declared_terms(&self) -> Vec<Term<'_>> {
         let mut size = 0usize;
         let ptr = unsafe { sm_get_declared_terms(self.ptr(), &mut size) };
         (0..size)
@@ -117,7 +117,7 @@ impl SymbolManager {
     /// Get terms that have been given names via the `:named` attribute.
     ///
     /// Returns a list of `(term, name)` pairs.
-    pub fn get_named_terms(&self) -> Vec<(Term, String)> {
+    pub fn get_named_terms(&self) -> Vec<(Term<'_>, String)> {
         let mut size = 0usize;
         let mut terms: *mut cvc5_sys::Term = std::ptr::null_mut();
         let mut names: *mut *const std::os::raw::c_char = std::ptr::null_mut();
@@ -168,7 +168,7 @@ impl Command {
     ///
     /// Returns any output produced by the command (e.g. `sat`, `unsat`,
     /// model output, etc.).
-    pub fn invoke(&self, solver: &mut Solver, sm: &mut SymbolManager) -> String {
+    pub fn invoke(&self, solver: &mut Solver<'_>, sm: &mut SymbolManager) -> String {
         unsafe {
             std::ffi::CStr::from_ptr(cmd_invoke(self.inner, solver.inner, sm.ptr()))
                 .to_string_lossy()
@@ -214,14 +214,14 @@ impl fmt::Debug for Command {
 /// Then call [`next_command`](InputParser::next_command) or
 /// [`next_term`](InputParser::next_term) in a loop until
 /// [`done`](InputParser::done) returns `true`.
-pub struct InputParser {
+pub struct InputParser<'tm> {
     inner: *mut cvc5_sys::parser::InputParser,
     /// This field is public for reclaiming the ownership of the solver
-    pub solver: Solver,
+    pub solver: Solver<'tm>,
     sm: SymbolManager,
 }
 
-impl InputParser {
+impl<'tm> InputParser<'tm> {
     /// Create a new input parser.
     ///
     /// - `solver` — the solver that parsed commands will target.
@@ -230,7 +230,7 @@ impl InputParser {
     ///
     /// If both the solver and symbol manager have their logic set, the logics
     /// must be the same.
-    pub fn new(solver: Solver, sm: Option<impl std::borrow::Borrow<SymbolManager>>) -> Self {
+    pub fn new(solver: Solver<'tm>, sm: Option<impl std::borrow::Borrow<SymbolManager>>) -> Self {
         let sm = sm
             .map(|sm| sm.borrow().clone())
             .unwrap_or_else(|| SymbolManager::new(&solver.tm));
@@ -243,7 +243,7 @@ impl InputParser {
     }
 
     /// Return a mutable reference to the solver associated with this parser.
-    pub fn get_solver(&mut self) -> &mut Solver {
+    pub fn get_solver(&mut self) -> &mut Solver<'tm> {
         &mut self.solver
     }
 
@@ -305,7 +305,7 @@ impl InputParser {
     ///
     /// If no logic has been set, the first command that requires one will
     /// initialize the logic to `"ALL"`.
-    pub fn next_command(&mut self) -> Result<Option<Command>, String> {
+    pub fn next_command(&mut self) -> std::result::Result<Option<Command>, String> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
         let cmd = unsafe { parser_next_command(self.inner, &mut error_msg) };
         if !error_msg.is_null() {
@@ -329,7 +329,7 @@ impl InputParser {
     /// - `Err(msg)` — a parse error with the error message.
     ///
     /// The logic must be set before calling this method.
-    pub fn next_term(&mut self) -> Result<Option<Term>, String> {
+    pub fn next_term(&mut self) -> std::result::Result<Option<Term<'_>>, String> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
         let term = unsafe { parser_next_term(self.inner, &mut error_msg) };
         if !error_msg.is_null() {
@@ -351,7 +351,7 @@ impl InputParser {
     }
 }
 
-impl Drop for InputParser {
+impl Drop for InputParser<'_> {
     fn drop(&mut self) {
         unsafe { parser_delete(self.inner) }
     }
