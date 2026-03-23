@@ -1,6 +1,6 @@
 use cvc5_sys::*;
-use std::borrow::Borrow;
 use std::ffi::CString;
+use std::marker::PhantomData;
 
 use crate::{
     DatatypeConstructorDecl, Grammar, Proof, Result, Sort, Statistics, SynthResult, Term,
@@ -9,20 +9,22 @@ use crate::{
 
 /// A cvc5 solver instance.
 ///
-/// Holds a clone of the [`TermManager`] that created it, ensuring the
-/// underlying C term manager outlives this solver.
-pub struct Solver {
+/// The lifetime `'tm` ties this solver to the [`TermManager`] that created it,
+/// ensuring the term manager outlives the solver and all objects it produces.
+pub struct Solver<'tm> {
     pub(crate) inner: *mut Cvc5,
     pub(crate) tm: TermManager,
+    _phantom: PhantomData<&'tm ()>,
 }
 
-impl Solver {
+impl<'tm> Solver<'tm> {
     /// Create a new solver instance from the given term manager.
-    pub fn new(tm: impl Borrow<TermManager>) -> Self {
-        let tm = tm.borrow().clone();
+    pub fn new(tm: &'tm TermManager) -> Self {
+        let tm_clone = tm.clone();
         Self {
-            inner: unsafe { cvc5_new(tm.ptr()) },
-            tm,
+            inner: unsafe { cvc5_new(tm_clone.ptr()) },
+            tm: tm_clone,
+            _phantom: PhantomData,
         }
     }
 
@@ -108,18 +110,18 @@ impl Solver {
     }
 
     /// Check satisfiability of the current assertions.
-    pub fn check_sat(&mut self) -> Result {
+    pub fn check_sat(&mut self) -> Result<'tm> {
         Result::from_raw(unsafe { cvc5_check_sat(self.inner) })
     }
 
     /// Check satisfiability under the given assumptions.
-    pub fn check_sat_assuming(&mut self, assumptions: &[Term]) -> Result {
+    pub fn check_sat_assuming(&mut self, assumptions: &[Term]) -> Result<'tm> {
         let raw: Vec<Cvc5Term> = assumptions.iter().map(|t| t.inner).collect();
         Result::from_raw(unsafe { cvc5_check_sat_assuming(self.inner, raw.len(), raw.as_ptr()) })
     }
 
     /// Get the list of asserted formulas.
-    pub fn get_assertions(&self) -> Vec<Term> {
+    pub fn get_assertions(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_assertions(self.inner, &mut size) };
         (0..size)
@@ -130,19 +132,19 @@ impl Solver {
     // ── Simplification ─────────────────────────────────────────────
 
     /// Simplify a term. If `apply_subs` is true, apply learned substitutions.
-    pub fn simplify(&self, term: Term, apply_subs: bool) -> Term {
+    pub fn simplify(&self, term: Term, apply_subs: bool) -> Term<'tm> {
         Term::from_raw(unsafe { cvc5_simplify(self.inner, term.inner, apply_subs) })
     }
 
     // ── Model queries ──────────────────────────────────────────────
 
     /// Get the value of a term in the current model.
-    pub fn get_value(&self, term: Term) -> Term {
+    pub fn get_value(&self, term: Term) -> Term<'tm> {
         Term::from_raw(unsafe { cvc5_get_value(self.inner, term.inner) })
     }
 
     /// Get the values of multiple terms in the current model.
-    pub fn get_values(&self, terms: &[Term]) -> Vec<Term> {
+    pub fn get_values(&self, terms: &[Term]) -> Vec<Term<'tm>> {
         let raw: Vec<Cvc5Term> = terms.iter().map(|t| t.inner).collect();
         let mut rsize = 0usize;
         let ptr = unsafe { cvc5_get_values(self.inner, raw.len(), raw.as_ptr(), &mut rsize) };
@@ -152,7 +154,7 @@ impl Solver {
     }
 
     /// Get the domain elements of an uninterpreted sort in the current model.
-    pub fn get_model_domain_elements(&self, sort: Sort) -> Vec<Term> {
+    pub fn get_model_domain_elements(&self, sort: Sort) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_model_domain_elements(self.inner, sort.inner, &mut size) };
         (0..size)
@@ -196,7 +198,7 @@ impl Solver {
     // ── Declarations ───────────────────────────────────────────────
 
     /// Declare a function (SMT-LIB `declare-fun`).
-    pub fn declare_fun(&mut self, name: &str, domain: &[Sort], codomain: Sort) -> Term {
+    pub fn declare_fun(&mut self, name: &str, domain: &[Sort], codomain: Sort) -> Term<'tm> {
         let c = CString::new(name).unwrap();
         let raw: Vec<Cvc5Sort> = domain.iter().map(|s| s.inner).collect();
         Term::from_raw(unsafe {
@@ -212,13 +214,13 @@ impl Solver {
     }
 
     /// Declare an uninterpreted sort (SMT-LIB `declare-sort`).
-    pub fn declare_sort(&mut self, name: &str, arity: u32) -> Sort {
+    pub fn declare_sort(&mut self, name: &str, arity: u32) -> Sort<'tm> {
         let c = CString::new(name).unwrap();
         Sort::from_raw(unsafe { cvc5_declare_sort(self.inner, c.as_ptr(), arity, true) })
     }
 
     /// Declare a datatype from constructor declarations.
-    pub fn declare_dt(&mut self, symbol: &str, ctors: &[DatatypeConstructorDecl]) -> Sort {
+    pub fn declare_dt(&mut self, symbol: &str, ctors: &[DatatypeConstructorDecl]) -> Sort<'tm> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5DatatypeConstructorDecl> = ctors.iter().map(|d| d.inner).collect();
         Sort::from_raw(unsafe { cvc5_declare_dt(self.inner, c.as_ptr(), raw.len(), raw.as_ptr()) })
@@ -234,7 +236,7 @@ impl Solver {
         sort: Sort,
         term: Term,
         global: bool,
-    ) -> Term {
+    ) -> Term<'tm> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5Term> = vars.iter().map(|t| t.inner).collect();
         Term::from_raw(unsafe {
@@ -258,7 +260,7 @@ impl Solver {
         sort: Sort,
         term: Term,
         global: bool,
-    ) -> Term {
+    ) -> Term<'tm> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5Term> = vars.iter().map(|t| t.inner).collect();
         Term::from_raw(unsafe {
@@ -281,7 +283,7 @@ impl Solver {
         vars: &[Term],
         term: Term,
         global: bool,
-    ) -> Term {
+    ) -> Term<'tm> {
         let raw: Vec<Cvc5Term> = vars.iter().map(|t| t.inner).collect();
         Term::from_raw(unsafe {
             cvc5_define_fun_rec_from_const(
@@ -313,7 +315,7 @@ impl Solver {
     // ── Unsat core / assumptions ───────────────────────────────────
 
     /// Get the unsat core (subset of assertions that are unsatisfiable).
-    pub fn get_unsat_core(&self) -> Vec<Term> {
+    pub fn get_unsat_core(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_unsat_core(self.inner, &mut size) };
         (0..size)
@@ -322,7 +324,7 @@ impl Solver {
     }
 
     /// Get the lemmas used in the unsat core.
-    pub fn get_unsat_core_lemmas(&self) -> Vec<Term> {
+    pub fn get_unsat_core_lemmas(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_unsat_core_lemmas(self.inner, &mut size) };
         (0..size)
@@ -331,7 +333,7 @@ impl Solver {
     }
 
     /// Get the unsat assumptions (subset of assumptions from `check_sat_assuming`).
-    pub fn get_unsat_assumptions(&self) -> Vec<Term> {
+    pub fn get_unsat_assumptions(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_unsat_assumptions(self.inner, &mut size) };
         (0..size)
@@ -342,7 +344,7 @@ impl Solver {
     // ── Proofs ─────────────────────────────────────────────────────
 
     /// Get the proof of unsatisfiability.
-    pub fn get_proof(&self, c: Cvc5ProofComponent) -> Vec<Proof> {
+    pub fn get_proof(&self, c: Cvc5ProofComponent) -> Vec<Proof<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_proof(self.inner, c, &mut size) };
         (0..size)
@@ -378,7 +380,7 @@ impl Solver {
     // ── Learned literals / difficulty ──────────────────────────────
 
     /// Get the learned literals of the given type.
-    pub fn get_learned_literals(&self, lit_type: Cvc5LearnedLitType) -> Vec<Term> {
+    pub fn get_learned_literals(&self, lit_type: Cvc5LearnedLitType) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_learned_literals(self.inner, lit_type, &mut size) };
         (0..size)
@@ -387,7 +389,7 @@ impl Solver {
     }
 
     /// Get the difficulty of each assertion as `(inputs, values)` pairs.
-    pub fn get_difficulty(&self) -> (Vec<Term>, Vec<Term>) {
+    pub fn get_difficulty(&self) -> (Vec<Term<'tm>>, Vec<Term<'tm>>) {
         let mut size = 0usize;
         let mut inputs: *mut Cvc5Term = std::ptr::null_mut();
         let mut values: *mut Cvc5Term = std::ptr::null_mut();
@@ -404,7 +406,7 @@ impl Solver {
     // ── Timeout core ───────────────────────────────────────────────
 
     /// Get a timeout core: a minimal subset of assertions causing a timeout.
-    pub fn get_timeout_core(&mut self) -> (Result, Vec<Term>) {
+    pub fn get_timeout_core(&mut self) -> (Result<'tm>, Vec<Term<'tm>>) {
         let mut result: Cvc5Result = std::ptr::null_mut();
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_timeout_core(self.inner, &mut result, &mut size) };
@@ -415,7 +417,7 @@ impl Solver {
     }
 
     /// Get a timeout core under the given assumptions.
-    pub fn get_timeout_core_assuming(&mut self, assumptions: &[Term]) -> (Result, Vec<Term>) {
+    pub fn get_timeout_core_assuming(&self, assumptions: &[Term]) -> (Result<'tm>, Vec<Term<'tm>>) {
         let raw: Vec<Cvc5Term> = assumptions.iter().map(|t| t.inner).collect();
         let mut result: Cvc5Result = std::ptr::null_mut();
         let mut rsize = 0usize;
@@ -437,12 +439,12 @@ impl Solver {
     // ── Quantifier elimination ─────────────────────────────────────
 
     /// Perform quantifier elimination on the given formula.
-    pub fn get_quantifier_elimination(&self, q: Term) -> Term {
+    pub fn get_quantifier_elimination(&self, q: Term) -> Term<'tm> {
         Term::from_raw(unsafe { cvc5_get_quantifier_elimination(self.inner, q.inner) })
     }
 
     /// Perform partial quantifier elimination, returning a single disjunct.
-    pub fn get_quantifier_elimination_disjunct(&self, q: Term) -> Term {
+    pub fn get_quantifier_elimination_disjunct(&self, q: Term) -> Term<'tm> {
         Term::from_raw(unsafe { cvc5_get_quantifier_elimination_disjunct(self.inner, q.inner) })
     }
 
@@ -454,19 +456,19 @@ impl Solver {
     }
 
     /// Get the separation logic heap term.
-    pub fn get_value_sep_heap(&self) -> Term {
+    pub fn get_value_sep_heap(&self) -> Term<'tm> {
         Term::from_raw(unsafe { cvc5_get_value_sep_heap(self.inner) })
     }
 
     /// Get the separation logic nil term.
-    pub fn get_value_sep_nil(&self) -> Term {
+    pub fn get_value_sep_nil(&self) -> Term<'tm> {
         Term::from_raw(unsafe { cvc5_get_value_sep_nil(self.inner) })
     }
 
     // ── Pools ──────────────────────────────────────────────────────
 
     /// Declare a term pool with the given initial values.
-    pub fn declare_pool(&mut self, symbol: &str, sort: Sort, init_value: &[Term]) -> Term {
+    pub fn declare_pool(&mut self, symbol: &str, sort: Sort, init_value: &[Term]) -> Term<'tm> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5Term> = init_value.iter().map(|t| t.inner).collect();
         Term::from_raw(unsafe {
@@ -479,7 +481,7 @@ impl Solver {
     /// Compute an interpolant for the given conjecture.
     ///
     /// Returns `None` if no interpolant exists.
-    pub fn get_interpolant(&self, conj: Term) -> Option<Term> {
+    pub fn get_interpolant(&self, conj: Term) -> Option<Term<'tm>> {
         let raw = unsafe { cvc5_get_interpolant(self.inner, conj.inner) };
         (!raw.is_null()).then(|| Term::from_raw(raw))
     }
@@ -487,7 +489,7 @@ impl Solver {
     /// Compute an interpolant constrained by the given grammar.
     ///
     /// Returns `None` if no interpolant exists.
-    pub fn get_interpolant_with_grammar(&self, conj: Term, grammar: &Grammar) -> Option<Term> {
+    pub fn get_interpolant_with_grammar(&self, conj: Term, grammar: &Grammar) -> Option<Term<'tm>> {
         let raw =
             unsafe { cvc5_get_interpolant_with_grammar(self.inner, conj.inner, grammar.inner) };
         (!raw.is_null()).then(|| Term::from_raw(raw))
@@ -496,7 +498,7 @@ impl Solver {
     /// Get the next interpolant (after a previous `get_interpolant` call).
     ///
     /// Returns `None` if no further interpolant can be found.
-    pub fn get_interpolant_next(&self) -> Option<Term> {
+    pub fn get_interpolant_next(&self) -> Option<Term<'tm>> {
         let raw = unsafe { cvc5_get_interpolant_next(self.inner) };
         (!raw.is_null()).then(|| Term::from_raw(raw))
     }
@@ -506,7 +508,7 @@ impl Solver {
     /// Compute an abduct for the given conjecture.
     ///
     /// Returns `None` if no abduct can be found.
-    pub fn get_abduct(&self, conj: Term) -> Option<Term> {
+    pub fn get_abduct(&self, conj: Term) -> Option<Term<'tm>> {
         let raw = unsafe { cvc5_get_abduct(self.inner, conj.inner) };
         (!raw.is_null()).then(|| Term::from_raw(raw))
     }
@@ -514,7 +516,7 @@ impl Solver {
     /// Compute an abduct constrained by the given grammar.
     ///
     /// Returns `None` if no abduct can be found.
-    pub fn get_abduct_with_grammar(&self, conj: Term, grammar: &Grammar) -> Option<Term> {
+    pub fn get_abduct_with_grammar(&self, conj: Term, grammar: &Grammar) -> Option<Term<'tm>> {
         let raw = unsafe { cvc5_get_abduct_with_grammar(self.inner, conj.inner, grammar.inner) };
         (!raw.is_null()).then(|| Term::from_raw(raw))
     }
@@ -522,7 +524,7 @@ impl Solver {
     /// Get the next abduct (after a previous `get_abduct` call).
     ///
     /// Returns `None` if no further abduct can be found.
-    pub fn get_abduct_next(&self) -> Option<Term> {
+    pub fn get_abduct_next(&self) -> Option<Term<'tm>> {
         let raw = unsafe { cvc5_get_abduct_next(self.inner) };
         (!raw.is_null()).then(|| Term::from_raw(raw))
     }
@@ -541,13 +543,13 @@ impl Solver {
     // ── SyGuS ──────────────────────────────────────────────────────
 
     /// Declare a SyGuS variable.
-    pub fn declare_sygus_var(&mut self, symbol: &str, sort: Sort) -> Term {
+    pub fn declare_sygus_var(&mut self, symbol: &str, sort: Sort) -> Term<'tm> {
         let c = CString::new(symbol).unwrap();
         Term::from_raw(unsafe { cvc5_declare_sygus_var(self.inner, c.as_ptr(), sort.inner) })
     }
 
     /// Create a SyGuS grammar from bound variables and non-terminal symbols.
-    pub fn mk_grammar(&self, bound_vars: &[Term], symbols: &[Term]) -> Grammar {
+    pub fn mk_grammar(&self, bound_vars: &[Term], symbols: &[Term]) -> Grammar<'tm> {
         let bv: Vec<Cvc5Term> = bound_vars.iter().map(|t| t.inner).collect();
         let sy: Vec<Cvc5Term> = symbols.iter().map(|t| t.inner).collect();
         Grammar::from_raw(unsafe {
@@ -556,7 +558,7 @@ impl Solver {
     }
 
     /// Declare a function to synthesize (SyGuS `synth-fun`).
-    pub fn synth_fun(&mut self, symbol: &str, bound_vars: &[Term], sort: Sort) -> Term {
+    pub fn synth_fun(&mut self, symbol: &str, bound_vars: &[Term], sort: Sort) -> Term<'tm> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5Term> = bound_vars.iter().map(|t| t.inner).collect();
         Term::from_raw(unsafe {
@@ -571,7 +573,7 @@ impl Solver {
         bound_vars: &[Term],
         sort: Sort,
         grammar: &Grammar,
-    ) -> Term {
+    ) -> Term<'tm> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<Cvc5Term> = bound_vars.iter().map(|t| t.inner).collect();
         Term::from_raw(unsafe {
@@ -592,7 +594,7 @@ impl Solver {
     }
 
     /// Get the list of SyGuS constraints.
-    pub fn get_sygus_constraints(&self) -> Vec<Term> {
+    pub fn get_sygus_constraints(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_sygus_constraints(self.inner, &mut size) };
         (0..size)
@@ -606,7 +608,7 @@ impl Solver {
     }
 
     /// Get the list of SyGuS assumptions.
-    pub fn get_sygus_assumptions(&self) -> Vec<Term> {
+    pub fn get_sygus_assumptions(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { cvc5_get_sygus_assumptions(self.inner, &mut size) };
         (0..size)
@@ -622,22 +624,22 @@ impl Solver {
     }
 
     /// Check for a synthesis solution.
-    pub fn check_synth(&mut self) -> SynthResult {
+    pub fn check_synth(&mut self) -> SynthResult<'tm> {
         SynthResult::from_raw(unsafe { cvc5_check_synth(self.inner) })
     }
 
     /// Get the next synthesis solution.
-    pub fn check_synth_next(&mut self) -> SynthResult {
+    pub fn check_synth_next(&mut self) -> SynthResult<'tm> {
         SynthResult::from_raw(unsafe { cvc5_check_synth_next(self.inner) })
     }
 
     /// Get the synthesis solution for a given function-to-synthesize term.
-    pub fn get_synth_solution(&self, term: Term) -> Term {
+    pub fn get_synth_solution(&self, term: Term) -> Term<'tm> {
         Term::from_raw(unsafe { cvc5_get_synth_solution(self.inner, term.inner) })
     }
 
     /// Get synthesis solutions for multiple function-to-synthesize terms.
-    pub fn get_synth_solutions(&self, terms: &[Term]) -> Vec<Term> {
+    pub fn get_synth_solutions(&self, terms: &[Term]) -> Vec<Term<'tm>> {
         let raw: Vec<Cvc5Term> = terms.iter().map(|t| t.inner).collect();
         let ptr = unsafe { cvc5_get_synth_solutions(self.inner, raw.len(), raw.as_ptr()) };
         (0..terms.len())
@@ -648,7 +650,7 @@ impl Solver {
     /// Find a synthesis target of the given type.
     ///
     /// Returns `None` if the call failed.
-    pub fn find_synth(&self, target: Cvc5FindSynthTarget) -> Option<Term> {
+    pub fn find_synth(&self, target: Cvc5FindSynthTarget) -> Option<Term<'tm>> {
         let raw = unsafe { cvc5_find_synth(self.inner, target) };
         (!raw.is_null()).then(|| Term::from_raw(raw))
     }
@@ -657,10 +659,10 @@ impl Solver {
     ///
     /// Returns `None` if the call failed.
     pub fn find_synth_with_grammar(
-        &self,
+        &mut self,
         target: Cvc5FindSynthTarget,
         grammar: &Grammar,
-    ) -> Option<Term> {
+    ) -> Option<Term<'tm>> {
         let raw = unsafe { cvc5_find_synth_with_grammar(self.inner, target, grammar.inner) };
         (!raw.is_null()).then(|| Term::from_raw(raw))
     }
@@ -668,7 +670,7 @@ impl Solver {
     /// Get the next synthesis target.
     ///
     /// Returns `None` if the call failed.
-    pub fn find_synth_next(&self) -> Option<Term> {
+    pub fn find_synth_next(&self) -> Option<Term<'tm>> {
         let raw = unsafe { cvc5_find_synth_next(self.inner) };
         (!raw.is_null()).then(|| Term::from_raw(raw))
     }
@@ -771,7 +773,7 @@ impl Solver {
     }
 }
 
-impl Drop for Solver {
+impl Drop for Solver<'_> {
     fn drop(&mut self) {
         unsafe { cvc5_delete(self.inner) }
     }
