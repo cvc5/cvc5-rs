@@ -4,7 +4,7 @@
 //!
 //! # Example
 //!
-//! ```no_run
+//! ```rust
 //! use cvc5_rs::{TermManager, Solver, Kind};
 //!
 //! let tm = TermManager::new();
