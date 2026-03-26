@@ -4,7 +4,7 @@ resolver = "3"
 
 [package]
 name = "cvc5-rs"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2024"
 readme = "README.md"
 license = "BSD-3-Clause"
