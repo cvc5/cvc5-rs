@@ -4,14 +4,14 @@
 //!
 //! # Example
 //!
-//! ```no_run
+//! ```rust
 //! use cvc5_rs::{TermManager, Solver, InputParser, SymbolManager, InputLanguage};
 //!
 //! let tm = TermManager::new();
 //! let solver = Solver::new(&tm);
 //! let mut sm = SymbolManager::new(&tm);
 //!
-//! let mut parser = InputParser::new(&solver, Some(&sm));
+//! let mut parser = InputParser::new(solver, Some(&sm));
 //! parser.set_str_input(
 //!     InputLanguage::CVC5_INPUT_LANGUAGE_SMT_LIB_2_6,
 //!     "(set-logic QF_LIA)(declare-const x Int)(assert (> x 0))(check-sat)",
@@ -20,7 +20,7 @@
 //!
 //! while !parser.done() {
 //!     match parser.next_command() {
-//!         Ok(Some(cmd)) => { cmd.invoke(&mut Solver::new(&tm), &mut sm); }
+//!         Ok(Some(cmd)) => { cmd.invoke(parser.get_solver(), &mut sm); }
 //!         Ok(None) => break,
 //!         Err(e) => panic!("parse error: {e}"),
 //!     }
@@ -29,9 +29,10 @@
 
 use cvc5_sys::Cvc5InputLanguage as InputLanguage;
 use cvc5_sys::parser::*;
-use std::borrow::Borrow;
+use std::cell::RefCell;
 use std::ffi::CString;
 use std::fmt;
+use std::rc::Rc;
 
 use crate::{Solver, Sort, Term, TermManager};
 
@@ -46,19 +47,27 @@ use crate::{Solver, Sort, Term, TermManager};
 ///
 /// A `SymbolManager` can be shared with an [`InputParser`] so that parsed
 /// commands update the same symbol table.
+///
+/// Uses interior mutability (`Rc<RefCell<…>>`) so the manager can be
+/// cheaply cloned and shared while still allowing mutation through `&self`.
+#[derive(Clone)]
 pub struct SymbolManager {
-    pub(crate) inner: *mut Cvc5SymbolManager,
+    inner: Rc<RefCell<*mut Cvc5SymbolManager>>,
     tm: TermManager,
 }
 
 impl SymbolManager {
     /// Create a new symbol manager associated with the given term manager.
-    pub fn new(tm: impl Borrow<TermManager>) -> Self {
+    pub fn new(tm: impl std::borrow::Borrow<TermManager>) -> Self {
         let tm = tm.borrow().clone();
         Self {
-            inner: unsafe { cvc5_symbol_manager_new(tm.ptr()) },
+            inner: Rc::new(RefCell::new(unsafe { cvc5_symbol_manager_new(tm.ptr()) })),
             tm,
         }
+    }
+
+    pub(crate) fn ptr(&self) -> *mut Cvc5SymbolManager {
+        *self.inner.borrow()
     }
 
     /// Return the underlying term manager
@@ -68,7 +77,7 @@ impl SymbolManager {
 
     /// Return whether the logic has been set.
     pub fn is_logic_set(&self) -> bool {
-        unsafe { cvc5_sm_is_logic_set(self.inner) }
+        unsafe { cvc5_sm_is_logic_set(self.ptr()) }
     }
 
     /// Get the logic string (e.g. `"QF_LIA"`).
@@ -78,7 +87,7 @@ impl SymbolManager {
     /// The underlying C API asserts that the logic has been set.
     pub fn get_logic(&self) -> &str {
         unsafe {
-            let s = cvc5_sm_get_logic(self.inner);
+            let s = cvc5_sm_get_logic(self.ptr());
             std::ffi::CStr::from_ptr(s).to_str().unwrap_or("")
         }
     }
@@ -88,7 +97,7 @@ impl SymbolManager {
     /// These are the sorts printed as part of a `get-model` response.
     pub fn get_declared_sorts(&self) -> Vec<Sort> {
         let mut size = 0usize;
-        let ptr = unsafe { cvc5_sm_get_declared_sorts(self.inner, &mut size) };
+        let ptr = unsafe { cvc5_sm_get_declared_sorts(self.ptr(), &mut size) };
         (0..size)
             .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
             .collect()
@@ -99,7 +108,7 @@ impl SymbolManager {
     /// These are the terms printed in a `get-model` response.
     pub fn get_declared_terms(&self) -> Vec<Term> {
         let mut size = 0usize;
-        let ptr = unsafe { cvc5_sm_get_declared_terms(self.inner, &mut size) };
+        let ptr = unsafe { cvc5_sm_get_declared_terms(self.ptr(), &mut size) };
         (0..size)
             .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
             .collect()
@@ -112,7 +121,7 @@ impl SymbolManager {
         let mut size = 0usize;
         let mut terms: *mut cvc5_sys::Cvc5Term = std::ptr::null_mut();
         let mut names: *mut *const std::os::raw::c_char = std::ptr::null_mut();
-        unsafe { cvc5_sm_get_named_terms(self.inner, &mut size, &mut terms, &mut names) };
+        unsafe { cvc5_sm_get_named_terms(self.ptr(), &mut size, &mut terms, &mut names) };
         (0..size)
             .map(|i| unsafe {
                 let t = Term::from_raw(*terms.add(i));
@@ -127,7 +136,9 @@ impl SymbolManager {
 
 impl Drop for SymbolManager {
     fn drop(&mut self) {
-        unsafe { cvc5_symbol_manager_delete(self.inner) }
+        if Rc::strong_count(&self.inner) == 1 {
+            unsafe { cvc5_symbol_manager_delete(self.ptr()) }
+        }
     }
 }
 
@@ -159,7 +170,7 @@ impl Command {
     /// model output, etc.).
     pub fn invoke(&self, solver: &mut Solver, sm: &mut SymbolManager) -> String {
         unsafe {
-            std::ffi::CStr::from_ptr(cvc5_cmd_invoke(self.inner, solver.inner, sm.inner))
+            std::ffi::CStr::from_ptr(cvc5_cmd_invoke(self.inner, solver.inner, sm.ptr()))
                 .to_string_lossy()
                 .into_owned()
         }
@@ -204,8 +215,10 @@ impl fmt::Debug for Command {
 /// [`next_term`](InputParser::next_term) in a loop until
 /// [`done`](InputParser::done) returns `true`.
 pub struct InputParser {
-    pub(crate) inner: *mut Cvc5InputParser,
-    _tm: TermManager,
+    inner: *mut Cvc5InputParser,
+    /// This field is public for reclaiming the ownership of the solver
+    pub solver: Solver,
+    sm: SymbolManager,
 }
 
 impl InputParser {
@@ -217,12 +230,29 @@ impl InputParser {
     ///
     /// If both the solver and symbol manager have their logic set, the logics
     /// must be the same.
-    pub fn new(solver: &Solver, sm: Option<&SymbolManager>) -> Self {
-        let sm_ptr = sm.map_or(std::ptr::null_mut(), |s| s.inner);
+    pub fn new(solver: Solver, sm: Option<impl std::borrow::Borrow<SymbolManager>>) -> Self {
+        let sm = sm
+            .map(|sm| sm.borrow().clone())
+            .unwrap_or_else(|| SymbolManager::new(&solver.tm));
+        let sm_ptr = sm.ptr();
         Self {
             inner: unsafe { cvc5_parser_new(solver.inner, sm_ptr) },
-            _tm: solver.tm.clone(),
+            solver,
+            sm,
         }
+    }
+
+    /// Return a mutable reference to the solver associated with this parser.
+    pub fn get_solver(&mut self) -> &mut Solver {
+        &mut self.solver
+    }
+
+    /// Get the symbol manager associated with this parser.
+    ///
+    /// If no symbol manager was provided at construction, the parser creates
+    /// one internally and this method returns it.
+    pub fn get_symbol_manager(&self) -> SymbolManager {
+        self.sm.clone()
     }
 
     /// Configure a file as the input source.
@@ -275,7 +305,7 @@ impl InputParser {
     ///
     /// If no logic has been set, the first command that requires one will
     /// initialize the logic to `"ALL"`.
-    pub fn next_command(&mut self) -> std::result::Result<Option<Command>, String> {
+    pub fn next_command(&mut self) -> Result<Option<Command>, String> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
         let cmd = unsafe { cvc5_parser_next_command(self.inner, &mut error_msg) };
         if !error_msg.is_null() {
@@ -299,7 +329,7 @@ impl InputParser {
     /// - `Err(msg)` — a parse error with the error message.
     ///
     /// The logic must be set before calling this method.
-    pub fn next_term(&mut self) -> std::result::Result<Option<Term>, String> {
+    pub fn next_term(&mut self) -> Result<Option<Term>, String> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
         let term = unsafe { cvc5_parser_next_term(self.inner, &mut error_msg) };
         if !error_msg.is_null() {
