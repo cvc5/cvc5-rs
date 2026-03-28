@@ -5,7 +5,7 @@
 //! # Example
 //!
 //! ```rust
-//! use cvc5_rs::{TermManager, Solver, InputParser, SymbolManager, InputLanguage};
+//! use cvc5::{TermManager, Solver, InputParser, SymbolManager, InputLanguage};
 //!
 //! let tm = TermManager::new();
 //! let solver = Solver::new(&tm);

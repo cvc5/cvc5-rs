@@ -3,7 +3,7 @@ members = ["cvc5-sys"]
 resolver = "3"
 
 [package]
-name = "cvc5-rs"
+name = "cvc5"
 version = "0.3.3"
 edition = "2024"
 readme = "README.md"
