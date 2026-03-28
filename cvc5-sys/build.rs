@@ -80,66 +80,110 @@ fn main() {
 /// Renames enums
 #[derive(Debug)]
 struct RenamingCallback;
-impl ParseCallbacks for RenamingCallback
-{
-  fn enum_variant_name(
-    &self,
-    enum_name: Option<&str>,
-    original_variant_name: &str,
-    _variant_value: bindgen::callbacks::EnumVariantValue,
-  ) -> Option<String> {
-    let enum_name = enum_name?;
-    // For some reason, some enums start with `enum `
-    let name = enum_name.strip_prefix("enum ").unwrap_or(enum_name);
-    match name {
-      "Cvc5Kind" => {
-        Some(original_variant_name.strip_prefix("CVC5_KIND_").expect("Prefix").to_string())
-      }
-      "Cvc5SortKind" => {
-        Some(original_variant_name.strip_prefix("CVC5_SORT_KIND_").expect("Prefix").to_string())
-      }
-      "Cvc5RoundingMode" => {
-        Some(original_variant_name.strip_prefix("CVC5_RM_").expect("Prefix").to_string())
-      }
-      "Cvc5UnknownExplanation" => {
-        Some(original_variant_name.strip_prefix("CVC5_UNKNOWN_EXPLANATION_").expect("Prefix").to_string())
-      }
-      "Cvc5BlockModelsMode" => {
-        Some(original_variant_name.strip_prefix("CVC5_BLOCK_MODELS_MODE_").expect("Prefix").to_string())
-      }
-      "Cvc5LearnedLitType" => {
-        Some(original_variant_name.strip_prefix("CVC5_LEARNED_LIT_TYPE_").expect("Prefix").to_string())
-      }
-      "Cvc5ProofComponent" => {
-        Some(original_variant_name.strip_prefix("CVC5_PROOF_COMPONENT_").expect("Prefix").to_string())
-      }
-      "Cvc5ProofFormat" => {
-        Some(original_variant_name.strip_prefix("CVC5_PROOF_FORMAT_").expect("Prefix").to_string())
-      }
-      "Cvc5ProofRule" => {
-        Some(original_variant_name.strip_prefix("CVC5_PROOF_RULE_").expect("Prefix").to_string())
-      }
-      "Cvc5ProofRewriteRule" => {
-        Some(original_variant_name.strip_prefix("CVC5_PROOF_REWRITE_RULE_").expect("Prefix").to_string())
-      }
-      "Cvc5SkolemId" => {
-        Some(original_variant_name.strip_prefix("CVC5_SKOLEM_ID_").expect("Prefix").to_string())
-      }
-      "Cvc5FindSynthTarget" => {
-        Some(original_variant_name.strip_prefix("CVC5_FIND_SYNTH_TARGET_").expect("Prefix").to_string())
-      }
-      "Cvc5InputLanguage" => {
-        Some(original_variant_name.strip_prefix("CVC5_INPUT_LANGUAGE_").expect("Prefix").to_string())
-      }
-      "Cvc5OptionCategory" => {
-        Some(original_variant_name.strip_prefix("CVC5_OPTION_CATEGORY_").expect("Prefix").to_string())
-      }
-      "Cvc5OptionInfoKind" => {
-        Some(original_variant_name.strip_prefix("CVC5_OPTION_INFO_").expect("Prefix").to_string())
-      }
-      _ => None
+impl ParseCallbacks for RenamingCallback {
+    fn enum_variant_name(
+        &self,
+        enum_name: Option<&str>,
+        original_variant_name: &str,
+        _variant_value: bindgen::callbacks::EnumVariantValue,
+    ) -> Option<String> {
+        let enum_name = enum_name?;
+        // For some reason, some enums start with `enum `
+        let name = enum_name.strip_prefix("enum ").unwrap_or(enum_name);
+        match name {
+            "Cvc5Kind" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_KIND_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5SortKind" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_SORT_KIND_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5RoundingMode" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_RM_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5UnknownExplanation" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_UNKNOWN_EXPLANATION_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5BlockModelsMode" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_BLOCK_MODELS_MODE_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5LearnedLitType" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_LEARNED_LIT_TYPE_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5ProofComponent" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_PROOF_COMPONENT_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5ProofFormat" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_PROOF_FORMAT_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5ProofRule" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_PROOF_RULE_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5ProofRewriteRule" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_PROOF_REWRITE_RULE_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5SkolemId" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_SKOLEM_ID_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5FindSynthTarget" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_FIND_SYNTH_TARGET_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5InputLanguage" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_INPUT_LANGUAGE_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5OptionCategory" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_OPTION_CATEGORY_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            "Cvc5OptionInfoKind" => Some(
+                original_variant_name
+                    .strip_prefix("CVC5_OPTION_INFO_")
+                    .expect("Prefix")
+                    .to_string(),
+            ),
+            _ => None,
+        }
     }
-  }
 }
 
 fn generate_bindings(include_dir: &Path, build_include_dir: &Path) {

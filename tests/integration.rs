@@ -219,10 +219,7 @@ fn qf_alia_arrays() {
     let val = tm.mk_integer(42);
 
     // store(a, 0, 42)
-    let store = tm.mk_term(
-        Kind::STORE,
-        &[a.clone(), idx.clone(), val.clone()],
-    );
+    let store = tm.mk_term(Kind::STORE, &[a.clone(), idx.clone(), val.clone()]);
     // select(store(a, 0, 42), 0) = 42
     let sel = tm.mk_term(Kind::SELECT, &[store, idx]);
     let eq = tm.mk_term(Kind::EQUAL, &[sel, val]);
@@ -249,10 +246,7 @@ fn simple_datatype() {
     assert_eq!(dt.name(), "Color");
 
     let c = tm.mk_const(color_sort, "c");
-    let red_term = tm.mk_term(
-        Kind::APPLY_CONSTRUCTOR,
-        &[dt.constructor(0).term()],
-    );
+    let red_term = tm.mk_term(Kind::APPLY_CONSTRUCTOR, &[dt.constructor(0).term()]);
     let eq = tm.mk_term(Kind::EQUAL, &[c, red_term]);
     solver.assert_formula(eq);
 
@@ -850,10 +844,7 @@ fn sort_kind() {
         tm.integer_sort().kind(),
         cvc5_sys::Cvc5SortKind::INTEGER_SORT
     );
-    assert_eq!(
-        tm.real_sort().kind(),
-        cvc5_sys::Cvc5SortKind::REAL_SORT
-    );
+    assert_eq!(tm.real_sort().kind(), cvc5_sys::Cvc5SortKind::REAL_SORT);
 }
 
 // ── Sort: substitute ───────────────────────────────────────────────
@@ -899,10 +890,7 @@ fn sort_abstract() {
     let tm = TermManager::new();
     let abs = tm.mk_abstract_sort(cvc5_sys::Cvc5SortKind::BITVECTOR_SORT);
     assert!(abs.is_abstract());
-    assert_eq!(
-        abs.abstract_kind(),
-        cvc5_sys::Cvc5SortKind::BITVECTOR_SORT
-    );
+    assert_eq!(abs.abstract_kind(), cvc5_sys::Cvc5SortKind::BITVECTOR_SORT);
 }
 
 // ── Sort: Clone trait ──────────────────────────────────────────────
@@ -2383,8 +2371,7 @@ fn solver_get_learned_literals() {
     let zero = tm.mk_integer(0);
     solver.assert_formula(tm.mk_term(Kind::GT, &[x, zero]));
     assert!(solver.check_sat().is_sat());
-    let lits =
-        solver.get_learned_literals(cvc5_sys::Cvc5LearnedLitType::INPUT);
+    let lits = solver.get_learned_literals(cvc5_sys::Cvc5LearnedLitType::INPUT);
     // returned vec may be empty but should not panic; verify it's a valid vec
     for lit in &lits {
         assert!(lit.sort().is_boolean());
