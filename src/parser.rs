@@ -13,7 +13,7 @@
 //!
 //! let mut parser = InputParser::new(solver, Some(&sm));
 //! parser.set_str_input(
-//!     InputLanguage::CVC5_INPUT_LANGUAGE_SMT_LIB_2_6,
+//!     InputLanguage::SMT_LIB_2_6,
 //!     "(set-logic QF_LIA)(declare-const x Int)(assert (> x 0))(check-sat)",
 //!     "example",
 //! );
@@ -258,7 +258,7 @@ impl InputParser {
     /// Configure a file as the input source.
     ///
     /// - `lang` — the input language (e.g.
-    ///   [`CVC5_INPUT_LANGUAGE_SMT_LIB_2_6`](cvc5_sys::Cvc5InputLanguage::CVC5_INPUT_LANGUAGE_SMT_LIB_2_6)).
+    ///   [`SMT_LIB_2_6`](cvc5_sys::Cvc5InputLanguage::SMT_LIB_2_6)).
     /// - `filename` — path to the file.
     pub fn set_file_input(&mut self, lang: InputLanguage, filename: &str) {
         let f = CString::new(filename).unwrap();

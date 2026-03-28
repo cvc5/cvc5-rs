@@ -1,6 +1,8 @@
 use std::path::Path;
 use std::{env, path::PathBuf, process::Command};
 
+use bindgen::callbacks::ParseCallbacks;
+
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=CVC5_LIB_DIR");
@@ -75,6 +77,71 @@ fn main() {
     generate_bindings(&include_dir, &build_include_dir);
 }
 
+/// Renames enums
+#[derive(Debug)]
+struct RenamingCallback;
+impl ParseCallbacks for RenamingCallback
+{
+  fn enum_variant_name(
+    &self,
+    enum_name: Option<&str>,
+    original_variant_name: &str,
+    _variant_value: bindgen::callbacks::EnumVariantValue,
+  ) -> Option<String> {
+    let enum_name = enum_name?;
+    // For some reason, some enums start with `enum `
+    let name = enum_name.strip_prefix("enum ").unwrap_or(enum_name);
+    match name {
+      "Cvc5Kind" => {
+        Some(original_variant_name.strip_prefix("CVC5_KIND_").expect("Prefix").to_string())
+      }
+      "Cvc5SortKind" => {
+        Some(original_variant_name.strip_prefix("CVC5_SORT_KIND_").expect("Prefix").to_string())
+      }
+      "Cvc5RoundingMode" => {
+        Some(original_variant_name.strip_prefix("CVC5_RM_").expect("Prefix").to_string())
+      }
+      "Cvc5UnknownExplanation" => {
+        Some(original_variant_name.strip_prefix("CVC5_UNKNOWN_EXPLANATION_").expect("Prefix").to_string())
+      }
+      "Cvc5BlockModelsMode" => {
+        Some(original_variant_name.strip_prefix("CVC5_BLOCK_MODELS_MODE_").expect("Prefix").to_string())
+      }
+      "Cvc5LearnedLitType" => {
+        Some(original_variant_name.strip_prefix("CVC5_LEARNED_LIT_TYPE_").expect("Prefix").to_string())
+      }
+      "Cvc5ProofComponent" => {
+        Some(original_variant_name.strip_prefix("CVC5_PROOF_COMPONENT_").expect("Prefix").to_string())
+      }
+      "Cvc5ProofFormat" => {
+        Some(original_variant_name.strip_prefix("CVC5_PROOF_FORMAT_").expect("Prefix").to_string())
+      }
+      "Cvc5ProofRule" => {
+        Some(original_variant_name.strip_prefix("CVC5_PROOF_RULE_").expect("Prefix").to_string())
+      }
+      "Cvc5ProofRewriteRule" => {
+        Some(original_variant_name.strip_prefix("CVC5_PROOF_REWRITE_RULE_").expect("Prefix").to_string())
+      }
+      "Cvc5SkolemId" => {
+        Some(original_variant_name.strip_prefix("CVC5_SKOLEM_ID_").expect("Prefix").to_string())
+      }
+      "Cvc5FindSynthTarget" => {
+        Some(original_variant_name.strip_prefix("CVC5_FIND_SYNTH_TARGET_").expect("Prefix").to_string())
+      }
+      "Cvc5InputLanguage" => {
+        Some(original_variant_name.strip_prefix("CVC5_INPUT_LANGUAGE_").expect("Prefix").to_string())
+      }
+      "Cvc5OptionCategory" => {
+        Some(original_variant_name.strip_prefix("CVC5_OPTION_CATEGORY_").expect("Prefix").to_string())
+      }
+      "Cvc5OptionInfoKind" => {
+        Some(original_variant_name.strip_prefix("CVC5_OPTION_INFO_").expect("Prefix").to_string())
+      }
+      _ => None
+    }
+  }
+}
+
 fn generate_bindings(include_dir: &Path, build_include_dir: &Path) {
     // Generate bindings from the C API header
     let header = include_dir.join("cvc5/c/cvc5.h");
@@ -88,6 +155,7 @@ fn generate_bindings(include_dir: &Path, build_include_dir: &Path) {
         .header(header.to_string_lossy())
         .clang_arg(format!("-I{}", include_dir.display()))
         .clang_arg(format!("-I{}", build_include_dir.display()))
+        .parse_callbacks(Box::new(RenamingCallback))
         .clang_arg("-DCVC5_STATIC_DEFINE")
         .allowlist_function("cvc5_.*")
         .allowlist_type("Cvc5.*")
@@ -101,9 +169,12 @@ fn generate_bindings(include_dir: &Path, build_include_dir: &Path) {
         .rustified_enum("Cvc5ProofComponent")
         .rustified_enum("Cvc5ProofFormat")
         .rustified_enum("Cvc5ProofRule")
+        .rustified_enum("Cvc5ProofRewriteRule")
         .rustified_enum("Cvc5SkolemId")
         .rustified_enum("Cvc5FindSynthTarget")
         .rustified_enum("Cvc5InputLanguage")
+        .rustified_enum("Cvc5OptionCategory")
+        .rustified_enum("Cvc5OptionInfoKind")
         .generate_comments(true)
         .derive_default(true)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
