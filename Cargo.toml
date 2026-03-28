@@ -13,6 +13,7 @@ authors = ["the cvc5 team"]
 keywords = ["SMT", "solver", "logic"]
 categories = ["science"]
 homepage = "https://github.com/cvc5/cvc5-rs"
+rust-version = "1.85.1"
 
 [features]
 parser = ["cvc5-sys/parser"]
