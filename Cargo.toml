@@ -16,9 +16,10 @@ homepage = "https://github.com/cvc5/cvc5-rs"
 
 [features]
 parser = ["cvc5-sys/parser"]
+vendored = ["cvc5-sys/vendored"]
 
 [dependencies]
 cvc5-sys = { path = "cvc5-sys", version = "=0.3.1" }
 
 [package.metadata.docs.rs]
-features = ["parser"]
+features = ["parser", "vendored"]
