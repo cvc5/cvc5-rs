@@ -17,7 +17,7 @@
 //! let x = tm.mk_const(int_sort, "x");
 //! let zero = tm.mk_integer(0);
 //!
-//! let gt = tm.mk_term(Kind::GT, &[x.clone(), zero]);
+//! let gt = tm.mk_term(Kind::Gt, &[x.clone(), zero]);
 //! solver.assert_formula(gt);
 //!
 //! let result = solver.check_sat();

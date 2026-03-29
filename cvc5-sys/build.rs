@@ -2,6 +2,7 @@ use std::path::Path;
 use std::{env, path::PathBuf, process::Command};
 
 use bindgen::callbacks::ParseCallbacks;
+use convert_case::{Case, Casing as _};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
@@ -84,105 +85,38 @@ impl ParseCallbacks for RenamingCallback {
     fn enum_variant_name(
         &self,
         enum_name: Option<&str>,
-        original_variant_name: &str,
+        variant: &str,
         _variant_value: bindgen::callbacks::EnumVariantValue,
     ) -> Option<String> {
         let enum_name = enum_name?;
         // For some reason, some enums start with `enum `
         let name = enum_name.strip_prefix("enum ").unwrap_or(enum_name);
-        match name {
-            "Cvc5Kind" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_KIND_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5SortKind" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_SORT_KIND_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5RoundingMode" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_RM_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5UnknownExplanation" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_UNKNOWN_EXPLANATION_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5BlockModelsMode" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_BLOCK_MODELS_MODE_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5LearnedLitType" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_LEARNED_LIT_TYPE_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5ProofComponent" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_PROOF_COMPONENT_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5ProofFormat" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_PROOF_FORMAT_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5ProofRule" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_PROOF_RULE_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5ProofRewriteRule" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_PROOF_REWRITE_RULE_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5SkolemId" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_SKOLEM_ID_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5FindSynthTarget" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_FIND_SYNTH_TARGET_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5InputLanguage" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_INPUT_LANGUAGE_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5OptionCategory" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_OPTION_CATEGORY_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            "Cvc5OptionInfoKind" => Some(
-                original_variant_name
-                    .strip_prefix("CVC5_OPTION_INFO_")
-                    .expect("Prefix")
-                    .to_string(),
-            ),
-            _ => None,
-        }
+        let prefix = match name {
+            "Cvc5Kind" => "CVC5_KIND_",
+            "Cvc5SortKind" => "CVC5_SORT_KIND_",
+            "Cvc5RoundingMode" => "CVC5_RM_",
+            "Cvc5UnknownExplanation" => "CVC5_UNKNOWN_EXPLANATION_",
+            "Cvc5BlockModelsMode" => "CVC5_BLOCK_MODELS_MODE_",
+            "Cvc5LearnedLitType" => "CVC5_LEARNED_LIT_TYPE_",
+            "Cvc5ProofComponent" => "CVC5_PROOF_COMPONENT_",
+            "Cvc5ProofFormat" => "CVC5_PROOF_FORMAT_",
+            "Cvc5ProofRule" => "CVC5_PROOF_RULE_",
+            "Cvc5ProofRewriteRule" => "CVC5_PROOF_REWRITE_RULE_",
+            "Cvc5SkolemId" => "CVC5_SKOLEM_ID_",
+            "Cvc5FindSynthTarget" => "CVC5_FIND_SYNTH_TARGET_",
+            "Cvc5InputLanguage" => "CVC5_INPUT_LANGUAGE_",
+            "Cvc5OptionCategory" => "CVC5_OPTION_CATEGORY_",
+            "Cvc5OptionInfoKind" => "CVC5_OPTION_INFO_",
+            _ => {
+                return None;
+            }
+        };
+        let result = variant
+            .strip_prefix(prefix)
+            .expect("Prefix")
+            .from_case(Case::UpperSnake)
+            .to_case(Case::Pascal);
+        Some(result)
     }
 }
 
