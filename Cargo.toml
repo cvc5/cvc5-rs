@@ -3,7 +3,7 @@ members = ["cvc5-sys"]
 resolver = "3"
 
 [package]
-name = "cvc5-rs"
+name = "cvc5"
 version = "0.3.3"
 edition = "2024"
 readme = "README.md"
@@ -13,6 +13,7 @@ authors = ["the cvc5 team"]
 keywords = ["SMT", "solver", "logic"]
 categories = ["science"]
 homepage = "https://github.com/cvc5/cvc5-rs"
+rust-version = "1.85.1"
 
 [features]
 parser = ["cvc5-sys/parser"]

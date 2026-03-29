@@ -1,11 +1,11 @@
-//! # cvc5-rs
+//! # cvc5
 //!
 //! Safe, high-level Rust bindings for the [cvc5](https://cvc5.github.io/) SMT solver.
 //!
 //! # Example
 //!
 //! ```rust
-//! use cvc5_rs::{TermManager, Solver, Kind};
+//! use cvc5::{TermManager, Solver, Kind};
 //!
 //! let tm = TermManager::new();
 //! let mut solver = Solver::new(&tm);
@@ -17,7 +17,7 @@
 //! let x = tm.mk_const(int_sort, "x");
 //! let zero = tm.mk_integer(0);
 //!
-//! let gt = tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero]);
+//! let gt = tm.mk_term(Kind::GT, &[x.clone(), zero]);
 //! solver.assert_formula(gt);
 //!
 //! let result = solver.check_sat();

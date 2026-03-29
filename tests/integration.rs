@@ -1,4 +1,4 @@
-use cvc5_rs::{Kind, Solver, TermManager};
+use cvc5::{Kind, Solver, TermManager};
 
 /// Helper: create a TermManager + Solver pair with common setup.
 macro_rules! setup {
@@ -22,13 +22,13 @@ fn qf_lia_sat() {
 
     // x > 0
     let zero = tm.mk_integer(0);
-    let x_gt_0 = tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero]);
+    let x_gt_0 = tm.mk_term(Kind::GT, &[x.clone(), zero]);
     solver.assert_formula(x_gt_0);
 
     // y = x + 1
     let one = tm.mk_integer(1);
-    let x_plus_1 = tm.mk_term(Kind::CVC5_KIND_ADD, &[x.clone(), one]);
-    let y_eq = tm.mk_term(Kind::CVC5_KIND_EQUAL, &[y.clone(), x_plus_1]);
+    let x_plus_1 = tm.mk_term(Kind::ADD, &[x.clone(), one]);
+    let y_eq = tm.mk_term(Kind::EQUAL, &[y.clone(), x_plus_1]);
     solver.assert_formula(y_eq);
 
     let result = solver.check_sat();
@@ -51,8 +51,8 @@ fn qf_lia_unsat() {
     let one = tm.mk_integer(1);
 
     // x < 0 AND x > 0
-    let lt = tm.mk_term(Kind::CVC5_KIND_LT, &[x.clone(), zero]);
-    let gt = tm.mk_term(Kind::CVC5_KIND_GT, &[x, one]);
+    let lt = tm.mk_term(Kind::LT, &[x.clone(), zero]);
+    let gt = tm.mk_term(Kind::GT, &[x, one]);
     solver.assert_formula(lt);
     solver.assert_formula(gt);
 
@@ -72,12 +72,12 @@ fn qf_bv_sat() {
     let ff = tm.mk_bv(8, 0xFF);
 
     // x & 0xFF = x  (tautology for 8-bit, but let's also constrain x != 0)
-    let and_term = tm.mk_term(Kind::CVC5_KIND_BITVECTOR_AND, &[x.clone(), ff]);
-    let eq = tm.mk_term(Kind::CVC5_KIND_EQUAL, &[and_term, x.clone()]);
+    let and_term = tm.mk_term(Kind::BITVECTOR_AND, &[x.clone(), ff]);
+    let eq = tm.mk_term(Kind::EQUAL, &[and_term, x.clone()]);
     solver.assert_formula(eq);
 
     let zero = tm.mk_bv(8, 0);
-    let neq = tm.mk_term(Kind::CVC5_KIND_DISTINCT, &[x.clone(), zero]);
+    let neq = tm.mk_term(Kind::DISTINCT, &[x.clone(), zero]);
     solver.assert_formula(neq);
 
     assert!(solver.check_sat().is_sat());
@@ -95,7 +95,7 @@ fn qf_lra_sat() {
     let real = tm.real_sort();
     let x = tm.mk_const(real, "x");
     let half = tm.mk_real_from_rational(1, 2);
-    let eq = tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x.clone(), half]);
+    let eq = tm.mk_term(Kind::EQUAL, &[x.clone(), half]);
     solver.assert_formula(eq);
 
     assert!(solver.check_sat().is_sat());
@@ -120,12 +120,12 @@ fn boolean_sat() {
     let b = tm.mk_const(bool_sort, "b");
 
     // a OR b
-    let or_term = tm.mk_term(Kind::CVC5_KIND_OR, &[a.clone(), b.clone()]);
+    let or_term = tm.mk_term(Kind::OR, &[a.clone(), b.clone()]);
     solver.assert_formula(or_term);
 
     // NOT (a AND b)
-    let and_term = tm.mk_term(Kind::CVC5_KIND_AND, &[a.clone(), b.clone()]);
-    let not_and = tm.mk_term(Kind::CVC5_KIND_NOT, &[and_term]);
+    let and_term = tm.mk_term(Kind::AND, &[a.clone(), b.clone()]);
+    let not_and = tm.mk_term(Kind::NOT, &[and_term]);
     solver.assert_formula(not_and);
 
     assert!(solver.check_sat().is_sat());
@@ -146,12 +146,12 @@ fn push_pop() {
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
 
-    let x_gt_0 = tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero.clone()]);
+    let x_gt_0 = tm.mk_term(Kind::GT, &[x.clone(), zero.clone()]);
     solver.assert_formula(x_gt_0);
 
     solver.push(1);
     // Add contradictory constraint in inner scope
-    let x_lt_0 = tm.mk_term(Kind::CVC5_KIND_LT, &[x.clone(), zero]);
+    let x_lt_0 = tm.mk_term(Kind::LT, &[x.clone(), zero]);
     solver.assert_formula(x_lt_0);
     assert!(solver.check_sat().is_unsat());
 
@@ -174,11 +174,11 @@ fn check_sat_assuming() {
     let q = tm.mk_const(bool_sort, "q");
 
     // Assert p => q
-    let imp = tm.mk_term(Kind::CVC5_KIND_IMPLIES, &[p.clone(), q.clone()]);
+    let imp = tm.mk_term(Kind::IMPLIES, &[p.clone(), q.clone()]);
     solver.assert_formula(imp);
 
     // Assume p AND NOT q — should be unsat
-    let not_q = tm.mk_term(Kind::CVC5_KIND_NOT, &[q]);
+    let not_q = tm.mk_term(Kind::NOT, &[q]);
     let result = solver.check_sat_assuming(&[p.clone(), not_q.clone()]);
     assert!(result.is_unsat());
     let unsat_assumptions = solver.get_unsat_assumptions();
@@ -196,7 +196,7 @@ fn unsat_core() {
 
     let bool_sort = tm.boolean_sort();
     let a = tm.mk_const(bool_sort.clone(), "a");
-    let not_a = tm.mk_term(Kind::CVC5_KIND_NOT, std::slice::from_ref(&a));
+    let not_a = tm.mk_term(Kind::NOT, std::slice::from_ref(&a));
 
     solver.assert_formula(a);
     solver.assert_formula(not_a);
@@ -219,13 +219,10 @@ fn qf_alia_arrays() {
     let val = tm.mk_integer(42);
 
     // store(a, 0, 42)
-    let store = tm.mk_term(
-        Kind::CVC5_KIND_STORE,
-        &[a.clone(), idx.clone(), val.clone()],
-    );
+    let store = tm.mk_term(Kind::STORE, &[a.clone(), idx.clone(), val.clone()]);
     // select(store(a, 0, 42), 0) = 42
-    let sel = tm.mk_term(Kind::CVC5_KIND_SELECT, &[store, idx]);
-    let eq = tm.mk_term(Kind::CVC5_KIND_EQUAL, &[sel, val]);
+    let sel = tm.mk_term(Kind::SELECT, &[store, idx]);
+    let eq = tm.mk_term(Kind::EQUAL, &[sel, val]);
     solver.assert_formula(eq);
 
     assert!(solver.check_sat().is_sat());
@@ -249,11 +246,8 @@ fn simple_datatype() {
     assert_eq!(dt.name(), "Color");
 
     let c = tm.mk_const(color_sort, "c");
-    let red_term = tm.mk_term(
-        Kind::CVC5_KIND_APPLY_CONSTRUCTOR,
-        &[dt.constructor(0).term()],
-    );
-    let eq = tm.mk_term(Kind::CVC5_KIND_EQUAL, &[c, red_term]);
+    let red_term = tm.mk_term(Kind::APPLY_CONSTRUCTOR, &[dt.constructor(0).term()]);
+    let eq = tm.mk_term(Kind::EQUAL, &[c, red_term]);
     solver.assert_formula(eq);
 
     assert!(solver.check_sat().is_sat());
@@ -316,7 +310,7 @@ fn result_full_api() {
     solver2.set_logic("QF_LIA");
     let b = tm2.boolean_sort();
     let a = tm2.mk_const(b.clone(), "a");
-    let not_a = tm2.mk_term(Kind::CVC5_KIND_NOT, std::slice::from_ref(&a));
+    let not_a = tm2.mk_term(Kind::NOT, std::slice::from_ref(&a));
     solver2.assert_formula(a);
     solver2.assert_formula(not_a);
     let unsat = solver2.check_sat();
@@ -335,14 +329,14 @@ fn result_full_api() {
     let z = tm3.mk_const(int, "z");
     // Fermat-like: x^3 + y^3 = z^3, x,y,z > 1 — likely times out
     let two = tm3.mk_integer(2);
-    let x3 = tm3.mk_term(Kind::CVC5_KIND_POW, &[x.clone(), tm3.mk_integer(3)]);
-    let y3 = tm3.mk_term(Kind::CVC5_KIND_POW, &[y.clone(), tm3.mk_integer(3)]);
-    let z3 = tm3.mk_term(Kind::CVC5_KIND_POW, &[z.clone(), tm3.mk_integer(3)]);
-    let sum = tm3.mk_term(Kind::CVC5_KIND_ADD, &[x3, y3]);
-    solver3.assert_formula(tm3.mk_term(Kind::CVC5_KIND_EQUAL, &[sum, z3]));
-    solver3.assert_formula(tm3.mk_term(Kind::CVC5_KIND_GT, &[x, two.clone()]));
-    solver3.assert_formula(tm3.mk_term(Kind::CVC5_KIND_GT, &[y, two.clone()]));
-    solver3.assert_formula(tm3.mk_term(Kind::CVC5_KIND_GT, &[z, two]));
+    let x3 = tm3.mk_term(Kind::POW, &[x.clone(), tm3.mk_integer(3)]);
+    let y3 = tm3.mk_term(Kind::POW, &[y.clone(), tm3.mk_integer(3)]);
+    let z3 = tm3.mk_term(Kind::POW, &[z.clone(), tm3.mk_integer(3)]);
+    let sum = tm3.mk_term(Kind::ADD, &[x3, y3]);
+    solver3.assert_formula(tm3.mk_term(Kind::EQUAL, &[sum, z3]));
+    solver3.assert_formula(tm3.mk_term(Kind::GT, &[x, two.clone()]));
+    solver3.assert_formula(tm3.mk_term(Kind::GT, &[y, two.clone()]));
+    solver3.assert_formula(tm3.mk_term(Kind::GT, &[z, two]));
     let unk = solver3.check_sat();
     if unk.is_unknown() {
         let expl = unk.unknown_explanation();
@@ -366,8 +360,8 @@ fn multiple_solvers() {
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
 
-    let gt = tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero.clone()]);
-    let lt = tm.mk_term(Kind::CVC5_KIND_LT, &[x, zero]);
+    let gt = tm.mk_term(Kind::GT, &[x.clone(), zero.clone()]);
+    let lt = tm.mk_term(Kind::LT, &[x, zero]);
 
     s1.assert_formula(gt);
     s2.assert_formula(lt);
@@ -381,8 +375,8 @@ fn multiple_solvers() {
 #[test]
 fn op_bv_extract() {
     let tm = TermManager::new();
-    let op = tm.mk_op(Kind::CVC5_KIND_BITVECTOR_EXTRACT, &[3, 1]);
-    assert_eq!(op.kind(), Kind::CVC5_KIND_BITVECTOR_EXTRACT);
+    let op = tm.mk_op(Kind::BITVECTOR_EXTRACT, &[3, 1]);
+    assert_eq!(op.kind(), Kind::BITVECTOR_EXTRACT);
     assert!(op.is_indexed());
     assert_eq!(op.num_indices(), 2);
     assert_eq!(format!("{op}"), "(_ extract 3 1)");
@@ -391,7 +385,7 @@ fn op_bv_extract() {
     assert_eq!(op, op2);
     assert!(!op.is_disequal(&op2));
 
-    let op3 = tm.mk_op(Kind::CVC5_KIND_BITVECTOR_EXTRACT, &[7, 4]);
+    let op3 = tm.mk_op(Kind::BITVECTOR_EXTRACT, &[7, 4]);
     assert!(op.is_disequal(&op3));
 
     // Use op to build a term
@@ -399,8 +393,8 @@ fn op_bv_extract() {
     let x = tm.mk_const(bv8, "x");
     let ext = tm.mk_term_from_op(op, &[x]);
     assert!(ext.has_op());
-    assert_eq!(ext.op().kind(), Kind::CVC5_KIND_BITVECTOR_EXTRACT);
-    let dbg = format!("{:?}", tm.mk_op(Kind::CVC5_KIND_BITVECTOR_EXTRACT, &[3, 1]));
+    assert_eq!(ext.op().kind(), Kind::BITVECTOR_EXTRACT);
+    let dbg = format!("{:?}", tm.mk_op(Kind::BITVECTOR_EXTRACT, &[3, 1]));
     assert!(!dbg.is_empty());
     // hash
     let mut set = std::collections::HashSet::new();
@@ -419,12 +413,12 @@ fn proof_basic() {
 
     let b = tm.boolean_sort();
     let a = tm.mk_const(b.clone(), "a");
-    let not_a = tm.mk_term(Kind::CVC5_KIND_NOT, std::slice::from_ref(&a));
+    let not_a = tm.mk_term(Kind::NOT, std::slice::from_ref(&a));
     solver.assert_formula(a);
     solver.assert_formula(not_a);
     assert!(solver.check_sat().is_unsat());
 
-    let proofs = solver.get_proof(cvc5_sys::Cvc5ProofComponent::CVC5_PROOF_COMPONENT_FULL);
+    let proofs = solver.get_proof(cvc5_sys::Cvc5ProofComponent::FULL);
     assert!(!proofs.is_empty());
 
     let p = &proofs[0];
@@ -461,7 +455,7 @@ fn statistics_basic() {
     let int = tm.integer_sort();
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
-    let gt = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
+    let gt = tm.mk_term(Kind::GT, &[x, zero]);
     solver.assert_formula(gt);
     solver.check_sat();
 
@@ -501,8 +495,8 @@ fn synth_result_basic() {
     let f = solver.synth_fun("f", std::slice::from_ref(&x), int.clone());
 
     let zero = tm.mk_integer(0);
-    let fx = tm.mk_term(Kind::CVC5_KIND_APPLY_UF, &[f.clone(), x.clone()]);
-    let ge = tm.mk_term(Kind::CVC5_KIND_GEQ, &[fx, zero]);
+    let fx = tm.mk_term(Kind::APPLY_UF, &[f.clone(), x.clone()]);
+    let ge = tm.mk_term(Kind::GEQ, &[fx, zero]);
     solver.add_sygus_constraint(ge);
 
     let sr = solver.check_synth();
@@ -844,16 +838,13 @@ fn sort_kind() {
     let tm = TermManager::new();
     assert_eq!(
         tm.boolean_sort().kind(),
-        cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_BOOLEAN_SORT
+        cvc5_sys::Cvc5SortKind::BOOLEAN_SORT
     );
     assert_eq!(
         tm.integer_sort().kind(),
-        cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_INTEGER_SORT
+        cvc5_sys::Cvc5SortKind::INTEGER_SORT
     );
-    assert_eq!(
-        tm.real_sort().kind(),
-        cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_REAL_SORT
-    );
+    assert_eq!(tm.real_sort().kind(), cvc5_sys::Cvc5SortKind::REAL_SORT);
 }
 
 // ── Sort: substitute ───────────────────────────────────────────────
@@ -897,12 +888,9 @@ fn sort_record() {
 #[test]
 fn sort_abstract() {
     let tm = TermManager::new();
-    let abs = tm.mk_abstract_sort(cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_BITVECTOR_SORT);
+    let abs = tm.mk_abstract_sort(cvc5_sys::Cvc5SortKind::BITVECTOR_SORT);
     assert!(abs.is_abstract());
-    assert_eq!(
-        abs.abstract_kind(),
-        cvc5_sys::Cvc5SortKind::CVC5_SORT_KIND_BITVECTOR_SORT
-    );
+    assert_eq!(abs.abstract_kind(), cvc5_sys::Cvc5SortKind::BITVECTOR_SORT);
 }
 
 // ── Sort: Clone trait ──────────────────────────────────────────────
@@ -1305,26 +1293,26 @@ fn dt_solving_with_selectors() {
     let three = tm.mk_integer(3);
     let seven = tm.mk_integer(7);
     let pair_val = tm.mk_term(
-        Kind::CVC5_KIND_APPLY_CONSTRUCTOR,
+        Kind::APPLY_CONSTRUCTOR,
         &[ctor.term(), three.clone(), seven.clone()],
     );
     let p = tm.mk_const(sort, "p");
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[p.clone(), pair_val]));
+    solver.assert_formula(tm.mk_term(Kind::EQUAL, &[p.clone(), pair_val]));
 
     assert!(solver.check_sat().is_sat());
 
     // select fst(p) == 3
-    let fst_app = tm.mk_term(Kind::CVC5_KIND_APPLY_SELECTOR, &[fst_sel.term(), p.clone()]);
+    let fst_app = tm.mk_term(Kind::APPLY_SELECTOR, &[fst_sel.term(), p.clone()]);
     let fst_val = solver.get_value(fst_app);
     assert_eq!(fst_val.int32_value(), 3);
 
     // select snd(p) == 7
-    let snd_app = tm.mk_term(Kind::CVC5_KIND_APPLY_SELECTOR, &[snd_sel.term(), p.clone()]);
+    let snd_app = tm.mk_term(Kind::APPLY_SELECTOR, &[snd_sel.term(), p.clone()]);
     let snd_val = solver.get_value(snd_app);
     assert_eq!(snd_val.int32_value(), 7);
 
     // tester: isPair(p) == true
-    let tester = tm.mk_term(Kind::CVC5_KIND_APPLY_TESTER, &[ctor.tester_term(), p]);
+    let tester = tm.mk_term(Kind::APPLY_TESTER, &[ctor.tester_term(), p]);
     let tester_val = solver.get_value(tester);
     assert!(tester_val.boolean_value());
 }
@@ -1335,15 +1323,15 @@ fn dt_solving_with_selectors() {
 fn term_kind_sort_id() {
     let tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x");
-    assert_eq!(x.kind(), Kind::CVC5_KIND_CONSTANT);
+    assert_eq!(x.kind(), Kind::CONSTANT);
     assert!(x.sort().is_integer());
     assert!(x.id() > 0);
 
     let zero = tm.mk_integer(0);
-    assert_eq!(zero.kind(), Kind::CVC5_KIND_CONST_INTEGER);
+    assert_eq!(zero.kind(), Kind::CONST_INTEGER);
 
-    let gt = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
-    assert_eq!(gt.kind(), Kind::CVC5_KIND_GT);
+    let gt = tm.mk_term(Kind::GT, &[x, zero]);
+    assert_eq!(gt.kind(), Kind::GT);
     assert!(gt.sort().is_boolean());
 }
 
@@ -1354,7 +1342,7 @@ fn term_children() {
     let tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x");
     let y = tm.mk_const(tm.integer_sort(), "y");
-    let add = tm.mk_term(Kind::CVC5_KIND_ADD, &[x.clone(), y.clone()]);
+    let add = tm.mk_term(Kind::ADD, &[x.clone(), y.clone()]);
     assert_eq!(add.num_children(), 2);
     assert_eq!(add.child(0), x);
     assert_eq!(add.child(1), y);
@@ -1380,7 +1368,7 @@ fn term_op() {
     let tm = TermManager::new();
     let bv8 = tm.mk_bv_sort(8);
     let x = tm.mk_const(bv8, "x");
-    let op = tm.mk_op(Kind::CVC5_KIND_BITVECTOR_EXTRACT, &[3, 0]);
+    let op = tm.mk_op(Kind::BITVECTOR_EXTRACT, &[3, 0]);
     let ext = tm.mk_term_from_op(op.clone(), &[x]);
     assert!(ext.has_op());
     assert_eq!(ext.op(), op);
@@ -1605,11 +1593,11 @@ fn term_fp_value() {
 #[test]
 fn term_rm_value() {
     let tm = TermManager::new();
-    let rne = tm.mk_rm(cvc5_sys::Cvc5RoundingMode::CVC5_RM_ROUND_NEAREST_TIES_TO_EVEN);
+    let rne = tm.mk_rm(cvc5_sys::Cvc5RoundingMode::ROUND_NEAREST_TIES_TO_EVEN);
     assert!(rne.is_rm_value());
     assert_eq!(
         rne.rm_value(),
-        cvc5_sys::Cvc5RoundingMode::CVC5_RM_ROUND_NEAREST_TIES_TO_EVEN
+        cvc5_sys::Cvc5RoundingMode::ROUND_NEAREST_TIES_TO_EVEN
     );
 }
 
@@ -1651,7 +1639,7 @@ fn term_tuple_value() {
         tm.mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()]),
         "t",
     );
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[t.clone(), tup]));
+    solver.assert_formula(tm.mk_term(Kind::EQUAL, &[t.clone(), tup]));
     assert!(solver.check_sat().is_sat());
 
     let val = solver.get_value(t);
@@ -1676,10 +1664,10 @@ fn term_set_value() {
     // s = {1, 2}
     let one = tm.mk_integer(1);
     let two = tm.mk_integer(2);
-    let s1 = tm.mk_term(Kind::CVC5_KIND_SET_SINGLETON, &[one]);
-    let s2 = tm.mk_term(Kind::CVC5_KIND_SET_SINGLETON, &[two]);
-    let union = tm.mk_term(Kind::CVC5_KIND_SET_UNION, &[s1, s2]);
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[s.clone(), union]));
+    let s1 = tm.mk_term(Kind::SET_SINGLETON, &[one]);
+    let s2 = tm.mk_term(Kind::SET_SINGLETON, &[two]);
+    let union = tm.mk_term(Kind::SET_UNION, &[s1, s2]);
+    solver.assert_formula(tm.mk_term(Kind::EQUAL, &[s.clone(), union]));
     assert!(solver.check_sat().is_sat());
 
     let val = solver.get_value(s);
@@ -1702,8 +1690,8 @@ fn term_sequence_value() {
     let s = tm.mk_const(seq_sort, "s");
 
     let one = tm.mk_integer(1);
-    let unit = tm.mk_term(Kind::CVC5_KIND_SEQ_UNIT, &[one]);
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[s.clone(), unit]));
+    let unit = tm.mk_term(Kind::SEQ_UNIT, &[one]);
+    solver.assert_formula(tm.mk_term(Kind::EQUAL, &[s.clone(), unit]));
     assert!(solver.check_sat().is_sat());
 
     let val = solver.get_value(s);
@@ -1722,7 +1710,7 @@ fn term_substitute_term() {
     let zero = tm.mk_integer(0);
 
     // x > 0, substitute x -> y
-    let gt = tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero.clone()]);
+    let gt = tm.mk_term(Kind::GT, &[x.clone(), zero.clone()]);
     let subst = gt.substitute_term(x, y.clone());
     // result should be y > 0
     assert_eq!(subst.child(0), y);
@@ -1739,7 +1727,7 @@ fn term_substitute_terms() {
     let a = tm.mk_const(tm.integer_sort(), "a");
     let b = tm.mk_const(tm.integer_sort(), "b");
 
-    let add = tm.mk_term(Kind::CVC5_KIND_ADD, &[x.clone(), y.clone()]);
+    let add = tm.mk_term(Kind::ADD, &[x.clone(), y.clone()]);
     let subst = add.substitute_terms(&[x, y], &[a.clone(), b.clone()]);
     assert_eq!(subst.child(0), a);
     assert_eq!(subst.child(1), b);
@@ -1830,7 +1818,7 @@ fn term_pi() {
 #[test]
 fn term_skolem() {
     let tm = TermManager::new();
-    let id = cvc5_sys::Cvc5SkolemId::CVC5_SKOLEM_ID_PURIFY;
+    let id = cvc5_sys::Cvc5SkolemId::PURIFY;
     let n = tm.get_num_idxs_for_skolem_id(id);
     assert!(n > 0);
 
@@ -1903,8 +1891,8 @@ fn tm_default() {
 #[test]
 fn tm_mk_op_from_str() {
     let tm = TermManager::new();
-    let op = tm.mk_op_from_str(Kind::CVC5_KIND_DIVISIBLE, "3");
-    assert_eq!(op.kind(), Kind::CVC5_KIND_DIVISIBLE);
+    let op = tm.mk_op_from_str(Kind::DIVISIBLE, "3");
+    assert_eq!(op.kind(), Kind::DIVISIBLE);
     assert!(op.is_indexed());
     assert_eq!(op.num_indices(), 1);
 
@@ -1948,7 +1936,7 @@ fn tm_mk_nullable_lift() {
     let tm = TermManager::new();
     let a = tm.mk_nullable_some(tm.mk_integer(1));
     let b = tm.mk_nullable_some(tm.mk_integer(2));
-    let lifted = tm.mk_nullable_lift(Kind::CVC5_KIND_ADD, &[a, b]);
+    let lifted = tm.mk_nullable_lift(Kind::ADD, &[a, b]);
     assert!(lifted.sort().is_nullable());
 }
 
@@ -1958,7 +1946,7 @@ fn tm_mk_nullable_lift() {
 fn tm_mk_var() {
     let tm = TermManager::new();
     let v = tm.mk_var(tm.integer_sort(), "v");
-    assert_eq!(v.kind(), Kind::CVC5_KIND_VARIABLE);
+    assert_eq!(v.kind(), Kind::VARIABLE);
     assert!(v.has_symbol());
     assert_eq!(v.symbol(), "v");
     assert!(v.sort().is_integer());
@@ -1970,7 +1958,7 @@ fn tm_mk_var() {
 fn tm_mk_const() {
     let tm = TermManager::new();
     let c = tm.mk_const(tm.boolean_sort(), "p");
-    assert_eq!(c.kind(), Kind::CVC5_KIND_CONSTANT);
+    assert_eq!(c.kind(), Kind::CONSTANT);
     assert!(c.has_symbol());
     assert_eq!(c.symbol(), "p");
     assert!(c.sort().is_boolean());
@@ -2018,11 +2006,11 @@ fn tm_all_rounding_modes() {
     use cvc5_sys::Cvc5RoundingMode::*;
     let tm = TermManager::new();
     for rm in [
-        CVC5_RM_ROUND_NEAREST_TIES_TO_EVEN,
-        CVC5_RM_ROUND_TOWARD_POSITIVE,
-        CVC5_RM_ROUND_TOWARD_NEGATIVE,
-        CVC5_RM_ROUND_TOWARD_ZERO,
-        CVC5_RM_ROUND_NEAREST_TIES_TO_AWAY,
+        ROUND_NEAREST_TIES_TO_EVEN,
+        ROUND_TOWARD_POSITIVE,
+        ROUND_TOWARD_NEGATIVE,
+        ROUND_TOWARD_ZERO,
+        ROUND_NEAREST_TIES_TO_AWAY,
     ] {
         let t = tm.mk_rm(rm);
         assert!(t.is_rm_value());
@@ -2072,7 +2060,7 @@ fn solver_option_info() {
 #[test]
 fn solver_simplify() {
     setup!(tm, solver, "QF_LIA");
-    let t = tm.mk_term(Kind::CVC5_KIND_AND, &[tm.mk_true(), tm.mk_true()]);
+    let t = tm.mk_term(Kind::AND, &[tm.mk_true(), tm.mk_true()]);
     let simplified = solver.simplify(t, false);
     assert!(simplified.is_boolean_value());
     assert!(simplified.boolean_value());
@@ -2086,7 +2074,7 @@ fn solver_get_assertions() {
     let int = tm.integer_sort();
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
-    let gt = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
+    let gt = tm.mk_term(Kind::GT, &[x, zero]);
     solver.assert_formula(gt.clone());
     let assertions = solver.get_assertions();
     assert_eq!(assertions.len(), 1);
@@ -2103,8 +2091,8 @@ fn solver_get_values() {
     let y = tm.mk_const(int, "y");
     let one = tm.mk_integer(1);
     let two = tm.mk_integer(2);
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x.clone(), one]));
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[y.clone(), two]));
+    solver.assert_formula(tm.mk_term(Kind::EQUAL, &[x.clone(), one]));
+    solver.assert_formula(tm.mk_term(Kind::EQUAL, &[y.clone(), two]));
     assert!(solver.check_sat().is_sat());
     let vals = solver.get_values(&[x, y]);
     assert_eq!(vals.len(), 2);
@@ -2124,8 +2112,8 @@ fn solver_reset_assertions() {
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
     // assert contradiction
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero.clone()]));
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_LT, &[x, zero]));
+    solver.assert_formula(tm.mk_term(Kind::GT, &[x.clone(), zero.clone()]));
+    solver.assert_formula(tm.mk_term(Kind::LT, &[x, zero]));
     assert!(solver.check_sat().is_unsat());
     solver.reset_assertions();
     // after reset, no assertions → sat
@@ -2140,7 +2128,7 @@ fn solver_declare_fun() {
     let int = tm.integer_sort();
     let f = solver.declare_fun("f", std::slice::from_ref(&int), int.clone());
     let x = tm.mk_const(int, "x");
-    let fx = tm.mk_term(Kind::CVC5_KIND_APPLY_UF, &[f, x]);
+    let fx = tm.mk_term(Kind::APPLY_UF, &[f, x]);
     assert!(fx.sort().is_integer());
 }
 
@@ -2161,7 +2149,7 @@ fn solver_define_fun() {
     let int = tm.integer_sort();
     let x = tm.mk_var(int.clone(), "x");
     let one = tm.mk_integer(1);
-    let body = tm.mk_term(Kind::CVC5_KIND_ADD, &[x.clone(), one]);
+    let body = tm.mk_term(Kind::ADD, &[x.clone(), one]);
     let f = solver.define_fun("inc", &[x], int, body, true);
     assert!(f.sort().is_fun());
 }
@@ -2249,11 +2237,11 @@ fn solver_block_model() {
     let x = tm.mk_const(int.clone(), "x");
     let zero = tm.mk_integer(0);
     let ten = tm.mk_integer(10);
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GEQ, &[x.clone(), zero]));
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_LEQ, &[x.clone(), ten]));
+    solver.assert_formula(tm.mk_term(Kind::GEQ, &[x.clone(), zero]));
+    solver.assert_formula(tm.mk_term(Kind::LEQ, &[x.clone(), ten]));
     assert!(solver.check_sat().is_sat());
     let v1 = solver.get_value(x.clone()).int32_value();
-    solver.block_model(cvc5_sys::Cvc5BlockModelsMode::CVC5_BLOCK_MODELS_MODE_VALUES);
+    solver.block_model(cvc5_sys::Cvc5BlockModelsMode::VALUES);
     assert!(solver.check_sat().is_sat());
     let v2 = solver.get_value(x).int32_value();
     assert_ne!(v1, v2);
@@ -2270,8 +2258,8 @@ fn solver_block_model_values() {
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
     let ten = tm.mk_integer(10);
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GEQ, &[x.clone(), zero]));
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_LEQ, &[x.clone(), ten]));
+    solver.assert_formula(tm.mk_term(Kind::GEQ, &[x.clone(), zero]));
+    solver.assert_formula(tm.mk_term(Kind::LEQ, &[x.clone(), ten]));
     assert!(solver.check_sat().is_sat());
     let v1 = solver.get_value(x.clone()).int32_value();
     solver.block_model_values(std::slice::from_ref(&x));
@@ -2292,7 +2280,7 @@ fn solver_model_domain_elements() {
     let u = solver.declare_sort("U", 0);
     let x = tm.mk_const(u.clone(), "x");
     let y = tm.mk_const(u.clone(), "y");
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_DISTINCT, &[x.clone(), y.clone()]));
+    solver.assert_formula(tm.mk_term(Kind::DISTINCT, &[x.clone(), y.clone()]));
     assert!(solver.check_sat().is_sat());
     let elems = solver.get_model_domain_elements(u);
     assert!(elems.len() >= 2);
@@ -2310,7 +2298,7 @@ fn solver_is_model_core_symbol() {
     let x = tm.mk_const(int.clone(), "x");
     let y = tm.mk_const(int, "y");
     let one = tm.mk_integer(1);
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x.clone(), one]));
+    solver.assert_formula(tm.mk_term(Kind::EQUAL, &[x.clone(), one]));
     assert!(solver.check_sat().is_sat());
     // x is constrained, y is not — at minimum y should not be in core
     // x_in_core may vary by solver heuristics, just exercise the API
@@ -2330,7 +2318,7 @@ fn solver_unsat_core_lemmas() {
 
     let b = tm.boolean_sort();
     let a = tm.mk_const(b, "a");
-    let not_a = tm.mk_term(Kind::CVC5_KIND_NOT, std::slice::from_ref(&a));
+    let not_a = tm.mk_term(Kind::NOT, std::slice::from_ref(&a));
     solver.assert_formula(a);
     solver.assert_formula(not_a);
     assert!(solver.check_sat().is_unsat());
@@ -2352,16 +2340,16 @@ fn solver_proof_to_string() {
 
     let b = tm.boolean_sort();
     let a = tm.mk_const(b, "a");
-    let not_a = tm.mk_term(Kind::CVC5_KIND_NOT, std::slice::from_ref(&a));
+    let not_a = tm.mk_term(Kind::NOT, std::slice::from_ref(&a));
     solver.assert_formula(a.clone());
     solver.assert_formula(not_a.clone());
     assert!(solver.check_sat().is_unsat());
 
-    let proofs = solver.get_proof(cvc5_sys::Cvc5ProofComponent::CVC5_PROOF_COMPONENT_FULL);
+    let proofs = solver.get_proof(cvc5_sys::Cvc5ProofComponent::FULL);
     assert!(!proofs.is_empty());
     let s = solver.proof_to_string(
         proofs[0].copy(),
-        cvc5_sys::Cvc5ProofFormat::CVC5_PROOF_FORMAT_DEFAULT,
+        cvc5_sys::Cvc5ProofFormat::DEFAULT,
         &[a, not_a],
         &["a", "not_a"],
     );
@@ -2381,10 +2369,9 @@ fn solver_get_learned_literals() {
     let int = tm.integer_sort();
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]));
+    solver.assert_formula(tm.mk_term(Kind::GT, &[x, zero]));
     assert!(solver.check_sat().is_sat());
-    let lits =
-        solver.get_learned_literals(cvc5_sys::Cvc5LearnedLitType::CVC5_LEARNED_LIT_TYPE_INPUT);
+    let lits = solver.get_learned_literals(cvc5_sys::Cvc5LearnedLitType::INPUT);
     // returned vec may be empty but should not panic; verify it's a valid vec
     for lit in &lits {
         assert!(lit.sort().is_boolean());
@@ -2403,7 +2390,7 @@ fn solver_get_difficulty() {
     let int = tm.integer_sort();
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]));
+    solver.assert_formula(tm.mk_term(Kind::GT, &[x, zero]));
     solver.check_sat();
     let (inputs, values) = solver.get_difficulty();
     assert_eq!(inputs.len(), values.len());
@@ -2435,10 +2422,10 @@ fn solver_get_interpolant() {
     let y = tm.mk_const(int, "y");
     let zero = tm.mk_integer(0);
     // A: x > 0 AND x = y
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero.clone()]));
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x, y.clone()]));
+    solver.assert_formula(tm.mk_term(Kind::GT, &[x.clone(), zero.clone()]));
+    solver.assert_formula(tm.mk_term(Kind::EQUAL, &[x, y.clone()]));
     // B (conjecture): y > 0
-    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[y, zero]);
+    let conj = tm.mk_term(Kind::GT, &[y, zero]);
     let interp = solver.get_interpolant(conj);
     assert!(interp.unwrap().sort().is_boolean());
 }
@@ -2456,7 +2443,7 @@ fn solver_get_abduct() {
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
     // conjecture: x > 0
-    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
+    let conj = tm.mk_term(Kind::GT, &[x, zero]);
     let abd = solver.get_abduct(conj);
     assert!(abd.unwrap().sort().is_boolean());
 }
@@ -2477,13 +2464,13 @@ fn solver_sygus_var_and_queries() {
     let f = solver.synth_fun("f", &[], int.clone());
     let zero = tm.mk_integer(0);
     // constraint: f() >= 0
-    let ge = tm.mk_term(Kind::CVC5_KIND_GEQ, &[f.clone(), zero.clone()]);
+    let ge = tm.mk_term(Kind::GEQ, &[f.clone(), zero.clone()]);
     solver.add_sygus_constraint(ge);
     let constraints = solver.get_sygus_constraints();
     assert_eq!(constraints.len(), 1);
 
     // assumption
-    let assume = tm.mk_term(Kind::CVC5_KIND_GT, &[f.clone(), zero]);
+    let assume = tm.mk_term(Kind::GT, &[f.clone(), zero]);
     solver.add_sygus_assume(assume);
     let assumptions = solver.get_sygus_assumptions();
     assert_eq!(assumptions.len(), 1);
@@ -2505,8 +2492,8 @@ fn solver_get_synth_solutions() {
     let f = solver.synth_fun("f", &[], int.clone());
     let g = solver.synth_fun("g", &[], int.clone());
     let zero = tm.mk_integer(0);
-    solver.add_sygus_constraint(tm.mk_term(Kind::CVC5_KIND_GEQ, &[f.clone(), zero.clone()]));
-    solver.add_sygus_constraint(tm.mk_term(Kind::CVC5_KIND_GEQ, &[g.clone(), zero]));
+    solver.add_sygus_constraint(tm.mk_term(Kind::GEQ, &[f.clone(), zero.clone()]));
+    solver.add_sygus_constraint(tm.mk_term(Kind::GEQ, &[g.clone(), zero]));
     assert!(solver.check_synth().has_solution());
     let sols = solver.get_synth_solutions(&[f, g]);
     assert_eq!(sols.len(), 2);
@@ -2549,7 +2536,7 @@ fn solver_sep_logic() {
     let x = tm.mk_const(int.clone(), "x");
     let one = tm.mk_integer(1);
     // x pto 1
-    let pto = tm.mk_term(Kind::CVC5_KIND_SEP_PTO, &[x.clone(), one]);
+    let pto = tm.mk_term(Kind::SEP_PTO, &[x.clone(), one]);
     solver.assert_formula(pto);
     assert!(solver.check_sat().is_sat());
 
@@ -2571,17 +2558,17 @@ fn solver_get_instantiations() {
     let int = tm.integer_sort();
     let x = tm.mk_var(int.clone(), "x");
     let f = solver.declare_fun("f", std::slice::from_ref(&int), int.clone());
-    let fx = tm.mk_term(Kind::CVC5_KIND_APPLY_UF, &[f.clone(), x.clone()]);
+    let fx = tm.mk_term(Kind::APPLY_UF, &[f.clone(), x.clone()]);
     let zero = tm.mk_integer(0);
-    let ge = tm.mk_term(Kind::CVC5_KIND_GEQ, &[fx, zero]);
+    let ge = tm.mk_term(Kind::GEQ, &[fx, zero]);
     // forall x. f(x) >= 0
-    let bound = tm.mk_term(Kind::CVC5_KIND_VARIABLE_LIST, &[x]);
-    let forall = tm.mk_term(Kind::CVC5_KIND_FORALL, &[bound, ge]);
+    let bound = tm.mk_term(Kind::VARIABLE_LIST, &[x]);
+    let forall = tm.mk_term(Kind::FORALL, &[bound, ge]);
     solver.assert_formula(forall);
 
     let c = tm.mk_const(int, "c");
-    let fc = tm.mk_term(Kind::CVC5_KIND_APPLY_UF, &[f, c]);
-    let neg = tm.mk_term(Kind::CVC5_KIND_LT, &[fc, tm.mk_integer(0)]);
+    let fc = tm.mk_term(Kind::APPLY_UF, &[f, c]);
+    let neg = tm.mk_term(Kind::LT, &[fc, tm.mk_integer(0)]);
     solver.assert_formula(neg);
 
     let result = solver.check_sat();
@@ -2609,7 +2596,7 @@ fn solver_check_synth_next() {
     let int = tm.integer_sort();
     let f = solver.synth_fun("f", &[], int.clone());
     let zero = tm.mk_integer(0);
-    solver.add_sygus_constraint(tm.mk_term(Kind::CVC5_KIND_GEQ, &[f.clone(), zero]));
+    solver.add_sygus_constraint(tm.mk_term(Kind::GEQ, &[f.clone(), zero]));
     assert!(solver.check_synth().has_solution());
     let sr2 = solver.check_synth_next();
     assert!(sr2.has_solution());
@@ -2628,9 +2615,9 @@ fn solver_get_interpolant_with_grammar() {
     let x = tm.mk_const(int.clone(), "x");
     let y = tm.mk_const(int, "y");
     let zero = tm.mk_integer(0);
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero.clone()]));
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x, y.clone()]));
-    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[y, zero]);
+    solver.assert_formula(tm.mk_term(Kind::GT, &[x.clone(), zero.clone()]));
+    solver.assert_formula(tm.mk_term(Kind::EQUAL, &[x, y.clone()]));
+    let conj = tm.mk_term(Kind::GT, &[y, zero]);
 
     let start = tm.mk_var(tm.boolean_sort(), "start");
     let mut g = solver.mk_grammar(&[], std::slice::from_ref(&start));
@@ -2653,7 +2640,7 @@ fn solver_get_abduct_with_grammar() {
     let int = tm.integer_sort();
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
-    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
+    let conj = tm.mk_term(Kind::GT, &[x, zero]);
 
     let start = tm.mk_var(tm.boolean_sort(), "start");
     let mut g = solver.mk_grammar(&[], std::slice::from_ref(&start));
@@ -2679,14 +2666,14 @@ fn solver_quantifier_elimination() {
 
     // exists x. (x > 0 AND y = x)  =>  y > 0
     let body = tm.mk_term(
-        Kind::CVC5_KIND_AND,
+        Kind::AND,
         &[
-            tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero]),
-            tm.mk_term(Kind::CVC5_KIND_EQUAL, &[y, x.clone()]),
+            tm.mk_term(Kind::GT, &[x.clone(), zero]),
+            tm.mk_term(Kind::EQUAL, &[y, x.clone()]),
         ],
     );
-    let bound = tm.mk_term(Kind::CVC5_KIND_VARIABLE_LIST, &[x]);
-    let exists = tm.mk_term(Kind::CVC5_KIND_EXISTS, &[bound, body]);
+    let bound = tm.mk_term(Kind::VARIABLE_LIST, &[x]);
+    let exists = tm.mk_term(Kind::EXISTS, &[bound, body]);
 
     let result = solver.get_quantifier_elimination(exists.clone());
     assert!(result.sort().is_boolean());
@@ -2722,7 +2709,7 @@ fn solver_get_timeout_core() {
     let int = tm.integer_sort();
     let x = tm.mk_const(int, "x");
     let one = tm.mk_integer(1);
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x, one]));
+    solver.assert_formula(tm.mk_term(Kind::EQUAL, &[x, one]));
 
     let (result, terms) = solver.get_timeout_core();
     // simple problem should be sat, not timeout
@@ -2745,7 +2732,7 @@ fn solver_get_timeout_core_assuming() {
     let int = tm.integer_sort();
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
-    let gt = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
+    let gt = tm.mk_term(Kind::GT, &[x, zero]);
 
     let (result, terms) = solver.get_timeout_core_assuming(&[gt]);
     assert!(result.is_sat() || result.is_unknown());
@@ -2768,9 +2755,9 @@ fn solver_get_interpolant_next() {
     let x = tm.mk_const(int.clone(), "x");
     let y = tm.mk_const(int, "y");
     let zero = tm.mk_integer(0);
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_GT, &[x.clone(), zero.clone()]));
-    solver.assert_formula(tm.mk_term(Kind::CVC5_KIND_EQUAL, &[x, y.clone()]));
-    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[y, zero]);
+    solver.assert_formula(tm.mk_term(Kind::GT, &[x.clone(), zero.clone()]));
+    solver.assert_formula(tm.mk_term(Kind::EQUAL, &[x, y.clone()]));
+    let conj = tm.mk_term(Kind::GT, &[y, zero]);
 
     let interp1 = solver.get_interpolant(conj.clone());
     assert!(interp1.unwrap().sort().is_boolean());
@@ -2792,7 +2779,7 @@ fn solver_get_abduct_next() {
     let int = tm.integer_sort();
     let x = tm.mk_const(int, "x");
     let zero = tm.mk_integer(0);
-    let conj = tm.mk_term(Kind::CVC5_KIND_GT, &[x, zero]);
+    let conj = tm.mk_term(Kind::GT, &[x, zero]);
 
     let abd1 = solver.get_abduct(conj.clone());
     assert!(abd1.unwrap().sort().is_boolean());
