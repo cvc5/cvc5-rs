@@ -19,7 +19,7 @@ parser = ["cvc5-sys/parser"]
 vendored = ["cvc5-sys/vendored"]
 
 [dependencies]
-cvc5-sys = { path = "cvc5-sys", version = "=0.3.1" }
+cvc5-sys = { path = "cvc5-sys", version = "=0.4.0" }
 
 [package.metadata.docs.rs]
 features = ["parser", "vendored"]
