@@ -1,6 +1,9 @@
 use std::path::Path;
 use std::{env, path::PathBuf, process::Command};
 
+use bindgen::callbacks::ParseCallbacks;
+use convert_case::{Case, Casing as _};
+
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=CVC5_LIB_DIR");
@@ -75,6 +78,48 @@ fn main() {
     generate_bindings(&include_dir, &build_include_dir);
 }
 
+/// Renames enums
+#[derive(Debug)]
+struct RenamingCallback;
+impl ParseCallbacks for RenamingCallback {
+    fn enum_variant_name(
+        &self,
+        enum_name: Option<&str>,
+        variant: &str,
+        _variant_value: bindgen::callbacks::EnumVariantValue,
+    ) -> Option<String> {
+        let enum_name = enum_name?;
+        // For some reason, some enums start with `enum `
+        let name = enum_name.strip_prefix("enum ").unwrap_or(enum_name);
+        let prefix = match name {
+            "Cvc5Kind" => "CVC5_KIND_",
+            "Cvc5SortKind" => "CVC5_SORT_KIND_",
+            "Cvc5RoundingMode" => "CVC5_RM_",
+            "Cvc5UnknownExplanation" => "CVC5_UNKNOWN_EXPLANATION_",
+            "Cvc5BlockModelsMode" => "CVC5_BLOCK_MODELS_MODE_",
+            "Cvc5LearnedLitType" => "CVC5_LEARNED_LIT_TYPE_",
+            "Cvc5ProofComponent" => "CVC5_PROOF_COMPONENT_",
+            "Cvc5ProofFormat" => "CVC5_PROOF_FORMAT_",
+            "Cvc5ProofRule" => "CVC5_PROOF_RULE_",
+            "Cvc5ProofRewriteRule" => "CVC5_PROOF_REWRITE_RULE_",
+            "Cvc5SkolemId" => "CVC5_SKOLEM_ID_",
+            "Cvc5FindSynthTarget" => "CVC5_FIND_SYNTH_TARGET_",
+            "Cvc5InputLanguage" => "CVC5_INPUT_LANGUAGE_",
+            "Cvc5OptionCategory" => "CVC5_OPTION_CATEGORY_",
+            "Cvc5OptionInfoKind" => "CVC5_OPTION_INFO_",
+            _ => {
+                return None;
+            }
+        };
+        let result = variant
+            .strip_prefix(prefix)
+            .expect("Prefix")
+            .from_case(Case::UpperSnake)
+            .to_case(Case::Pascal);
+        Some(result)
+    }
+}
+
 fn generate_bindings(include_dir: &Path, build_include_dir: &Path) {
     // Generate bindings from the C API header
     let header = include_dir.join("cvc5/c/cvc5.h");
@@ -88,6 +133,7 @@ fn generate_bindings(include_dir: &Path, build_include_dir: &Path) {
         .header(header.to_string_lossy())
         .clang_arg(format!("-I{}", include_dir.display()))
         .clang_arg(format!("-I{}", build_include_dir.display()))
+        .parse_callbacks(Box::new(RenamingCallback))
         .clang_arg("-DCVC5_STATIC_DEFINE")
         .allowlist_function("cvc5_.*")
         .allowlist_type("Cvc5.*")
@@ -101,9 +147,12 @@ fn generate_bindings(include_dir: &Path, build_include_dir: &Path) {
         .rustified_enum("Cvc5ProofComponent")
         .rustified_enum("Cvc5ProofFormat")
         .rustified_enum("Cvc5ProofRule")
+        .rustified_enum("Cvc5ProofRewriteRule")
         .rustified_enum("Cvc5SkolemId")
         .rustified_enum("Cvc5FindSynthTarget")
         .rustified_enum("Cvc5InputLanguage")
+        .rustified_enum("Cvc5OptionCategory")
+        .rustified_enum("Cvc5OptionInfoKind")
         .generate_comments(true)
         .derive_default(true)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
