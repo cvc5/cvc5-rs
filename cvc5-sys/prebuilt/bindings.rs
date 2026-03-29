@@ -7,3797 +7,3813 @@ pub type __uint_least32_t = __uint32_t;
 #[doc = " The kind of a cvc5 Term.\n\n \\internal\n\n Note that the API type `cvc5::Kind` roughly corresponds to\n `cvc5::internal::Kind`, but is a different type. It hides internal kinds\n that should not be exported to the API, and maps all kinds that we want to\n export to its corresponding internal kinds. The underlying type of\n `cvc5::Kind` must be signed (to enable range checks for validity). The size\n of this type depends on the size of `cvc5::internal::Kind`\n (`NodeValue::NBITS_KIND`, currently 10 bits, see expr/node_value.h)."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5Kind {
-	INTERNAL_KIND = -2,
-	UNDEFINED_KIND = -1,
-	NULL_TERM = 0,
-	UNINTERPRETED_SORT_VALUE = 1,
-	EQUAL = 2,
-	DISTINCT = 3,
-	CONSTANT = 4,
-	VARIABLE = 5,
-	SKOLEM = 6,
-	SEXPR = 7,
-	LAMBDA = 8,
-	WITNESS = 9,
-	CONST_BOOLEAN = 10,
-	NOT = 11,
-	AND = 12,
-	IMPLIES = 13,
-	OR = 14,
-	XOR = 15,
-	ITE = 16,
-	APPLY_UF = 17,
-	CARDINALITY_CONSTRAINT = 18,
-	HO_APPLY = 19,
-	ADD = 20,
-	MULT = 21,
-	IAND = 22,
-	POW2 = 23,
-	SUB = 24,
-	NEG = 25,
-	DIVISION = 26,
-	DIVISION_TOTAL = 27,
-	INTS_DIVISION = 28,
-	INTS_DIVISION_TOTAL = 29,
-	INTS_MODULUS = 30,
-	INTS_MODULUS_TOTAL = 31,
-	ABS = 32,
-	POW = 33,
-	EXPONENTIAL = 34,
-	SINE = 35,
-	COSINE = 36,
-	TANGENT = 37,
-	COSECANT = 38,
-	SECANT = 39,
-	COTANGENT = 40,
-	ARCSINE = 41,
-	ARCCOSINE = 42,
-	ARCTANGENT = 43,
-	ARCCOSECANT = 44,
-	ARCSECANT = 45,
-	ARCCOTANGENT = 46,
-	SQRT = 47,
-	DIVISIBLE = 48,
-	CONST_RATIONAL = 49,
-	CONST_INTEGER = 50,
-	LT = 51,
-	LEQ = 52,
-	GT = 53,
-	GEQ = 54,
-	IS_INTEGER = 55,
-	TO_INTEGER = 56,
-	TO_REAL = 57,
-	PI = 58,
-	CONST_BITVECTOR = 59,
-	BITVECTOR_CONCAT = 60,
-	BITVECTOR_AND = 61,
-	BITVECTOR_OR = 62,
-	BITVECTOR_XOR = 63,
-	BITVECTOR_NOT = 64,
-	BITVECTOR_NAND = 65,
-	BITVECTOR_NOR = 66,
-	BITVECTOR_XNOR = 67,
-	BITVECTOR_COMP = 68,
-	BITVECTOR_MULT = 69,
-	BITVECTOR_ADD = 70,
-	BITVECTOR_SUB = 71,
-	BITVECTOR_NEG = 72,
-	BITVECTOR_UDIV = 73,
-	BITVECTOR_UREM = 74,
-	BITVECTOR_SDIV = 75,
-	BITVECTOR_SREM = 76,
-	BITVECTOR_SMOD = 77,
-	BITVECTOR_SHL = 78,
-	BITVECTOR_LSHR = 79,
-	BITVECTOR_ASHR = 80,
-	BITVECTOR_ULT = 81,
-	BITVECTOR_ULE = 82,
-	BITVECTOR_UGT = 83,
-	BITVECTOR_UGE = 84,
-	BITVECTOR_SLT = 85,
-	BITVECTOR_SLE = 86,
-	BITVECTOR_SGT = 87,
-	BITVECTOR_SGE = 88,
-	BITVECTOR_ULTBV = 89,
-	BITVECTOR_SLTBV = 90,
-	BITVECTOR_ITE = 91,
-	BITVECTOR_REDOR = 92,
-	BITVECTOR_REDAND = 93,
-	BITVECTOR_NEGO = 94,
-	BITVECTOR_UADDO = 95,
-	BITVECTOR_SADDO = 96,
-	BITVECTOR_UMULO = 97,
-	BITVECTOR_SMULO = 98,
-	BITVECTOR_USUBO = 99,
-	BITVECTOR_SSUBO = 100,
-	BITVECTOR_SDIVO = 101,
-	BITVECTOR_EXTRACT = 102,
-	BITVECTOR_REPEAT = 103,
-	BITVECTOR_ZERO_EXTEND = 104,
-	BITVECTOR_SIGN_EXTEND = 105,
-	BITVECTOR_ROTATE_LEFT = 106,
-	BITVECTOR_ROTATE_RIGHT = 107,
-	INT_TO_BITVECTOR = 108,
-	BITVECTOR_TO_NAT = 109,
-	BITVECTOR_UBV_TO_INT = 110,
-	BITVECTOR_SBV_TO_INT = 111,
-	BITVECTOR_FROM_BOOLS = 112,
-	BITVECTOR_BIT = 113,
-	CONST_FINITE_FIELD = 114,
-	FINITE_FIELD_NEG = 115,
-	FINITE_FIELD_ADD = 116,
-	FINITE_FIELD_BITSUM = 117,
-	FINITE_FIELD_MULT = 118,
-	CONST_FLOATINGPOINT = 119,
-	CONST_ROUNDINGMODE = 120,
-	FLOATINGPOINT_FP = 121,
-	FLOATINGPOINT_EQ = 122,
-	FLOATINGPOINT_ABS = 123,
-	FLOATINGPOINT_NEG = 124,
-	FLOATINGPOINT_ADD = 125,
-	FLOATINGPOINT_SUB = 126,
-	FLOATINGPOINT_MULT = 127,
-	FLOATINGPOINT_DIV = 128,
-	FLOATINGPOINT_FMA = 129,
-	FLOATINGPOINT_SQRT = 130,
-	FLOATINGPOINT_REM = 131,
-	FLOATINGPOINT_RTI = 132,
-	FLOATINGPOINT_MIN = 133,
-	FLOATINGPOINT_MAX = 134,
-	FLOATINGPOINT_LEQ = 135,
-	FLOATINGPOINT_LT = 136,
-	FLOATINGPOINT_GEQ = 137,
-	FLOATINGPOINT_GT = 138,
-	FLOATINGPOINT_IS_NORMAL = 139,
-	FLOATINGPOINT_IS_SUBNORMAL = 140,
-	FLOATINGPOINT_IS_ZERO = 141,
-	FLOATINGPOINT_IS_INF = 142,
-	FLOATINGPOINT_IS_NAN = 143,
-	FLOATINGPOINT_IS_NEG = 144,
-	FLOATINGPOINT_IS_POS = 145,
-	FLOATINGPOINT_TO_FP_FROM_IEEE_BV = 146,
-	FLOATINGPOINT_TO_FP_FROM_FP = 147,
-	FLOATINGPOINT_TO_FP_FROM_REAL = 148,
-	FLOATINGPOINT_TO_FP_FROM_SBV = 149,
-	FLOATINGPOINT_TO_FP_FROM_UBV = 150,
-	FLOATINGPOINT_TO_UBV = 151,
-	FLOATINGPOINT_TO_SBV = 152,
-	FLOATINGPOINT_TO_REAL = 153,
-	SELECT = 154,
-	STORE = 155,
-	CONST_ARRAY = 156,
-	EQ_RANGE = 157,
-	APPLY_CONSTRUCTOR = 158,
-	APPLY_SELECTOR = 159,
-	APPLY_TESTER = 160,
-	APPLY_UPDATER = 161,
-	MATCH = 162,
-	MATCH_CASE = 163,
-	MATCH_BIND_CASE = 164,
-	TUPLE_PROJECT = 165,
-	NULLABLE_LIFT = 166,
-	SEP_NIL = 167,
-	SEP_EMP = 168,
-	SEP_PTO = 169,
-	SEP_STAR = 170,
-	SEP_WAND = 171,
-	SET_EMPTY = 172,
-	SET_UNION = 173,
-	SET_INTER = 174,
-	SET_MINUS = 175,
-	SET_SUBSET = 176,
-	SET_MEMBER = 177,
-	SET_SINGLETON = 178,
-	SET_INSERT = 179,
-	SET_CARD = 180,
-	SET_COMPLEMENT = 181,
-	SET_UNIVERSE = 182,
-	SET_COMPREHENSION = 183,
-	SET_CHOOSE = 184,
-	SET_IS_EMPTY = 185,
-	SET_IS_SINGLETON = 186,
-	SET_MAP = 187,
-	SET_FILTER = 188,
-	SET_ALL = 189,
-	SET_SOME = 190,
-	SET_FOLD = 191,
-	RELATION_JOIN = 192,
-	RELATION_TABLE_JOIN = 193,
-	RELATION_PRODUCT = 194,
-	RELATION_TRANSPOSE = 195,
-	RELATION_TCLOSURE = 196,
-	RELATION_JOIN_IMAGE = 197,
-	RELATION_IDEN = 198,
-	RELATION_GROUP = 199,
-	RELATION_AGGREGATE = 200,
-	RELATION_PROJECT = 201,
-	BAG_EMPTY = 202,
-	BAG_UNION_MAX = 203,
-	BAG_UNION_DISJOINT = 204,
-	BAG_INTER_MIN = 205,
-	BAG_DIFFERENCE_SUBTRACT = 206,
-	BAG_DIFFERENCE_REMOVE = 207,
-	BAG_SUBBAG = 208,
-	BAG_COUNT = 209,
-	BAG_MEMBER = 210,
-	BAG_SETOF = 211,
-	BAG_MAKE = 212,
-	BAG_CARD = 213,
-	BAG_CHOOSE = 214,
-	BAG_MAP = 215,
-	BAG_FILTER = 216,
-	BAG_ALL = 217,
-	BAG_SOME = 218,
-	BAG_FOLD = 219,
-	BAG_PARTITION = 220,
-	TABLE_PRODUCT = 221,
-	TABLE_PROJECT = 222,
-	TABLE_AGGREGATE = 223,
-	TABLE_JOIN = 224,
-	TABLE_GROUP = 225,
-	STRING_CONCAT = 226,
-	STRING_IN_REGEXP = 227,
-	STRING_LENGTH = 228,
-	STRING_SUBSTR = 229,
-	STRING_UPDATE = 230,
-	STRING_CHARAT = 231,
-	STRING_CONTAINS = 232,
-	STRING_INDEXOF = 233,
-	STRING_INDEXOF_RE = 234,
-	STRING_REPLACE = 235,
-	STRING_REPLACE_ALL = 236,
-	STRING_REPLACE_RE = 237,
-	STRING_REPLACE_RE_ALL = 238,
-	STRING_TO_LOWER = 239,
-	STRING_TO_UPPER = 240,
-	STRING_REV = 241,
-	STRING_TO_CODE = 242,
-	STRING_FROM_CODE = 243,
-	STRING_LT = 244,
-	STRING_LEQ = 245,
-	STRING_PREFIX = 246,
-	STRING_SUFFIX = 247,
-	STRING_IS_DIGIT = 248,
-	STRING_FROM_INT = 249,
-	STRING_TO_INT = 250,
-	CONST_STRING = 251,
-	STRING_TO_REGEXP = 252,
-	REGEXP_CONCAT = 253,
-	REGEXP_UNION = 254,
-	REGEXP_INTER = 255,
-	REGEXP_DIFF = 256,
-	REGEXP_STAR = 257,
-	REGEXP_PLUS = 258,
-	REGEXP_OPT = 259,
-	REGEXP_RANGE = 260,
-	REGEXP_REPEAT = 261,
-	REGEXP_LOOP = 262,
-	REGEXP_NONE = 263,
-	REGEXP_ALL = 264,
-	REGEXP_ALLCHAR = 265,
-	REGEXP_COMPLEMENT = 266,
-	SEQ_CONCAT = 267,
-	SEQ_LENGTH = 268,
-	SEQ_EXTRACT = 269,
-	SEQ_UPDATE = 270,
-	SEQ_AT = 271,
-	SEQ_CONTAINS = 272,
-	SEQ_INDEXOF = 273,
-	SEQ_REPLACE = 274,
-	SEQ_REPLACE_ALL = 275,
-	SEQ_REV = 276,
-	SEQ_PREFIX = 277,
-	SEQ_SUFFIX = 278,
-	CONST_SEQUENCE = 279,
-	SEQ_UNIT = 280,
-	SEQ_NTH = 281,
-	FORALL = 282,
-	EXISTS = 283,
-	VARIABLE_LIST = 284,
-	INST_PATTERN = 285,
-	INST_NO_PATTERN = 286,
-	INST_POOL = 287,
-	INST_ADD_TO_POOL = 288,
-	SKOLEM_ADD_TO_POOL = 289,
-	INST_ATTRIBUTE = 290,
-	INST_PATTERN_LIST = 291,
-	LAST_KIND = 292,
+    InternalKind = -2,
+    UndefinedKind = -1,
+    NullTerm = 0,
+    UninterpretedSortValue = 1,
+    Equal = 2,
+    Distinct = 3,
+    Constant = 4,
+    Variable = 5,
+    Skolem = 6,
+    Sexpr = 7,
+    Lambda = 8,
+    Witness = 9,
+    ConstBoolean = 10,
+    Not = 11,
+    And = 12,
+    Implies = 13,
+    Or = 14,
+    Xor = 15,
+    Ite = 16,
+    ApplyUf = 17,
+    CardinalityConstraint = 18,
+    HoApply = 19,
+    Add = 20,
+    Mult = 21,
+    Iand = 22,
+    Pow2 = 23,
+    Sub = 24,
+    Neg = 25,
+    Division = 26,
+    DivisionTotal = 27,
+    IntsDivision = 28,
+    IntsDivisionTotal = 29,
+    IntsModulus = 30,
+    IntsModulusTotal = 31,
+    Abs = 32,
+    Pow = 33,
+    Exponential = 34,
+    Sine = 35,
+    Cosine = 36,
+    Tangent = 37,
+    Cosecant = 38,
+    Secant = 39,
+    Cotangent = 40,
+    Arcsine = 41,
+    Arccosine = 42,
+    Arctangent = 43,
+    Arccosecant = 44,
+    Arcsecant = 45,
+    Arccotangent = 46,
+    Sqrt = 47,
+    Divisible = 48,
+    ConstRational = 49,
+    ConstInteger = 50,
+    Lt = 51,
+    Leq = 52,
+    Gt = 53,
+    Geq = 54,
+    IsInteger = 55,
+    ToInteger = 56,
+    ToReal = 57,
+    Pi = 58,
+    ConstBitvector = 59,
+    BitvectorConcat = 60,
+    BitvectorAnd = 61,
+    BitvectorOr = 62,
+    BitvectorXor = 63,
+    BitvectorNot = 64,
+    BitvectorNand = 65,
+    BitvectorNor = 66,
+    BitvectorXnor = 67,
+    BitvectorComp = 68,
+    BitvectorMult = 69,
+    BitvectorAdd = 70,
+    BitvectorSub = 71,
+    BitvectorNeg = 72,
+    BitvectorUdiv = 73,
+    BitvectorUrem = 74,
+    BitvectorSdiv = 75,
+    BitvectorSrem = 76,
+    BitvectorSmod = 77,
+    BitvectorShl = 78,
+    BitvectorLshr = 79,
+    BitvectorAshr = 80,
+    BitvectorUlt = 81,
+    BitvectorUle = 82,
+    BitvectorUgt = 83,
+    BitvectorUge = 84,
+    BitvectorSlt = 85,
+    BitvectorSle = 86,
+    BitvectorSgt = 87,
+    BitvectorSge = 88,
+    BitvectorUltbv = 89,
+    BitvectorSltbv = 90,
+    BitvectorIte = 91,
+    BitvectorRedor = 92,
+    BitvectorRedand = 93,
+    BitvectorNego = 94,
+    BitvectorUaddo = 95,
+    BitvectorSaddo = 96,
+    BitvectorUmulo = 97,
+    BitvectorSmulo = 98,
+    BitvectorUsubo = 99,
+    BitvectorSsubo = 100,
+    BitvectorSdivo = 101,
+    BitvectorExtract = 102,
+    BitvectorRepeat = 103,
+    BitvectorZeroExtend = 104,
+    BitvectorSignExtend = 105,
+    BitvectorRotateLeft = 106,
+    BitvectorRotateRight = 107,
+    IntToBitvector = 108,
+    BitvectorToNat = 109,
+    BitvectorUbvToInt = 110,
+    BitvectorSbvToInt = 111,
+    BitvectorFromBools = 112,
+    BitvectorBit = 113,
+    ConstFiniteField = 114,
+    FiniteFieldNeg = 115,
+    FiniteFieldAdd = 116,
+    FiniteFieldBitsum = 117,
+    FiniteFieldMult = 118,
+    ConstFloatingpoint = 119,
+    ConstRoundingmode = 120,
+    FloatingpointFp = 121,
+    FloatingpointEq = 122,
+    FloatingpointAbs = 123,
+    FloatingpointNeg = 124,
+    FloatingpointAdd = 125,
+    FloatingpointSub = 126,
+    FloatingpointMult = 127,
+    FloatingpointDiv = 128,
+    FloatingpointFma = 129,
+    FloatingpointSqrt = 130,
+    FloatingpointRem = 131,
+    FloatingpointRti = 132,
+    FloatingpointMin = 133,
+    FloatingpointMax = 134,
+    FloatingpointLeq = 135,
+    FloatingpointLt = 136,
+    FloatingpointGeq = 137,
+    FloatingpointGt = 138,
+    FloatingpointIsNormal = 139,
+    FloatingpointIsSubnormal = 140,
+    FloatingpointIsZero = 141,
+    FloatingpointIsInf = 142,
+    FloatingpointIsNan = 143,
+    FloatingpointIsNeg = 144,
+    FloatingpointIsPos = 145,
+    FloatingpointToFpFromIeeeBv = 146,
+    FloatingpointToFpFromFp = 147,
+    FloatingpointToFpFromReal = 148,
+    FloatingpointToFpFromSbv = 149,
+    FloatingpointToFpFromUbv = 150,
+    FloatingpointToUbv = 151,
+    FloatingpointToSbv = 152,
+    FloatingpointToReal = 153,
+    Select = 154,
+    Store = 155,
+    ConstArray = 156,
+    EqRange = 157,
+    ApplyConstructor = 158,
+    ApplySelector = 159,
+    ApplyTester = 160,
+    ApplyUpdater = 161,
+    Match = 162,
+    MatchCase = 163,
+    MatchBindCase = 164,
+    TupleProject = 165,
+    NullableLift = 166,
+    SepNil = 167,
+    SepEmp = 168,
+    SepPto = 169,
+    SepStar = 170,
+    SepWand = 171,
+    SetEmpty = 172,
+    SetUnion = 173,
+    SetInter = 174,
+    SetMinus = 175,
+    SetSubset = 176,
+    SetMember = 177,
+    SetSingleton = 178,
+    SetInsert = 179,
+    SetCard = 180,
+    SetComplement = 181,
+    SetUniverse = 182,
+    SetComprehension = 183,
+    SetChoose = 184,
+    SetIsEmpty = 185,
+    SetIsSingleton = 186,
+    SetMap = 187,
+    SetFilter = 188,
+    SetAll = 189,
+    SetSome = 190,
+    SetFold = 191,
+    RelationJoin = 192,
+    RelationTableJoin = 193,
+    RelationProduct = 194,
+    RelationTranspose = 195,
+    RelationTclosure = 196,
+    RelationJoinImage = 197,
+    RelationIden = 198,
+    RelationGroup = 199,
+    RelationAggregate = 200,
+    RelationProject = 201,
+    BagEmpty = 202,
+    BagUnionMax = 203,
+    BagUnionDisjoint = 204,
+    BagInterMin = 205,
+    BagDifferenceSubtract = 206,
+    BagDifferenceRemove = 207,
+    BagSubbag = 208,
+    BagCount = 209,
+    BagMember = 210,
+    BagSetof = 211,
+    BagMake = 212,
+    BagCard = 213,
+    BagChoose = 214,
+    BagMap = 215,
+    BagFilter = 216,
+    BagAll = 217,
+    BagSome = 218,
+    BagFold = 219,
+    BagPartition = 220,
+    TableProduct = 221,
+    TableProject = 222,
+    TableAggregate = 223,
+    TableJoin = 224,
+    TableGroup = 225,
+    StringConcat = 226,
+    StringInRegexp = 227,
+    StringLength = 228,
+    StringSubstr = 229,
+    StringUpdate = 230,
+    StringCharat = 231,
+    StringContains = 232,
+    StringIndexof = 233,
+    StringIndexofRe = 234,
+    StringReplace = 235,
+    StringReplaceAll = 236,
+    StringReplaceRe = 237,
+    StringReplaceReAll = 238,
+    StringToLower = 239,
+    StringToUpper = 240,
+    StringRev = 241,
+    StringToCode = 242,
+    StringFromCode = 243,
+    StringLt = 244,
+    StringLeq = 245,
+    StringPrefix = 246,
+    StringSuffix = 247,
+    StringIsDigit = 248,
+    StringFromInt = 249,
+    StringToInt = 250,
+    ConstString = 251,
+    StringToRegexp = 252,
+    RegexpConcat = 253,
+    RegexpUnion = 254,
+    RegexpInter = 255,
+    RegexpDiff = 256,
+    RegexpStar = 257,
+    RegexpPlus = 258,
+    RegexpOpt = 259,
+    RegexpRange = 260,
+    RegexpRepeat = 261,
+    RegexpLoop = 262,
+    RegexpNone = 263,
+    RegexpAll = 264,
+    RegexpAllchar = 265,
+    RegexpComplement = 266,
+    SeqConcat = 267,
+    SeqLength = 268,
+    SeqExtract = 269,
+    SeqUpdate = 270,
+    SeqAt = 271,
+    SeqContains = 272,
+    SeqIndexof = 273,
+    SeqReplace = 274,
+    SeqReplaceAll = 275,
+    SeqRev = 276,
+    SeqPrefix = 277,
+    SeqSuffix = 278,
+    ConstSequence = 279,
+    SeqUnit = 280,
+    SeqNth = 281,
+    Forall = 282,
+    Exists = 283,
+    VariableList = 284,
+    InstPattern = 285,
+    InstNoPattern = 286,
+    InstPool = 287,
+    InstAddToPool = 288,
+    SkolemAddToPool = 289,
+    InstAttribute = 290,
+    InstPatternList = 291,
+    LastKind = 292,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5Kind.\n @param kind The kind.\n @return The string representation."]
-	pub fn cvc5_kind_to_string(kind: Cvc5Kind) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5Kind.\n @param kind The kind.\n @return The string representation."]
+    pub fn cvc5_kind_to_string(kind: Cvc5Kind) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Hash function for Cvc5Kinds.\n @param kind The kind.\n @return The hash value."]
-	pub fn cvc5_kind_hash(kind: Cvc5Kind) -> usize;
+    #[doc = " Hash function for Cvc5Kinds.\n @param kind The kind.\n @return The hash value."]
+    pub fn cvc5_kind_hash(kind: Cvc5Kind) -> usize;
 }
 #[repr(i32)]
 #[doc = " The kind of a cvc5 Sort.\n\n \\internal\n\n Note that the API type `cvc5::SortKind` roughly corresponds to\n `cvc5::internal::Kind`, but is a different type. It hides internal kinds\n that should not be exported to the API, and maps all kinds that we want to\n export to its corresponding internal kinds. The underlying type of\n `cvc5::Kind` must be signed (to enable range checks for validity). The size\n of this type depends on the size of `cvc5::internal::Kind`\n (`NodeValue::NBITS_KIND`, currently 10 bits, see expr/node_value.h)."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5SortKind {
-	INTERNAL_SORT_KIND = -2,
-	UNDEFINED_SORT_KIND = -1,
-	NULL_SORT = 0,
-	ABSTRACT_SORT = 1,
-	ARRAY_SORT = 2,
-	BAG_SORT = 3,
-	BOOLEAN_SORT = 4,
-	BITVECTOR_SORT = 5,
-	DATATYPE_SORT = 6,
-	FINITE_FIELD_SORT = 7,
-	FLOATINGPOINT_SORT = 8,
-	FUNCTION_SORT = 9,
-	INTEGER_SORT = 10,
-	REAL_SORT = 11,
-	REGLAN_SORT = 12,
-	ROUNDINGMODE_SORT = 13,
-	SEQUENCE_SORT = 14,
-	SET_SORT = 15,
-	STRING_SORT = 16,
-	TUPLE_SORT = 17,
-	NULLABLE_SORT = 18,
-	UNINTERPRETED_SORT = 19,
-	LAST_SORT_KIND = 20,
+    InternalSortKind = -2,
+    UndefinedSortKind = -1,
+    NullSort = 0,
+    AbstractSort = 1,
+    ArraySort = 2,
+    BagSort = 3,
+    BooleanSort = 4,
+    BitvectorSort = 5,
+    DatatypeSort = 6,
+    FiniteFieldSort = 7,
+    FloatingpointSort = 8,
+    FunctionSort = 9,
+    IntegerSort = 10,
+    RealSort = 11,
+    ReglanSort = 12,
+    RoundingmodeSort = 13,
+    SequenceSort = 14,
+    SetSort = 15,
+    StringSort = 16,
+    TupleSort = 17,
+    NullableSort = 18,
+    UninterpretedSort = 19,
+    LastSortKind = 20,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5SortKind.\n @param kind The sort kind.\n @return The string representation."]
-	pub fn cvc5_sort_kind_to_string(kind: Cvc5SortKind) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5SortKind.\n @param kind The sort kind.\n @return The string representation."]
+    pub fn cvc5_sort_kind_to_string(kind: Cvc5SortKind) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Hash function for Cvc5SortKinds.\n @param kind The kind.\n @return The hash value."]
-	pub fn cvc5_sort_kind_hash(kind: Cvc5SortKind) -> usize;
+    #[doc = " Hash function for Cvc5SortKinds.\n @param kind The kind.\n @return The hash value."]
+    pub fn cvc5_sort_kind_hash(kind: Cvc5SortKind) -> usize;
 }
 #[repr(u32)]
 #[doc = " \\internal\n This documentation is target for the online documentation that can\n be found at https://cvc5.github.io/docs/latest/proofs/proof_rules.html\n \\endinternal\n\n \\verbatim embed:rst:leading-asterisk\n An enumeration for proof rules. This enumeration is analogous to Kind for\n Node objects.\n\n All proof rules are given as inference rules, presented in the following\n form:\n\n .. math::\n\n   \\texttt{RULENAME}:\n   \\inferruleSC{\\varphi_1 \\dots \\varphi_n \\mid t_1 \\dots t_m}{\\psi}{if $C$}\n\n where we call :math:`\\varphi_i` its premises or children, :math:`t_i` its\n arguments, :math:`\\psi` its conclusion, and :math:`C` its side condition.\n Alternatively, we can write the application of a proof rule as\n ``(RULENAME F1 ... Fn :args t1 ... tm)``, omitting the conclusion\n (since it can be uniquely determined from premises and arguments).\n Note that premises are sometimes given as proofs, i.e., application of\n proof rules, instead of formulas. This abuses the notation to see proof\n rule applications and their conclusions interchangeably.\n\n Conceptually, the following proof rules form a calculus whose target\n user is the Node-level theory solvers. This means that the rules below\n are designed to reason about, among other things, common operations on Node\n objects like Rewriter::rewrite or Node::substitute. It is intended to be\n translated or printed in other formats.\n\n The following ProofRule values include core rules and those categorized by\n theory, including the theory of equality.\n\n The \"core rules\" include two distinguished rules which have special status:\n (1) :cpp:enumerator:`ASSUME <cvc5::ProofRule::ASSUME>`, which represents an\n open leaf in a proof; and\n (2) :cpp:enumerator:`SCOPE <cvc5::ProofRule::SCOPE>`, which encloses a scope\n (a subproof) with a set of scoped assumptions.\n The core rules additionally correspond to generic operations that are done\n internally on nodes, e.g., calling `Rewriter::rewrite()`.\n\n Rules with prefix ``MACRO_`` are those that can be defined in terms of other\n rules. These exist for convenience and can be replaced by their definition\n in post-processing.\n \\endverbatim"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5ProofRule {
-	ASSUME = 0,
-	SCOPE = 1,
-	SUBS = 2,
-	MACRO_REWRITE = 3,
-	EVALUATE = 4,
-	DISTINCT_VALUES = 5,
-	ACI_NORM = 6,
-	ABSORB = 7,
-	MACRO_SR_EQ_INTRO = 8,
-	MACRO_SR_PRED_INTRO = 9,
-	MACRO_SR_PRED_ELIM = 10,
-	MACRO_SR_PRED_TRANSFORM = 11,
-	ENCODE_EQ_INTRO = 12,
-	DSL_REWRITE = 13,
-	THEORY_REWRITE = 14,
-	ITE_EQ = 15,
-	TRUST = 16,
-	TRUST_THEORY_REWRITE = 17,
-	SAT_REFUTATION = 18,
-	DRAT_REFUTATION = 19,
-	SAT_EXTERNAL_PROVE = 20,
-	RESOLUTION = 21,
-	CHAIN_RESOLUTION = 22,
-	FACTORING = 23,
-	REORDERING = 24,
-	MACRO_RESOLUTION = 25,
-	MACRO_RESOLUTION_TRUST = 26,
-	CHAIN_M_RESOLUTION = 27,
-	SPLIT = 28,
-	EQ_RESOLVE = 29,
-	MODUS_PONENS = 30,
-	NOT_NOT_ELIM = 31,
-	CONTRA = 32,
-	AND_ELIM = 33,
-	AND_INTRO = 34,
-	NOT_OR_ELIM = 35,
-	IMPLIES_ELIM = 36,
-	NOT_IMPLIES_ELIM1 = 37,
-	NOT_IMPLIES_ELIM2 = 38,
-	EQUIV_ELIM1 = 39,
-	EQUIV_ELIM2 = 40,
-	NOT_EQUIV_ELIM1 = 41,
-	NOT_EQUIV_ELIM2 = 42,
-	XOR_ELIM1 = 43,
-	XOR_ELIM2 = 44,
-	NOT_XOR_ELIM1 = 45,
-	NOT_XOR_ELIM2 = 46,
-	ITE_ELIM1 = 47,
-	ITE_ELIM2 = 48,
-	NOT_ITE_ELIM1 = 49,
-	NOT_ITE_ELIM2 = 50,
-	NOT_AND = 51,
-	CNF_AND_POS = 52,
-	CNF_AND_NEG = 53,
-	CNF_OR_POS = 54,
-	CNF_OR_NEG = 55,
-	CNF_IMPLIES_POS = 56,
-	CNF_IMPLIES_NEG1 = 57,
-	CNF_IMPLIES_NEG2 = 58,
-	CNF_EQUIV_POS1 = 59,
-	CNF_EQUIV_POS2 = 60,
-	CNF_EQUIV_NEG1 = 61,
-	CNF_EQUIV_NEG2 = 62,
-	CNF_XOR_POS1 = 63,
-	CNF_XOR_POS2 = 64,
-	CNF_XOR_NEG1 = 65,
-	CNF_XOR_NEG2 = 66,
-	CNF_ITE_POS1 = 67,
-	CNF_ITE_POS2 = 68,
-	CNF_ITE_POS3 = 69,
-	CNF_ITE_NEG1 = 70,
-	CNF_ITE_NEG2 = 71,
-	CNF_ITE_NEG3 = 72,
-	REFL = 73,
-	SYMM = 74,
-	TRANS = 75,
-	CONG = 76,
-	NARY_CONG = 77,
-	TRUE_INTRO = 78,
-	TRUE_ELIM = 79,
-	FALSE_INTRO = 80,
-	FALSE_ELIM = 81,
-	HO_APP_ENCODE = 82,
-	HO_CONG = 83,
-	ARRAYS_READ_OVER_WRITE = 84,
-	ARRAYS_READ_OVER_WRITE_CONTRA = 85,
-	ARRAYS_READ_OVER_WRITE_1 = 86,
-	ARRAYS_EXT = 87,
-	MACRO_BV_BITBLAST = 88,
-	BV_BITBLAST_STEP = 89,
-	BV_EAGER_ATOM = 90,
-	BV_POLY_NORM = 91,
-	BV_POLY_NORM_EQ = 92,
-	DT_SPLIT = 93,
-	SKOLEM_INTRO = 94,
-	SKOLEMIZE = 95,
-	INSTANTIATE = 96,
-	ALPHA_EQUIV = 97,
-	QUANT_VAR_REORDERING = 98,
-	EXISTS_STRING_LENGTH = 99,
-	SETS_SINGLETON_INJ = 100,
-	SETS_EXT = 101,
-	SETS_FILTER_UP = 102,
-	SETS_FILTER_DOWN = 103,
-	CONCAT_EQ = 104,
-	CONCAT_UNIFY = 105,
-	CONCAT_SPLIT = 106,
-	CONCAT_CSPLIT = 107,
-	CONCAT_LPROP = 108,
-	CONCAT_CPROP = 109,
-	STRING_DECOMPOSE = 110,
-	STRING_LENGTH_POS = 111,
-	STRING_LENGTH_NON_EMPTY = 112,
-	STRING_REDUCTION = 113,
-	STRING_EAGER_REDUCTION = 114,
-	RE_INTER = 115,
-	RE_CONCAT = 116,
-	RE_UNFOLD_POS = 117,
-	RE_UNFOLD_NEG = 118,
-	RE_UNFOLD_NEG_CONCAT_FIXED = 119,
-	STRING_CODE_INJ = 120,
-	STRING_SEQ_UNIT_INJ = 121,
-	STRING_EXT = 122,
-	MACRO_STRING_INFERENCE = 123,
-	MACRO_ARITH_SCALE_SUM_UB = 124,
-	ARITH_MULT_ABS_COMPARISON = 125,
-	ARITH_SUM_UB = 126,
-	INT_TIGHT_UB = 127,
-	INT_TIGHT_LB = 128,
-	ARITH_TRICHOTOMY = 129,
-	ARITH_REDUCTION = 130,
-	ARITH_POLY_NORM = 131,
-	ARITH_POLY_NORM_REL = 132,
-	ARITH_MULT_SIGN = 133,
-	ARITH_MULT_POS = 134,
-	ARITH_MULT_NEG = 135,
-	ARITH_MULT_TANGENT = 136,
-	ARITH_TRANS_PI = 137,
-	ARITH_TRANS_EXP_NEG = 138,
-	ARITH_TRANS_EXP_POSITIVITY = 139,
-	ARITH_TRANS_EXP_SUPER_LIN = 140,
-	ARITH_TRANS_EXP_ZERO = 141,
-	ARITH_TRANS_EXP_APPROX_ABOVE_NEG = 142,
-	ARITH_TRANS_EXP_APPROX_ABOVE_POS = 143,
-	ARITH_TRANS_EXP_APPROX_BELOW = 144,
-	ARITH_TRANS_SINE_BOUNDS = 145,
-	ARITH_TRANS_SINE_SHIFT = 146,
-	ARITH_TRANS_SINE_SYMMETRY = 147,
-	ARITH_TRANS_SINE_TANGENT_ZERO = 148,
-	ARITH_TRANS_SINE_TANGENT_PI = 149,
-	ARITH_TRANS_SINE_APPROX_ABOVE_NEG = 150,
-	ARITH_TRANS_SINE_APPROX_ABOVE_POS = 151,
-	ARITH_TRANS_SINE_APPROX_BELOW_NEG = 152,
-	ARITH_TRANS_SINE_APPROX_BELOW_POS = 153,
-	LFSC_RULE = 154,
-	ALETHE_RULE = 155,
-	UNKNOWN = 156,
-	LAST = 157,
+    Assume = 0,
+    Scope = 1,
+    Subs = 2,
+    MacroRewrite = 3,
+    Evaluate = 4,
+    DistinctValues = 5,
+    AciNorm = 6,
+    Absorb = 7,
+    MacroSrEqIntro = 8,
+    MacroSrPredIntro = 9,
+    MacroSrPredElim = 10,
+    MacroSrPredTransform = 11,
+    EncodeEqIntro = 12,
+    DslRewrite = 13,
+    TheoryRewrite = 14,
+    IteEq = 15,
+    Trust = 16,
+    TrustTheoryRewrite = 17,
+    SatRefutation = 18,
+    DratRefutation = 19,
+    SatExternalProve = 20,
+    Resolution = 21,
+    ChainResolution = 22,
+    Factoring = 23,
+    Reordering = 24,
+    MacroResolution = 25,
+    MacroResolutionTrust = 26,
+    ChainMResolution = 27,
+    Split = 28,
+    EqResolve = 29,
+    ModusPonens = 30,
+    NotNotElim = 31,
+    Contra = 32,
+    AndElim = 33,
+    AndIntro = 34,
+    NotOrElim = 35,
+    ImpliesElim = 36,
+    NotImpliesElim1 = 37,
+    NotImpliesElim2 = 38,
+    EquivElim1 = 39,
+    EquivElim2 = 40,
+    NotEquivElim1 = 41,
+    NotEquivElim2 = 42,
+    XorElim1 = 43,
+    XorElim2 = 44,
+    NotXorElim1 = 45,
+    NotXorElim2 = 46,
+    IteElim1 = 47,
+    IteElim2 = 48,
+    NotIteElim1 = 49,
+    NotIteElim2 = 50,
+    NotAnd = 51,
+    CnfAndPos = 52,
+    CnfAndNeg = 53,
+    CnfOrPos = 54,
+    CnfOrNeg = 55,
+    CnfImpliesPos = 56,
+    CnfImpliesNeg1 = 57,
+    CnfImpliesNeg2 = 58,
+    CnfEquivPos1 = 59,
+    CnfEquivPos2 = 60,
+    CnfEquivNeg1 = 61,
+    CnfEquivNeg2 = 62,
+    CnfXorPos1 = 63,
+    CnfXorPos2 = 64,
+    CnfXorNeg1 = 65,
+    CnfXorNeg2 = 66,
+    CnfItePos1 = 67,
+    CnfItePos2 = 68,
+    CnfItePos3 = 69,
+    CnfIteNeg1 = 70,
+    CnfIteNeg2 = 71,
+    CnfIteNeg3 = 72,
+    Refl = 73,
+    Symm = 74,
+    Trans = 75,
+    Cong = 76,
+    NaryCong = 77,
+    TrueIntro = 78,
+    TrueElim = 79,
+    FalseIntro = 80,
+    FalseElim = 81,
+    HoAppEncode = 82,
+    HoCong = 83,
+    ArraysReadOverWrite = 84,
+    ArraysReadOverWriteContra = 85,
+    ArraysReadOverWrite1 = 86,
+    ArraysExt = 87,
+    MacroBvBitblast = 88,
+    BvBitblastStep = 89,
+    BvEagerAtom = 90,
+    BvPolyNorm = 91,
+    BvPolyNormEq = 92,
+    DtSplit = 93,
+    SkolemIntro = 94,
+    Skolemize = 95,
+    Instantiate = 96,
+    AlphaEquiv = 97,
+    QuantVarReordering = 98,
+    ExistsStringLength = 99,
+    SetsSingletonInj = 100,
+    SetsExt = 101,
+    SetsFilterUp = 102,
+    SetsFilterDown = 103,
+    ConcatEq = 104,
+    ConcatUnify = 105,
+    ConcatSplit = 106,
+    ConcatCsplit = 107,
+    ConcatLprop = 108,
+    ConcatCprop = 109,
+    StringDecompose = 110,
+    StringLengthPos = 111,
+    StringLengthNonEmpty = 112,
+    StringReduction = 113,
+    StringEagerReduction = 114,
+    ReInter = 115,
+    ReConcat = 116,
+    ReUnfoldPos = 117,
+    ReUnfoldNeg = 118,
+    ReUnfoldNegConcatFixed = 119,
+    StringCodeInj = 120,
+    StringSeqUnitInj = 121,
+    StringExt = 122,
+    MacroStringInference = 123,
+    MacroArithScaleSumUb = 124,
+    ArithMultAbsComparison = 125,
+    ArithSumUb = 126,
+    IntTightUb = 127,
+    IntTightLb = 128,
+    ArithTrichotomy = 129,
+    ArithReduction = 130,
+    ArithPolyNorm = 131,
+    ArithPolyNormRel = 132,
+    ArithMultSign = 133,
+    ArithMultPos = 134,
+    ArithMultNeg = 135,
+    ArithMultTangent = 136,
+    ArithTransPi = 137,
+    ArithTransExpNeg = 138,
+    ArithTransExpPositivity = 139,
+    ArithTransExpSuperLin = 140,
+    ArithTransExpZero = 141,
+    ArithTransExpApproxAboveNeg = 142,
+    ArithTransExpApproxAbovePos = 143,
+    ArithTransExpApproxBelow = 144,
+    ArithTransSineBounds = 145,
+    ArithTransSineShift = 146,
+    ArithTransSineSymmetry = 147,
+    ArithTransSineTangentZero = 148,
+    ArithTransSineTangentPi = 149,
+    ArithTransSineApproxAboveNeg = 150,
+    ArithTransSineApproxAbovePos = 151,
+    ArithTransSineApproxBelowNeg = 152,
+    ArithTransSineApproxBelowPos = 153,
+    LfscRule = 154,
+    AletheRule = 155,
+    Unknown = 156,
+    Last = 157,
 }
 #[repr(u32)]
 #[doc = " \\verbatim embed:rst:leading-asterisk\n This enumeration represents the rewrite rules used in a rewrite proof. Some\n of the rules are internal ad-hoc rewrites, while others are rewrites\n specified by the RARE DSL. This enumeration is used as the first argument to\n the :cpp:enumerator:`DSL_REWRITE <cvc5::ProofRule::DSL_REWRITE>` proof rule\n and the :cpp:enumerator:`THEORY_REWRITE <cvc5::ProofRule::THEORY_REWRITE>`\n proof rule.\n \\endverbatim"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5ProofRewriteRule {
-	NONE = 0,
-	DISTINCT_ELIM = 1,
-	DISTINCT_CARD_CONFLICT = 2,
-	UBV_TO_INT_ELIM = 3,
-	INT_TO_BV_ELIM = 4,
-	MACRO_BOOL_NNF_NORM = 5,
-	MACRO_BOOL_BV_INVERT_SOLVE = 6,
-	MACRO_ARITH_INT_EQ_CONFLICT = 7,
-	MACRO_ARITH_INT_GEQ_TIGHTEN = 8,
-	MACRO_ARITH_STRING_PRED_ENTAIL = 9,
-	ARITH_STRING_PRED_ENTAIL = 10,
-	ARITH_STRING_PRED_SAFE_APPROX = 11,
-	ARITH_POW_ELIM = 12,
-	BETA_REDUCE = 13,
-	LAMBDA_ELIM = 14,
-	MACRO_LAMBDA_CAPTURE_AVOID = 15,
-	ARRAYS_SELECT_CONST = 16,
-	MACRO_ARRAYS_NORMALIZE_OP = 17,
-	MACRO_ARRAYS_NORMALIZE_CONSTANT = 18,
-	ARRAYS_EQ_RANGE_EXPAND = 19,
-	EXISTS_ELIM = 20,
-	QUANT_UNUSED_VARS = 21,
-	MACRO_QUANT_MERGE_PRENEX = 22,
-	QUANT_MERGE_PRENEX = 23,
-	MACRO_QUANT_PRENEX = 24,
-	MACRO_QUANT_MINISCOPE = 25,
-	QUANT_MINISCOPE_AND = 26,
-	QUANT_MINISCOPE_OR = 27,
-	QUANT_MINISCOPE_ITE = 28,
-	QUANT_DT_SPLIT = 29,
-	MACRO_QUANT_DT_VAR_EXPAND = 30,
-	MACRO_QUANT_PARTITION_CONNECTED_FV = 31,
-	MACRO_QUANT_VAR_ELIM_EQ = 32,
-	QUANT_VAR_ELIM_EQ = 33,
-	MACRO_QUANT_VAR_ELIM_INEQ = 34,
-	MACRO_QUANT_REWRITE_BODY = 35,
-	DT_INST = 36,
-	DT_COLLAPSE_SELECTOR = 37,
-	DT_COLLAPSE_TESTER = 38,
-	DT_COLLAPSE_TESTER_SINGLETON = 39,
-	MACRO_DT_CONS_EQ = 40,
-	DT_CONS_EQ = 41,
-	DT_CONS_EQ_CLASH = 42,
-	DT_CYCLE = 43,
-	DT_COLLAPSE_UPDATER = 44,
-	DT_UPDATER_ELIM = 45,
-	DT_MATCH_ELIM = 46,
-	MACRO_BV_EXTRACT_CONCAT = 47,
-	MACRO_BV_OR_SIMPLIFY = 48,
-	MACRO_BV_AND_SIMPLIFY = 49,
-	MACRO_BV_XOR_SIMPLIFY = 50,
-	MACRO_BV_AND_OR_XOR_CONCAT_PULLUP = 51,
-	MACRO_BV_MULT_SLT_MULT = 52,
-	MACRO_BV_CONCAT_EXTRACT_MERGE = 53,
-	MACRO_BV_CONCAT_CONSTANT_MERGE = 54,
-	MACRO_BV_EQ_SOLVE = 55,
-	BV_UMULO_ELIM = 56,
-	BV_SMULO_ELIM = 57,
-	BV_BITWISE_SLICING = 58,
-	BV_REPEAT_ELIM = 59,
-	STR_CTN_MULTISET_SUBSET = 60,
-	MACRO_STR_EQ_LEN_UNIFY_PREFIX = 61,
-	MACRO_STR_EQ_LEN_UNIFY = 62,
-	MACRO_STR_SPLIT_CTN = 63,
-	MACRO_STR_STRIP_ENDPOINTS = 64,
-	STR_OVERLAP_SPLIT_CTN = 65,
-	STR_OVERLAP_ENDPOINTS_CTN = 66,
-	STR_OVERLAP_ENDPOINTS_INDEXOF = 67,
-	STR_OVERLAP_ENDPOINTS_REPLACE = 68,
-	MACRO_STR_COMPONENT_CTN = 69,
-	MACRO_STR_CONST_NCTN_CONCAT = 70,
-	MACRO_STR_IN_RE_INCLUSION = 71,
-	MACRO_RE_INTER_UNION_CONST_ELIM = 72,
-	SEQ_EVAL_OP = 73,
-	STR_INDEXOF_RE_EVAL = 74,
-	STR_REPLACE_RE_EVAL = 75,
-	STR_REPLACE_RE_ALL_EVAL = 76,
-	RE_LOOP_ELIM = 77,
-	RE_EQ_ELIM = 78,
-	MACRO_RE_INTER_UNION_INCLUSION = 79,
-	RE_INTER_INCLUSION = 80,
-	RE_UNION_INCLUSION = 81,
-	STR_IN_RE_EVAL = 82,
-	STR_IN_RE_CONSUME = 83,
-	STR_IN_RE_CONCAT_STAR_CHAR = 84,
-	STR_IN_RE_SIGMA = 85,
-	STR_IN_RE_SIGMA_STAR = 86,
-	MACRO_SUBSTR_STRIP_SYM_LENGTH = 87,
-	SETS_EVAL_OP = 88,
-	SETS_INSERT_ELIM = 89,
-	ARITH_DIV_TOTAL_ZERO_REAL = 90,
-	ARITH_DIV_TOTAL_ZERO_INT = 91,
-	ARITH_INT_DIV_TOTAL = 92,
-	ARITH_INT_DIV_TOTAL_ONE = 93,
-	ARITH_INT_DIV_TOTAL_ZERO = 94,
-	ARITH_INT_DIV_TOTAL_NEG = 95,
-	ARITH_INT_MOD_TOTAL = 96,
-	ARITH_INT_MOD_TOTAL_ONE = 97,
-	ARITH_INT_MOD_TOTAL_ZERO = 98,
-	ARITH_INT_MOD_TOTAL_NEG = 99,
-	ARITH_ELIM_GT = 100,
-	ARITH_ELIM_LT = 101,
-	ARITH_ELIM_INT_GT = 102,
-	ARITH_ELIM_INT_LT = 103,
-	ARITH_ELIM_LEQ = 104,
-	ARITH_LEQ_NORM = 105,
-	ARITH_GEQ_TIGHTEN = 106,
-	ARITH_GEQ_NORM1_INT = 107,
-	ARITH_GEQ_NORM1_REAL = 108,
-	ARITH_EQ_ELIM_REAL = 109,
-	ARITH_EQ_ELIM_INT = 110,
-	ARITH_TO_INT_ELIM = 111,
-	ARITH_TO_INT_ELIM_TO_REAL = 112,
-	ARITH_DIV_ELIM_TO_REAL1 = 113,
-	ARITH_DIV_ELIM_TO_REAL2 = 114,
-	ARITH_MOD_OVER_MOD = 115,
-	ARITH_INT_EQ_CONFLICT = 116,
-	ARITH_INT_GEQ_TIGHTEN = 117,
-	ARITH_DIVISIBLE_ELIM = 118,
-	ARITH_ABS_EQ = 119,
-	ARITH_ABS_INT_GT = 120,
-	ARITH_ABS_REAL_GT = 121,
-	ARITH_GEQ_ITE_LIFT = 122,
-	ARITH_LEQ_ITE_LIFT = 123,
-	ARITH_MIN_LT1 = 124,
-	ARITH_MIN_LT2 = 125,
-	ARITH_MAX_GEQ1 = 126,
-	ARITH_MAX_GEQ2 = 127,
-	ARRAY_READ_OVER_WRITE = 128,
-	ARRAY_READ_OVER_WRITE2 = 129,
-	ARRAY_STORE_OVERWRITE = 130,
-	ARRAY_STORE_SELF = 131,
-	ARRAY_READ_OVER_WRITE_SPLIT = 132,
-	ARRAY_STORE_SWAP = 133,
-	BOOL_DOUBLE_NOT_ELIM = 134,
-	BOOL_NOT_TRUE = 135,
-	BOOL_NOT_FALSE = 136,
-	BOOL_EQ_TRUE = 137,
-	BOOL_EQ_FALSE = 138,
-	BOOL_EQ_NREFL = 139,
-	BOOL_IMPL_FALSE1 = 140,
-	BOOL_IMPL_FALSE2 = 141,
-	BOOL_IMPL_TRUE1 = 142,
-	BOOL_IMPL_TRUE2 = 143,
-	BOOL_IMPL_ELIM = 144,
-	BOOL_DUAL_IMPL_EQ = 145,
-	BOOL_AND_CONF = 146,
-	BOOL_AND_CONF2 = 147,
-	BOOL_OR_TAUT = 148,
-	BOOL_OR_TAUT2 = 149,
-	BOOL_OR_DE_MORGAN = 150,
-	BOOL_IMPLIES_DE_MORGAN = 151,
-	BOOL_AND_DE_MORGAN = 152,
-	BOOL_OR_AND_DISTRIB = 153,
-	BOOL_IMPLIES_OR_DISTRIB = 154,
-	BOOL_XOR_REFL = 155,
-	BOOL_XOR_NREFL = 156,
-	BOOL_XOR_FALSE = 157,
-	BOOL_XOR_TRUE = 158,
-	BOOL_XOR_COMM = 159,
-	BOOL_XOR_ELIM = 160,
-	BOOL_NOT_XOR_ELIM = 161,
-	BOOL_NOT_EQ_ELIM1 = 162,
-	BOOL_NOT_EQ_ELIM2 = 163,
-	ITE_NEG_BRANCH = 164,
-	ITE_THEN_TRUE = 165,
-	ITE_ELSE_FALSE = 166,
-	ITE_THEN_FALSE = 167,
-	ITE_ELSE_TRUE = 168,
-	ITE_THEN_LOOKAHEAD_SELF = 169,
-	ITE_ELSE_LOOKAHEAD_SELF = 170,
-	ITE_THEN_LOOKAHEAD_NOT_SELF = 171,
-	ITE_ELSE_LOOKAHEAD_NOT_SELF = 172,
-	ITE_EXPAND = 173,
-	BOOL_NOT_ITE_ELIM = 174,
-	ITE_TRUE_COND = 175,
-	ITE_FALSE_COND = 176,
-	ITE_NOT_COND = 177,
-	ITE_EQ_BRANCH = 178,
-	ITE_THEN_LOOKAHEAD = 179,
-	ITE_ELSE_LOOKAHEAD = 180,
-	ITE_THEN_NEG_LOOKAHEAD = 181,
-	ITE_ELSE_NEG_LOOKAHEAD = 182,
-	BV_CONCAT_EXTRACT_MERGE = 183,
-	BV_EXTRACT_EXTRACT = 184,
-	BV_EXTRACT_WHOLE = 185,
-	BV_EXTRACT_CONCAT_1 = 186,
-	BV_EXTRACT_CONCAT_2 = 187,
-	BV_EXTRACT_CONCAT_3 = 188,
-	BV_EXTRACT_CONCAT_4 = 189,
-	BV_EQ_EXTRACT_ELIM1 = 190,
-	BV_EQ_EXTRACT_ELIM2 = 191,
-	BV_EQ_EXTRACT_ELIM3 = 192,
-	BV_EXTRACT_NOT = 193,
-	BV_EXTRACT_SIGN_EXTEND_1 = 194,
-	BV_EXTRACT_SIGN_EXTEND_2 = 195,
-	BV_EXTRACT_SIGN_EXTEND_3 = 196,
-	BV_NOT_XOR = 197,
-	BV_AND_SIMPLIFY_1 = 198,
-	BV_AND_SIMPLIFY_2 = 199,
-	BV_OR_SIMPLIFY_1 = 200,
-	BV_OR_SIMPLIFY_2 = 201,
-	BV_XOR_SIMPLIFY_1 = 202,
-	BV_XOR_SIMPLIFY_2 = 203,
-	BV_XOR_SIMPLIFY_3 = 204,
-	BV_ULT_ADD_ONE = 205,
-	BV_MULT_SLT_MULT_1 = 206,
-	BV_MULT_SLT_MULT_2 = 207,
-	BV_COMMUTATIVE_XOR = 208,
-	BV_COMMUTATIVE_COMP = 209,
-	BV_ZERO_EXTEND_ELIMINATE_0 = 210,
-	BV_SIGN_EXTEND_ELIMINATE_0 = 211,
-	BV_NOT_NEQ = 212,
-	BV_ULT_ONES = 213,
-	BV_CONCAT_MERGE_CONST = 214,
-	BV_COMMUTATIVE_ADD = 215,
-	BV_SUB_ELIMINATE = 216,
-	BV_ITE_WIDTH_ONE = 217,
-	BV_ITE_WIDTH_ONE_NOT = 218,
-	BV_EQ_XOR_SOLVE = 219,
-	BV_EQ_NOT_SOLVE = 220,
-	BV_UGT_ELIMINATE = 221,
-	BV_UGE_ELIMINATE = 222,
-	BV_SGT_ELIMINATE = 223,
-	BV_SGE_ELIMINATE = 224,
-	BV_SLE_ELIMINATE = 225,
-	BV_REDOR_ELIMINATE = 226,
-	BV_REDAND_ELIMINATE = 227,
-	BV_ULE_ELIMINATE = 228,
-	BV_COMP_ELIMINATE = 229,
-	BV_ROTATE_LEFT_ELIMINATE_1 = 230,
-	BV_ROTATE_LEFT_ELIMINATE_2 = 231,
-	BV_ROTATE_RIGHT_ELIMINATE_1 = 232,
-	BV_ROTATE_RIGHT_ELIMINATE_2 = 233,
-	BV_NAND_ELIMINATE = 234,
-	BV_NOR_ELIMINATE = 235,
-	BV_XNOR_ELIMINATE = 236,
-	BV_SDIV_ELIMINATE = 237,
-	BV_ZERO_EXTEND_ELIMINATE = 238,
-	BV_UADDO_ELIMINATE = 239,
-	BV_SADDO_ELIMINATE = 240,
-	BV_SDIVO_ELIMINATE = 241,
-	BV_SMOD_ELIMINATE = 242,
-	BV_SREM_ELIMINATE = 243,
-	BV_USUBO_ELIMINATE = 244,
-	BV_SSUBO_ELIMINATE = 245,
-	BV_NEGO_ELIMINATE = 246,
-	BV_ITE_EQUAL_CHILDREN = 247,
-	BV_ITE_CONST_CHILDREN_1 = 248,
-	BV_ITE_CONST_CHILDREN_2 = 249,
-	BV_ITE_EQUAL_COND_1 = 250,
-	BV_ITE_EQUAL_COND_2 = 251,
-	BV_ITE_EQUAL_COND_3 = 252,
-	BV_ITE_MERGE_THEN_IF = 253,
-	BV_ITE_MERGE_ELSE_IF = 254,
-	BV_ITE_MERGE_THEN_ELSE = 255,
-	BV_ITE_MERGE_ELSE_ELSE = 256,
-	BV_SHL_BY_CONST_0 = 257,
-	BV_SHL_BY_CONST_1 = 258,
-	BV_SHL_BY_CONST_2 = 259,
-	BV_LSHR_BY_CONST_0 = 260,
-	BV_LSHR_BY_CONST_1 = 261,
-	BV_LSHR_BY_CONST_2 = 262,
-	BV_ASHR_BY_CONST_0 = 263,
-	BV_ASHR_BY_CONST_1 = 264,
-	BV_ASHR_BY_CONST_2 = 265,
-	BV_AND_CONCAT_PULLUP = 266,
-	BV_OR_CONCAT_PULLUP = 267,
-	BV_XOR_CONCAT_PULLUP = 268,
-	BV_AND_CONCAT_PULLUP2 = 269,
-	BV_OR_CONCAT_PULLUP2 = 270,
-	BV_XOR_CONCAT_PULLUP2 = 271,
-	BV_AND_CONCAT_PULLUP3 = 272,
-	BV_OR_CONCAT_PULLUP3 = 273,
-	BV_XOR_CONCAT_PULLUP3 = 274,
-	BV_XOR_DUPLICATE = 275,
-	BV_XOR_ONES = 276,
-	BV_XOR_NOT = 277,
-	BV_NOT_IDEMP = 278,
-	BV_ULT_ZERO_1 = 279,
-	BV_ULT_ZERO_2 = 280,
-	BV_ULT_SELF = 281,
-	BV_LT_SELF = 282,
-	BV_ULE_SELF = 283,
-	BV_ULE_ZERO = 284,
-	BV_ZERO_ULE = 285,
-	BV_SLE_SELF = 286,
-	BV_ULE_MAX = 287,
-	BV_NOT_ULT = 288,
-	BV_MULT_POW2_1 = 289,
-	BV_MULT_POW2_2 = 290,
-	BV_MULT_POW2_2B = 291,
-	BV_EXTRACT_MULT_LEADING_BIT = 292,
-	BV_UDIV_POW2_NOT_ONE = 293,
-	BV_UDIV_ZERO = 294,
-	BV_UDIV_ONE = 295,
-	BV_UREM_POW2_NOT_ONE = 296,
-	BV_UREM_ONE = 297,
-	BV_UREM_SELF = 298,
-	BV_SHL_ZERO = 299,
-	BV_LSHR_ZERO = 300,
-	BV_ASHR_ZERO = 301,
-	BV_UGT_UREM = 302,
-	BV_ULT_ONE = 303,
-	BV_MERGE_SIGN_EXTEND_1 = 304,
-	BV_MERGE_SIGN_EXTEND_2 = 305,
-	BV_SIGN_EXTEND_EQ_CONST_1 = 306,
-	BV_SIGN_EXTEND_EQ_CONST_2 = 307,
-	BV_ZERO_EXTEND_EQ_CONST_1 = 308,
-	BV_ZERO_EXTEND_EQ_CONST_2 = 309,
-	BV_ZERO_EXTEND_ULT_CONST_1 = 310,
-	BV_ZERO_EXTEND_ULT_CONST_2 = 311,
-	BV_SIGN_EXTEND_ULT_CONST_1 = 312,
-	BV_SIGN_EXTEND_ULT_CONST_2 = 313,
-	BV_SIGN_EXTEND_ULT_CONST_3 = 314,
-	BV_SIGN_EXTEND_ULT_CONST_4 = 315,
-	SETS_EQ_SINGLETON_EMP = 316,
-	SETS_MEMBER_SINGLETON = 317,
-	SETS_MEMBER_EMP = 318,
-	SETS_SUBSET_ELIM = 319,
-	SETS_UNION_COMM = 320,
-	SETS_INTER_COMM = 321,
-	SETS_INTER_EMP1 = 322,
-	SETS_INTER_EMP2 = 323,
-	SETS_MINUS_EMP1 = 324,
-	SETS_MINUS_EMP2 = 325,
-	SETS_UNION_EMP1 = 326,
-	SETS_UNION_EMP2 = 327,
-	SETS_INTER_MEMBER = 328,
-	SETS_MINUS_MEMBER = 329,
-	SETS_UNION_MEMBER = 330,
-	SETS_CHOOSE_SINGLETON = 331,
-	SETS_MINUS_SELF = 332,
-	SETS_IS_EMPTY_ELIM = 333,
-	SETS_IS_SINGLETON_ELIM = 334,
-	STR_EQ_CTN_FALSE = 335,
-	STR_EQ_CTN_FULL_FALSE1 = 336,
-	STR_EQ_CTN_FULL_FALSE2 = 337,
-	STR_EQ_LEN_FALSE = 338,
-	STR_SUBSTR_EMPTY_STR = 339,
-	STR_SUBSTR_EMPTY_RANGE = 340,
-	STR_SUBSTR_EMPTY_START = 341,
-	STR_SUBSTR_EMPTY_START_NEG = 342,
-	STR_SUBSTR_SUBSTR_START_GEQ_LEN = 343,
-	STR_SUBSTR_EQ_EMPTY = 344,
-	STR_SUBSTR_Z_EQ_EMPTY_LEQ = 345,
-	STR_SUBSTR_EQ_EMPTY_LEQ_LEN = 346,
-	STR_LEN_REPLACE_INV = 347,
-	STR_LEN_REPLACE_ALL_INV = 348,
-	STR_LEN_UPDATE_INV = 349,
-	STR_UPDATE_IN_FIRST_CONCAT = 350,
-	STR_LEN_SUBSTR_IN_RANGE = 351,
-	STR_CONCAT_CLASH = 352,
-	STR_CONCAT_CLASH_REV = 353,
-	STR_CONCAT_CLASH2 = 354,
-	STR_CONCAT_CLASH2_REV = 355,
-	STR_CONCAT_UNIFY = 356,
-	STR_CONCAT_UNIFY_REV = 357,
-	STR_CONCAT_UNIFY_BASE = 358,
-	STR_CONCAT_UNIFY_BASE_REV = 359,
-	STR_PREFIXOF_ELIM = 360,
-	STR_SUFFIXOF_ELIM = 361,
-	STR_PREFIXOF_EQ = 362,
-	STR_SUFFIXOF_EQ = 363,
-	STR_PREFIXOF_ONE = 364,
-	STR_SUFFIXOF_ONE = 365,
-	STR_SUBSTR_COMBINE1 = 366,
-	STR_SUBSTR_COMBINE2 = 367,
-	STR_SUBSTR_COMBINE3 = 368,
-	STR_SUBSTR_COMBINE4 = 369,
-	STR_SUBSTR_CONCAT1 = 370,
-	STR_SUBSTR_CONCAT2 = 371,
-	STR_SUBSTR_REPLACE = 372,
-	STR_SUBSTR_FULL = 373,
-	STR_SUBSTR_FULL_EQ = 374,
-	STR_CONTAINS_REFL = 375,
-	STR_CONTAINS_CONCAT_FIND = 376,
-	STR_CONTAINS_CONCAT_FIND_CONTRA = 377,
-	STR_CONTAINS_SPLIT_CHAR = 378,
-	STR_CONTAINS_LEQ_LEN_EQ = 379,
-	STR_CONTAINS_EMP = 380,
-	STR_CONTAINS_CHAR = 381,
-	STR_AT_ELIM = 382,
-	STR_REPLACE_SELF = 383,
-	STR_REPLACE_ID = 384,
-	STR_REPLACE_PREFIX = 385,
-	STR_REPLACE_NO_CONTAINS = 386,
-	STR_REPLACE_FIND_BASE = 387,
-	STR_REPLACE_FIND_FIRST_CONCAT = 388,
-	STR_REPLACE_EMPTY = 389,
-	STR_REPLACE_ONE_PRE = 390,
-	STR_REPLACE_FIND_PRE = 391,
-	STR_REPLACE_ALL_NO_CONTAINS = 392,
-	STR_REPLACE_RE_NONE = 393,
-	STR_REPLACE_RE_ALL_NONE = 394,
-	STR_LEN_CONCAT_REC = 395,
-	STR_LEN_EQ_ZERO_CONCAT_REC = 396,
-	STR_LEN_EQ_ZERO_BASE = 397,
-	STR_INDEXOF_SELF = 398,
-	STR_INDEXOF_NO_CONTAINS = 399,
-	STR_INDEXOF_OOB = 400,
-	STR_INDEXOF_OOB2 = 401,
-	STR_INDEXOF_CONTAINS_PRE = 402,
-	STR_INDEXOF_FIND_EMP = 403,
-	STR_INDEXOF_EQ_IRR = 404,
-	STR_INDEXOF_RE_NONE = 405,
-	STR_INDEXOF_RE_EMP_RE = 406,
-	STR_TO_LOWER_CONCAT = 407,
-	STR_TO_UPPER_CONCAT = 408,
-	STR_TO_LOWER_UPPER = 409,
-	STR_TO_UPPER_LOWER = 410,
-	STR_TO_LOWER_LEN = 411,
-	STR_TO_UPPER_LEN = 412,
-	STR_TO_LOWER_FROM_INT = 413,
-	STR_TO_UPPER_FROM_INT = 414,
-	STR_TO_INT_CONCAT_NEG_ONE = 415,
-	STR_LEQ_EMPTY = 416,
-	STR_LEQ_EMPTY_EQ = 417,
-	STR_LEQ_CONCAT_FALSE = 418,
-	STR_LEQ_CONCAT_TRUE = 419,
-	STR_LEQ_CONCAT_BASE_1 = 420,
-	STR_LEQ_CONCAT_BASE_2 = 421,
-	STR_LT_ELIM = 422,
-	STR_FROM_INT_NO_CTN_NONDIGIT = 423,
-	STR_SUBSTR_CTN_CONTRA = 424,
-	STR_SUBSTR_CTN = 425,
-	STR_REPLACE_DUAL_CTN = 426,
-	STR_REPLACE_DUAL_CTN_FALSE = 427,
-	STR_REPLACE_SELF_CTN_SIMP = 428,
-	STR_REPLACE_EMP_CTN_SRC = 429,
-	STR_SUBSTR_CHAR_START_EQ_LEN = 430,
-	STR_CONTAINS_REPL_CHAR = 431,
-	STR_CONTAINS_REPL_SELF_TGT_CHAR = 432,
-	STR_CONTAINS_REPL_SELF = 433,
-	STR_CONTAINS_REPL_TGT = 434,
-	STR_REPL_REPL_LEN_ID = 435,
-	STR_REPL_REPL_SRC_TGT_NO_CTN = 436,
-	STR_REPL_REPL_TGT_SELF = 437,
-	STR_REPL_REPL_TGT_NO_CTN = 438,
-	STR_REPL_REPL_SRC_SELF = 439,
-	STR_REPL_REPL_SRC_INV_NO_CTN1 = 440,
-	STR_REPL_REPL_SRC_INV_NO_CTN2 = 441,
-	STR_REPL_REPL_SRC_INV_NO_CTN3 = 442,
-	STR_REPL_REPL_DUAL_SELF = 443,
-	STR_REPL_REPL_DUAL_ITE1 = 444,
-	STR_REPL_REPL_DUAL_ITE2 = 445,
-	STR_REPL_REPL_LOOKAHEAD_ID_SIMP = 446,
-	RE_ALL_ELIM = 447,
-	RE_OPT_ELIM = 448,
-	RE_DIFF_ELIM = 449,
-	RE_PLUS_ELIM = 450,
-	RE_REPEAT_ELIM = 451,
-	RE_CONCAT_STAR_SWAP = 452,
-	RE_CONCAT_STAR_REPEAT = 453,
-	RE_CONCAT_STAR_SUBSUME1 = 454,
-	RE_CONCAT_STAR_SUBSUME2 = 455,
-	RE_CONCAT_MERGE = 456,
-	RE_UNION_ALL = 457,
-	RE_UNION_CONST_ELIM = 458,
-	RE_INTER_ALL = 459,
-	RE_STAR_NONE = 460,
-	RE_STAR_EMP = 461,
-	RE_STAR_STAR = 462,
-	RE_STAR_UNION_DROP_EMP = 463,
-	RE_LOOP_NEG = 464,
-	RE_INTER_CSTRING = 465,
-	RE_INTER_CSTRING_NEG = 466,
-	STR_SUBSTR_LEN_INCLUDE = 467,
-	STR_SUBSTR_LEN_INCLUDE_PRE = 468,
-	STR_SUBSTR_LEN_NORM = 469,
-	SEQ_LEN_REV = 470,
-	SEQ_REV_REV = 471,
-	SEQ_REV_CONCAT = 472,
-	STR_EQ_REPL_SELF_EMP = 473,
-	STR_EQ_REPL_NO_CHANGE = 474,
-	STR_EQ_REPL_TGT_EQ_LEN = 475,
-	STR_EQ_REPL_LEN_ONE_EMP_PREFIX = 476,
-	STR_EQ_REPL_EMP_TGT_NEMP = 477,
-	STR_EQ_REPL_NEMP_SRC_EMP = 478,
-	STR_EQ_REPL_SELF_SRC = 479,
-	SEQ_LEN_UNIT = 480,
-	SEQ_NTH_UNIT = 481,
-	SEQ_REV_UNIT = 482,
-	SEQ_LEN_EMPTY = 483,
-	RE_IN_EMPTY = 484,
-	RE_IN_SIGMA = 485,
-	RE_IN_SIGMA_STAR = 486,
-	RE_IN_CSTRING = 487,
-	RE_IN_COMP = 488,
-	STR_IN_RE_UNION_ELIM = 489,
-	STR_IN_RE_INTER_ELIM = 490,
-	STR_IN_RE_RANGE_ELIM = 491,
-	STR_IN_RE_CONTAINS = 492,
-	STR_IN_RE_FROM_INT_NEMP_DIG_RANGE = 493,
-	STR_IN_RE_FROM_INT_DIG_RANGE = 494,
-	EQ_REFL = 495,
-	EQ_SYMM = 496,
-	EQ_COND_DEQ = 497,
-	EQ_ITE_LIFT = 498,
-	DISTINCT_BINARY_ELIM = 499,
-	UF_BV2NAT_INT2BV = 500,
-	UF_BV2NAT_INT2BV_EXTEND = 501,
-	UF_BV2NAT_INT2BV_EXTRACT = 502,
-	UF_INT2BV_BV2NAT = 503,
-	UF_BV2NAT_GEQ_ELIM = 504,
-	UF_INT2BV_BVULT_EQUIV = 505,
-	UF_INT2BV_BVULE_EQUIV = 506,
-	UF_SBV_TO_INT_ELIM = 507,
-	ARITH_SINE_ZERO = 508,
-	ARITH_SINE_PI2 = 509,
-	ARITH_COSINE_ELIM = 510,
-	ARITH_TANGENT_ELIM = 511,
-	ARITH_SECENT_ELIM = 512,
-	ARITH_COSECENT_ELIM = 513,
-	ARITH_COTANGENT_ELIM = 514,
-	ARITH_PI_NOT_INT = 515,
-	SETS_CARD_SINGLETON = 516,
-	SETS_CARD_UNION = 517,
-	SETS_CARD_MINUS = 518,
-	SETS_CARD_EMP = 519,
-	LAST = 520,
+    None = 0,
+    DistinctElim = 1,
+    DistinctCardConflict = 2,
+    UbvToIntElim = 3,
+    IntToBvElim = 4,
+    MacroBoolNnfNorm = 5,
+    MacroBoolBvInvertSolve = 6,
+    MacroArithIntEqConflict = 7,
+    MacroArithIntGeqTighten = 8,
+    MacroArithStringPredEntail = 9,
+    ArithStringPredEntail = 10,
+    ArithStringPredSafeApprox = 11,
+    ArithPowElim = 12,
+    BetaReduce = 13,
+    LambdaElim = 14,
+    MacroLambdaCaptureAvoid = 15,
+    ArraysSelectConst = 16,
+    MacroArraysNormalizeOp = 17,
+    MacroArraysNormalizeConstant = 18,
+    ArraysEqRangeExpand = 19,
+    ExistsElim = 20,
+    QuantUnusedVars = 21,
+    MacroQuantMergePrenex = 22,
+    QuantMergePrenex = 23,
+    MacroQuantPrenex = 24,
+    MacroQuantMiniscope = 25,
+    QuantMiniscopeAnd = 26,
+    QuantMiniscopeOr = 27,
+    QuantMiniscopeIte = 28,
+    QuantDtSplit = 29,
+    MacroQuantDtVarExpand = 30,
+    MacroQuantPartitionConnectedFv = 31,
+    MacroQuantVarElimEq = 32,
+    QuantVarElimEq = 33,
+    MacroQuantVarElimIneq = 34,
+    MacroQuantRewriteBody = 35,
+    DtInst = 36,
+    DtCollapseSelector = 37,
+    DtCollapseTester = 38,
+    DtCollapseTesterSingleton = 39,
+    MacroDtConsEq = 40,
+    DtConsEq = 41,
+    DtConsEqClash = 42,
+    DtCycle = 43,
+    DtCollapseUpdater = 44,
+    DtUpdaterElim = 45,
+    DtMatchElim = 46,
+    MacroBvExtractConcat = 47,
+    MacroBvOrSimplify = 48,
+    MacroBvAndSimplify = 49,
+    MacroBvXorSimplify = 50,
+    MacroBvAndOrXorConcatPullup = 51,
+    MacroBvMultSltMult = 52,
+    MacroBvConcatExtractMerge = 53,
+    MacroBvConcatConstantMerge = 54,
+    MacroBvEqSolve = 55,
+    BvUmuloElim = 56,
+    BvSmuloElim = 57,
+    BvBitwiseSlicing = 58,
+    BvRepeatElim = 59,
+    StrCtnMultisetSubset = 60,
+    MacroStrEqLenUnifyPrefix = 61,
+    MacroStrEqLenUnify = 62,
+    MacroStrSplitCtn = 63,
+    MacroStrStripEndpoints = 64,
+    StrOverlapSplitCtn = 65,
+    StrOverlapEndpointsCtn = 66,
+    StrOverlapEndpointsIndexof = 67,
+    StrOverlapEndpointsReplace = 68,
+    MacroStrComponentCtn = 69,
+    MacroStrConstNctnConcat = 70,
+    MacroStrInReInclusion = 71,
+    MacroReInterUnionConstElim = 72,
+    SeqEvalOp = 73,
+    StrIndexofReEval = 74,
+    StrReplaceReEval = 75,
+    StrReplaceReAllEval = 76,
+    ReLoopElim = 77,
+    ReEqElim = 78,
+    MacroReInterUnionInclusion = 79,
+    ReInterInclusion = 80,
+    ReUnionInclusion = 81,
+    StrInReEval = 82,
+    StrInReConsume = 83,
+    StrInReConcatStarChar = 84,
+    StrInReSigma = 85,
+    StrInReSigmaStar = 86,
+    MacroSubstrStripSymLength = 87,
+    SetsEvalOp = 88,
+    SetsInsertElim = 89,
+    ArithDivTotalZeroReal = 90,
+    ArithDivTotalZeroInt = 91,
+    ArithIntDivTotal = 92,
+    ArithIntDivTotalOne = 93,
+    ArithIntDivTotalZero = 94,
+    ArithIntDivTotalNeg = 95,
+    ArithIntModTotal = 96,
+    ArithIntModTotalOne = 97,
+    ArithIntModTotalZero = 98,
+    ArithIntModTotalNeg = 99,
+    ArithElimGt = 100,
+    ArithElimLt = 101,
+    ArithElimIntGt = 102,
+    ArithElimIntLt = 103,
+    ArithElimLeq = 104,
+    ArithLeqNorm = 105,
+    ArithGeqTighten = 106,
+    ArithGeqNorm1Int = 107,
+    ArithGeqNorm1Real = 108,
+    ArithEqElimReal = 109,
+    ArithEqElimInt = 110,
+    ArithToIntElim = 111,
+    ArithToIntElimToReal = 112,
+    ArithDivElimToReal1 = 113,
+    ArithDivElimToReal2 = 114,
+    ArithModOverMod = 115,
+    ArithIntEqConflict = 116,
+    ArithIntGeqTighten = 117,
+    ArithDivisibleElim = 118,
+    ArithAbsEq = 119,
+    ArithAbsIntGt = 120,
+    ArithAbsRealGt = 121,
+    ArithGeqIteLift = 122,
+    ArithLeqIteLift = 123,
+    ArithMinLt1 = 124,
+    ArithMinLt2 = 125,
+    ArithMaxGeq1 = 126,
+    ArithMaxGeq2 = 127,
+    ArrayReadOverWrite = 128,
+    ArrayReadOverWrite2 = 129,
+    ArrayStoreOverwrite = 130,
+    ArrayStoreSelf = 131,
+    ArrayReadOverWriteSplit = 132,
+    ArrayStoreSwap = 133,
+    BoolDoubleNotElim = 134,
+    BoolNotTrue = 135,
+    BoolNotFalse = 136,
+    BoolEqTrue = 137,
+    BoolEqFalse = 138,
+    BoolEqNrefl = 139,
+    BoolImplFalse1 = 140,
+    BoolImplFalse2 = 141,
+    BoolImplTrue1 = 142,
+    BoolImplTrue2 = 143,
+    BoolImplElim = 144,
+    BoolDualImplEq = 145,
+    BoolAndConf = 146,
+    BoolAndConf2 = 147,
+    BoolOrTaut = 148,
+    BoolOrTaut2 = 149,
+    BoolOrDeMorgan = 150,
+    BoolImpliesDeMorgan = 151,
+    BoolAndDeMorgan = 152,
+    BoolOrAndDistrib = 153,
+    BoolImpliesOrDistrib = 154,
+    BoolXorRefl = 155,
+    BoolXorNrefl = 156,
+    BoolXorFalse = 157,
+    BoolXorTrue = 158,
+    BoolXorComm = 159,
+    BoolXorElim = 160,
+    BoolNotXorElim = 161,
+    BoolNotEqElim1 = 162,
+    BoolNotEqElim2 = 163,
+    IteNegBranch = 164,
+    IteThenTrue = 165,
+    IteElseFalse = 166,
+    IteThenFalse = 167,
+    IteElseTrue = 168,
+    IteThenLookaheadSelf = 169,
+    IteElseLookaheadSelf = 170,
+    IteThenLookaheadNotSelf = 171,
+    IteElseLookaheadNotSelf = 172,
+    IteExpand = 173,
+    BoolNotIteElim = 174,
+    IteTrueCond = 175,
+    IteFalseCond = 176,
+    IteNotCond = 177,
+    IteEqBranch = 178,
+    IteThenLookahead = 179,
+    IteElseLookahead = 180,
+    IteThenNegLookahead = 181,
+    IteElseNegLookahead = 182,
+    BvConcatExtractMerge = 183,
+    BvExtractExtract = 184,
+    BvExtractWhole = 185,
+    BvExtractConcat1 = 186,
+    BvExtractConcat2 = 187,
+    BvExtractConcat3 = 188,
+    BvExtractConcat4 = 189,
+    BvEqExtractElim1 = 190,
+    BvEqExtractElim2 = 191,
+    BvEqExtractElim3 = 192,
+    BvExtractNot = 193,
+    BvExtractSignExtend1 = 194,
+    BvExtractSignExtend2 = 195,
+    BvExtractSignExtend3 = 196,
+    BvNotXor = 197,
+    BvAndSimplify1 = 198,
+    BvAndSimplify2 = 199,
+    BvOrSimplify1 = 200,
+    BvOrSimplify2 = 201,
+    BvXorSimplify1 = 202,
+    BvXorSimplify2 = 203,
+    BvXorSimplify3 = 204,
+    BvUltAddOne = 205,
+    BvMultSltMult1 = 206,
+    BvMultSltMult2 = 207,
+    BvCommutativeXor = 208,
+    BvCommutativeComp = 209,
+    BvZeroExtendEliminate0 = 210,
+    BvSignExtendEliminate0 = 211,
+    BvNotNeq = 212,
+    BvUltOnes = 213,
+    BvConcatMergeConst = 214,
+    BvCommutativeAdd = 215,
+    BvSubEliminate = 216,
+    BvIteWidthOne = 217,
+    BvIteWidthOneNot = 218,
+    BvEqXorSolve = 219,
+    BvEqNotSolve = 220,
+    BvUgtEliminate = 221,
+    BvUgeEliminate = 222,
+    BvSgtEliminate = 223,
+    BvSgeEliminate = 224,
+    BvSleEliminate = 225,
+    BvRedorEliminate = 226,
+    BvRedandEliminate = 227,
+    BvUleEliminate = 228,
+    BvCompEliminate = 229,
+    BvRotateLeftEliminate1 = 230,
+    BvRotateLeftEliminate2 = 231,
+    BvRotateRightEliminate1 = 232,
+    BvRotateRightEliminate2 = 233,
+    BvNandEliminate = 234,
+    BvNorEliminate = 235,
+    BvXnorEliminate = 236,
+    BvSdivEliminate = 237,
+    BvZeroExtendEliminate = 238,
+    BvUaddoEliminate = 239,
+    BvSaddoEliminate = 240,
+    BvSdivoEliminate = 241,
+    BvSmodEliminate = 242,
+    BvSremEliminate = 243,
+    BvUsuboEliminate = 244,
+    BvSsuboEliminate = 245,
+    BvNegoEliminate = 246,
+    BvIteEqualChildren = 247,
+    BvIteConstChildren1 = 248,
+    BvIteConstChildren2 = 249,
+    BvIteEqualCond1 = 250,
+    BvIteEqualCond2 = 251,
+    BvIteEqualCond3 = 252,
+    BvIteMergeThenIf = 253,
+    BvIteMergeElseIf = 254,
+    BvIteMergeThenElse = 255,
+    BvIteMergeElseElse = 256,
+    BvShlByConst0 = 257,
+    BvShlByConst1 = 258,
+    BvShlByConst2 = 259,
+    BvLshrByConst0 = 260,
+    BvLshrByConst1 = 261,
+    BvLshrByConst2 = 262,
+    BvAshrByConst0 = 263,
+    BvAshrByConst1 = 264,
+    BvAshrByConst2 = 265,
+    BvAndConcatPullup = 266,
+    BvOrConcatPullup = 267,
+    BvXorConcatPullup = 268,
+    BvAndConcatPullup2 = 269,
+    BvOrConcatPullup2 = 270,
+    BvXorConcatPullup2 = 271,
+    BvAndConcatPullup3 = 272,
+    BvOrConcatPullup3 = 273,
+    BvXorConcatPullup3 = 274,
+    BvXorDuplicate = 275,
+    BvXorOnes = 276,
+    BvXorNot = 277,
+    BvNotIdemp = 278,
+    BvUltZero1 = 279,
+    BvUltZero2 = 280,
+    BvUltSelf = 281,
+    BvLtSelf = 282,
+    BvUleSelf = 283,
+    BvUleZero = 284,
+    BvZeroUle = 285,
+    BvSleSelf = 286,
+    BvUleMax = 287,
+    BvNotUlt = 288,
+    BvMultPow21 = 289,
+    BvMultPow22 = 290,
+    BvMultPow22b = 291,
+    BvExtractMultLeadingBit = 292,
+    BvUdivPow2NotOne = 293,
+    BvUdivZero = 294,
+    BvUdivOne = 295,
+    BvUremPow2NotOne = 296,
+    BvUremOne = 297,
+    BvUremSelf = 298,
+    BvShlZero = 299,
+    BvLshrZero = 300,
+    BvAshrZero = 301,
+    BvUgtUrem = 302,
+    BvUltOne = 303,
+    BvMergeSignExtend1 = 304,
+    BvMergeSignExtend2 = 305,
+    BvSignExtendEqConst1 = 306,
+    BvSignExtendEqConst2 = 307,
+    BvZeroExtendEqConst1 = 308,
+    BvZeroExtendEqConst2 = 309,
+    BvZeroExtendUltConst1 = 310,
+    BvZeroExtendUltConst2 = 311,
+    BvSignExtendUltConst1 = 312,
+    BvSignExtendUltConst2 = 313,
+    BvSignExtendUltConst3 = 314,
+    BvSignExtendUltConst4 = 315,
+    SetsEqSingletonEmp = 316,
+    SetsMemberSingleton = 317,
+    SetsMemberEmp = 318,
+    SetsSubsetElim = 319,
+    SetsUnionComm = 320,
+    SetsInterComm = 321,
+    SetsInterEmp1 = 322,
+    SetsInterEmp2 = 323,
+    SetsMinusEmp1 = 324,
+    SetsMinusEmp2 = 325,
+    SetsUnionEmp1 = 326,
+    SetsUnionEmp2 = 327,
+    SetsInterMember = 328,
+    SetsMinusMember = 329,
+    SetsUnionMember = 330,
+    SetsChooseSingleton = 331,
+    SetsMinusSelf = 332,
+    SetsIsEmptyElim = 333,
+    SetsIsSingletonElim = 334,
+    StrEqCtnFalse = 335,
+    StrEqCtnFullFalse1 = 336,
+    StrEqCtnFullFalse2 = 337,
+    StrEqLenFalse = 338,
+    StrSubstrEmptyStr = 339,
+    StrSubstrEmptyRange = 340,
+    StrSubstrEmptyStart = 341,
+    StrSubstrEmptyStartNeg = 342,
+    StrSubstrSubstrStartGeqLen = 343,
+    StrSubstrEqEmpty = 344,
+    StrSubstrZEqEmptyLeq = 345,
+    StrSubstrEqEmptyLeqLen = 346,
+    StrLenReplaceInv = 347,
+    StrLenReplaceAllInv = 348,
+    StrLenUpdateInv = 349,
+    StrUpdateInFirstConcat = 350,
+    StrLenSubstrInRange = 351,
+    StrConcatClash = 352,
+    StrConcatClashRev = 353,
+    StrConcatClash2 = 354,
+    StrConcatClash2Rev = 355,
+    StrConcatUnify = 356,
+    StrConcatUnifyRev = 357,
+    StrConcatUnifyBase = 358,
+    StrConcatUnifyBaseRev = 359,
+    StrPrefixofElim = 360,
+    StrSuffixofElim = 361,
+    StrPrefixofEq = 362,
+    StrSuffixofEq = 363,
+    StrPrefixofOne = 364,
+    StrSuffixofOne = 365,
+    StrSubstrCombine1 = 366,
+    StrSubstrCombine2 = 367,
+    StrSubstrCombine3 = 368,
+    StrSubstrCombine4 = 369,
+    StrSubstrConcat1 = 370,
+    StrSubstrConcat2 = 371,
+    StrSubstrReplace = 372,
+    StrSubstrFull = 373,
+    StrSubstrFullEq = 374,
+    StrContainsRefl = 375,
+    StrContainsConcatFind = 376,
+    StrContainsConcatFindContra = 377,
+    StrContainsSplitChar = 378,
+    StrContainsLeqLenEq = 379,
+    StrContainsEmp = 380,
+    StrContainsChar = 381,
+    StrAtElim = 382,
+    StrReplaceSelf = 383,
+    StrReplaceId = 384,
+    StrReplacePrefix = 385,
+    StrReplaceNoContains = 386,
+    StrReplaceFindBase = 387,
+    StrReplaceFindFirstConcat = 388,
+    StrReplaceEmpty = 389,
+    StrReplaceOnePre = 390,
+    StrReplaceFindPre = 391,
+    StrReplaceAllNoContains = 392,
+    StrReplaceReNone = 393,
+    StrReplaceReAllNone = 394,
+    StrLenConcatRec = 395,
+    StrLenEqZeroConcatRec = 396,
+    StrLenEqZeroBase = 397,
+    StrIndexofSelf = 398,
+    StrIndexofNoContains = 399,
+    StrIndexofOob = 400,
+    StrIndexofOob2 = 401,
+    StrIndexofContainsPre = 402,
+    StrIndexofFindEmp = 403,
+    StrIndexofEqIrr = 404,
+    StrIndexofReNone = 405,
+    StrIndexofReEmpRe = 406,
+    StrToLowerConcat = 407,
+    StrToUpperConcat = 408,
+    StrToLowerUpper = 409,
+    StrToUpperLower = 410,
+    StrToLowerLen = 411,
+    StrToUpperLen = 412,
+    StrToLowerFromInt = 413,
+    StrToUpperFromInt = 414,
+    StrToIntConcatNegOne = 415,
+    StrLeqEmpty = 416,
+    StrLeqEmptyEq = 417,
+    StrLeqConcatFalse = 418,
+    StrLeqConcatTrue = 419,
+    StrLeqConcatBase1 = 420,
+    StrLeqConcatBase2 = 421,
+    StrLtElim = 422,
+    StrFromIntNoCtnNondigit = 423,
+    StrSubstrCtnContra = 424,
+    StrSubstrCtn = 425,
+    StrReplaceDualCtn = 426,
+    StrReplaceDualCtnFalse = 427,
+    StrReplaceSelfCtnSimp = 428,
+    StrReplaceEmpCtnSrc = 429,
+    StrSubstrCharStartEqLen = 430,
+    StrContainsReplChar = 431,
+    StrContainsReplSelfTgtChar = 432,
+    StrContainsReplSelf = 433,
+    StrContainsReplTgt = 434,
+    StrReplReplLenId = 435,
+    StrReplReplSrcTgtNoCtn = 436,
+    StrReplReplTgtSelf = 437,
+    StrReplReplTgtNoCtn = 438,
+    StrReplReplSrcSelf = 439,
+    StrReplReplSrcInvNoCtn1 = 440,
+    StrReplReplSrcInvNoCtn2 = 441,
+    StrReplReplSrcInvNoCtn3 = 442,
+    StrReplReplDualSelf = 443,
+    StrReplReplDualIte1 = 444,
+    StrReplReplDualIte2 = 445,
+    StrReplReplLookaheadIdSimp = 446,
+    ReAllElim = 447,
+    ReOptElim = 448,
+    ReDiffElim = 449,
+    RePlusElim = 450,
+    ReRepeatElim = 451,
+    ReConcatStarSwap = 452,
+    ReConcatStarRepeat = 453,
+    ReConcatStarSubsume1 = 454,
+    ReConcatStarSubsume2 = 455,
+    ReConcatMerge = 456,
+    ReUnionAll = 457,
+    ReUnionConstElim = 458,
+    ReInterAll = 459,
+    ReStarNone = 460,
+    ReStarEmp = 461,
+    ReStarStar = 462,
+    ReStarUnionDropEmp = 463,
+    ReLoopNeg = 464,
+    ReInterCstring = 465,
+    ReInterCstringNeg = 466,
+    StrSubstrLenInclude = 467,
+    StrSubstrLenIncludePre = 468,
+    StrSubstrLenNorm = 469,
+    SeqLenRev = 470,
+    SeqRevRev = 471,
+    SeqRevConcat = 472,
+    StrEqReplSelfEmp = 473,
+    StrEqReplNoChange = 474,
+    StrEqReplTgtEqLen = 475,
+    StrEqReplLenOneEmpPrefix = 476,
+    StrEqReplEmpTgtNemp = 477,
+    StrEqReplNempSrcEmp = 478,
+    StrEqReplSelfSrc = 479,
+    SeqLenUnit = 480,
+    SeqNthUnit = 481,
+    SeqRevUnit = 482,
+    SeqLenEmpty = 483,
+    ReInEmpty = 484,
+    ReInSigma = 485,
+    ReInSigmaStar = 486,
+    ReInCstring = 487,
+    ReInComp = 488,
+    StrInReUnionElim = 489,
+    StrInReInterElim = 490,
+    StrInReRangeElim = 491,
+    StrInReContains = 492,
+    StrInReFromIntNempDigRange = 493,
+    StrInReFromIntDigRange = 494,
+    EqRefl = 495,
+    EqSymm = 496,
+    EqCondDeq = 497,
+    EqIteLift = 498,
+    DistinctBinaryElim = 499,
+    UfBv2natInt2bv = 500,
+    UfBv2natInt2bvExtend = 501,
+    UfBv2natInt2bvExtract = 502,
+    UfInt2bvBv2nat = 503,
+    UfBv2natGeqElim = 504,
+    UfInt2bvBvultEquiv = 505,
+    UfInt2bvBvuleEquiv = 506,
+    UfSbvToIntElim = 507,
+    ArithSineZero = 508,
+    ArithSinePi2 = 509,
+    ArithCosineElim = 510,
+    ArithTangentElim = 511,
+    ArithSecentElim = 512,
+    ArithCosecentElim = 513,
+    ArithCotangentElim = 514,
+    ArithPiNotInt = 515,
+    SetsCardSingleton = 516,
+    SetsCardUnion = 517,
+    SetsCardMinus = 518,
+    SetsCardEmp = 519,
+    Last = 520,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5ProofRule.\n @param rule The proof rule.\n @return The string representation."]
-	pub fn cvc5_proof_rule_to_string(rule: Cvc5ProofRule) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5ProofRule.\n @param rule The proof rule.\n @return The string representation."]
+    pub fn cvc5_proof_rule_to_string(rule: Cvc5ProofRule) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Hash function for Cvc5ProofRule.\n @param rule The proof rule.\n @return The hash value."]
-	pub fn cvc5_proof_rule_hash(rule: Cvc5ProofRule) -> usize;
+    #[doc = " Hash function for Cvc5ProofRule.\n @param rule The proof rule.\n @return The hash value."]
+    pub fn cvc5_proof_rule_hash(rule: Cvc5ProofRule) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5ProofRewriteRule.\n @param rule The proof rewrite rule.\n @return The string representation."]
-	pub fn cvc5_proof_rewrite_rule_to_string(
-		rule: Cvc5ProofRewriteRule,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5ProofRewriteRule.\n @param rule The proof rewrite rule.\n @return The string representation."]
+    pub fn cvc5_proof_rewrite_rule_to_string(
+        rule: Cvc5ProofRewriteRule,
+    ) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Hash function for Cvc5ProofRewriteRule.\n @param rule The proof rewrite rule.\n @return The hash value."]
-	pub fn cvc5_proof_rewrite_rule_hash(rule: Cvc5ProofRewriteRule) -> usize;
+    #[doc = " Hash function for Cvc5ProofRewriteRule.\n @param rule The proof rewrite rule.\n @return The hash value."]
+    pub fn cvc5_proof_rewrite_rule_hash(rule: Cvc5ProofRewriteRule) -> usize;
 }
 #[repr(u32)]
 #[doc = " The kind of a cvc5 skolem. A skolem is a (family of) internal functions or\n constants that are introduced by cvc5. These symbols are treated as\n uninterpreted internally. We track their definition for the purposes of\n formal bookkeeping for the user of features like proofs, lemma exporting,\n simplification and so on.\n\n A skolem has an identifier and a set of \"skolem indices\". The skolem\n indices are *not* children of the skolem function, but rather should\n be seen as the way of distinguishing skolems from the same family.\n\n For example, the family of \"array diff\" skolems ``ARRAY_DEQ_DIFF`` witness\n the disequality between two arrays, which are its skolem indices.\n\n Say that skolem k witnesses the disequality between two arrays A and B\n of type ``(Array Int Int)``. Then, k is a term whose skolem identifier is\n ``ARRAY_DEQ_DIFF``, skolem indices are A and B, and whose type is ``Int``.\n\n Note the type of k is not ``(-> (Array Int Int) (Array Int Int) Int)``.\n Intuitively, this is due to the fact that cvc5 does not reason about array\n diff skolem as a function symbol. Furthermore, the array diff skolem that\n witnesses the disequality of arrays C and D is a separate skolem function k2\n from this family, also of type ``Int``, where internally k2 has no relation\n to k apart from having the same skolem identifier.\n\n In contrast, cvc5 reasons about division-by-zero using a single skolem\n function whose identifier is ``DIV_BY_ZERO``. This means its skolem indices\n are empty and the skolem has a functional type ``(-> Real Real)``.\n\n \\internal\n"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5SkolemId {
-	INTERNAL = 0,
-	PURIFY = 1,
-	GROUND_TERM = 2,
-	ARRAY_DEQ_DIFF = 3,
-	BV_EMPTY = 4,
-	DIV_BY_ZERO = 5,
-	INT_DIV_BY_ZERO = 6,
-	MOD_BY_ZERO = 7,
-	TRANSCENDENTAL_PURIFY = 8,
-	TRANSCENDENTAL_PURIFY_ARG = 9,
-	TRANSCENDENTAL_SINE_PHASE_SHIFT = 10,
-	ARITH_VTS_DELTA = 11,
-	ARITH_VTS_DELTA_FREE = 12,
-	ARITH_VTS_INFINITY = 13,
-	ARITH_VTS_INFINITY_FREE = 14,
-	SHARED_SELECTOR = 15,
-	HO_DEQ_DIFF = 16,
-	QUANTIFIERS_SKOLEMIZE = 17,
-	WITNESS_STRING_LENGTH = 18,
-	WITNESS_INV_CONDITION = 19,
-	STRINGS_NUM_OCCUR = 20,
-	STRINGS_OCCUR_INDEX = 21,
-	STRINGS_NUM_OCCUR_RE = 22,
-	STRINGS_OCCUR_INDEX_RE = 23,
-	STRINGS_DEQ_DIFF = 24,
-	STRINGS_REPLACE_ALL_RESULT = 25,
-	STRINGS_ITOS_RESULT = 26,
-	STRINGS_STOI_RESULT = 27,
-	STRINGS_STOI_NON_DIGIT = 28,
-	RE_UNFOLD_POS_COMPONENT = 29,
-	BAGS_CARD_COMBINE = 30,
-	BAGS_DISTINCT_ELEMENTS_UNION_DISJOINT = 31,
-	BAGS_FOLD_CARD = 32,
-	BAGS_FOLD_COMBINE = 33,
-	BAGS_FOLD_ELEMENTS = 34,
-	BAGS_FOLD_UNION_DISJOINT = 35,
-	BAGS_CHOOSE = 36,
-	BAGS_DISTINCT_ELEMENTS = 37,
-	BAGS_DISTINCT_ELEMENTS_SIZE = 38,
-	BAGS_MAP_PREIMAGE_INJECTIVE = 39,
-	BAGS_MAP_INDEX = 40,
-	BAGS_MAP_SUM = 41,
-	BAGS_DEQ_DIFF = 42,
-	TABLES_GROUP_PART = 43,
-	TABLES_GROUP_PART_ELEMENT = 44,
-	RELATIONS_GROUP_PART = 45,
-	RELATIONS_GROUP_PART_ELEMENT = 46,
-	SETS_CHOOSE = 47,
-	SETS_DEQ_DIFF = 48,
-	SETS_FOLD_CARD = 49,
-	SETS_FOLD_COMBINE = 50,
-	SETS_FOLD_ELEMENTS = 51,
-	SETS_FOLD_UNION = 52,
-	SETS_MAP_DOWN_ELEMENT = 53,
-	FP_MIN_ZERO = 54,
-	FP_MAX_ZERO = 55,
-	FP_TO_UBV = 56,
-	FP_TO_SBV = 57,
-	FP_TO_REAL = 58,
-	BV_TO_INT_UF = 59,
-	NONE = 60,
-	LAST = 61,
+    Internal = 0,
+    Purify = 1,
+    GroundTerm = 2,
+    ArrayDeqDiff = 3,
+    BvEmpty = 4,
+    DivByZero = 5,
+    IntDivByZero = 6,
+    ModByZero = 7,
+    TranscendentalPurify = 8,
+    TranscendentalPurifyArg = 9,
+    TranscendentalSinePhaseShift = 10,
+    ArithVtsDelta = 11,
+    ArithVtsDeltaFree = 12,
+    ArithVtsInfinity = 13,
+    ArithVtsInfinityFree = 14,
+    SharedSelector = 15,
+    HoDeqDiff = 16,
+    QuantifiersSkolemize = 17,
+    WitnessStringLength = 18,
+    WitnessInvCondition = 19,
+    StringsNumOccur = 20,
+    StringsOccurIndex = 21,
+    StringsNumOccurRe = 22,
+    StringsOccurIndexRe = 23,
+    StringsDeqDiff = 24,
+    StringsReplaceAllResult = 25,
+    StringsItosResult = 26,
+    StringsStoiResult = 27,
+    StringsStoiNonDigit = 28,
+    ReUnfoldPosComponent = 29,
+    BagsCardCombine = 30,
+    BagsDistinctElementsUnionDisjoint = 31,
+    BagsFoldCard = 32,
+    BagsFoldCombine = 33,
+    BagsFoldElements = 34,
+    BagsFoldUnionDisjoint = 35,
+    BagsChoose = 36,
+    BagsDistinctElements = 37,
+    BagsDistinctElementsSize = 38,
+    BagsMapPreimageInjective = 39,
+    BagsMapIndex = 40,
+    BagsMapSum = 41,
+    BagsDeqDiff = 42,
+    TablesGroupPart = 43,
+    TablesGroupPartElement = 44,
+    RelationsGroupPart = 45,
+    RelationsGroupPartElement = 46,
+    SetsChoose = 47,
+    SetsDeqDiff = 48,
+    SetsFoldCard = 49,
+    SetsFoldCombine = 50,
+    SetsFoldElements = 51,
+    SetsFoldUnion = 52,
+    SetsMapDownElement = 53,
+    FpMinZero = 54,
+    FpMaxZero = 55,
+    FpToUbv = 56,
+    FpToSbv = 57,
+    FpToReal = 58,
+    BvToIntUf = 59,
+    None = 60,
+    Last = 61,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5SkolemId.\n @param id The skolem id.\n @return The string representation."]
-	pub fn cvc5_skolem_id_to_string(id: Cvc5SkolemId) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5SkolemId.\n @param id The skolem id.\n @return The string representation."]
+    pub fn cvc5_skolem_id_to_string(id: Cvc5SkolemId) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Hash function for Cvc5SkolemId.\n @param id The skolem id.\n @return The hash value."]
-	pub fn cvc5_skolem_id_hash(id: Cvc5SkolemId) -> usize;
+    #[doc = " Hash function for Cvc5SkolemId.\n @param id The skolem id.\n @return The hash value."]
+    pub fn cvc5_skolem_id_hash(id: Cvc5SkolemId) -> usize;
 }
 #[repr(u32)]
 #[doc = " The different reasons for returning an \"unknown\" result."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5UnknownExplanation {
-	REQUIRES_FULL_CHECK = 0,
-	INCOMPLETE = 1,
-	TIMEOUT = 2,
-	RESOURCEOUT = 3,
-	MEMOUT = 4,
-	INTERRUPTED = 5,
-	UNSUPPORTED = 6,
-	OTHER = 7,
-	REQUIRES_CHECK_AGAIN = 8,
-	UNKNOWN_REASON = 9,
-	LAST = 10,
+    RequiresFullCheck = 0,
+    Incomplete = 1,
+    Timeout = 2,
+    Resourceout = 3,
+    Memout = 4,
+    Interrupted = 5,
+    Unsupported = 6,
+    Other = 7,
+    RequiresCheckAgain = 8,
+    UnknownReason = 9,
+    Last = 10,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5UnknownExplanation.\n @param exp The unknown explanation.\n @return The string representation."]
-	pub fn cvc5_unknown_explanation_to_string(
-		exp: Cvc5UnknownExplanation,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5UnknownExplanation.\n @param exp The unknown explanation.\n @return The string representation."]
+    pub fn cvc5_unknown_explanation_to_string(
+        exp: Cvc5UnknownExplanation,
+    ) -> *const ::std::os::raw::c_char;
 }
 #[repr(u32)]
 #[doc = " Rounding modes for floating-point numbers.\n\n For many floating-point operations, infinitely precise results may not be\n representable with the number of available bits. Thus, the results are\n rounded in a certain way to one of the representable floating-point numbers.\n\n \\verbatim embed:rst:leading-asterisk\n These rounding modes directly follow the SMT-LIB theory for floating-point\n arithmetic, which in turn is based on IEEE Standard 754 :cite:`IEEE754`.\n The rounding modes are specified in Sections 4.3.1 and 4.3.2 of the IEEE\n Standard 754.\n \\endverbatim"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5RoundingMode {
-	ROUND_NEAREST_TIES_TO_EVEN = 0,
-	ROUND_TOWARD_POSITIVE = 1,
-	ROUND_TOWARD_NEGATIVE = 2,
-	ROUND_TOWARD_ZERO = 3,
-	ROUND_NEAREST_TIES_TO_AWAY = 4,
-	LAST = 5,
+    RoundNearestTiesToEven = 0,
+    RoundTowardPositive = 1,
+    RoundTowardNegative = 2,
+    RoundTowardZero = 3,
+    RoundNearestTiesToAway = 4,
+    Last = 5,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5RoundingMode.\n @param rm The rounding mode.\n @return The string representation."]
-	pub fn cvc5_rm_to_string(rm: Cvc5RoundingMode) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5RoundingMode.\n @param rm The rounding mode.\n @return The string representation."]
+    pub fn cvc5_rm_to_string(rm: Cvc5RoundingMode) -> *const ::std::os::raw::c_char;
 }
 #[repr(u32)]
 #[doc = " Mode for blocking models.\n\n Specifies how models are blocked in Solver::blockModel and\n Solver::blockModelValues."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5BlockModelsMode {
-	LITERALS = 0,
-	VALUES = 1,
-	LAST = 2,
+    Literals = 0,
+    Values = 1,
+    Last = 2,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5BlockModelsMode.\n @param mode The mode.\n @return The string representation."]
-	pub fn cvc5_modes_block_models_mode_to_string(
-		mode: Cvc5BlockModelsMode,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5BlockModelsMode.\n @param mode The mode.\n @return The string representation."]
+    pub fn cvc5_modes_block_models_mode_to_string(
+        mode: Cvc5BlockModelsMode,
+    ) -> *const ::std::os::raw::c_char;
 }
 #[repr(u32)]
 #[doc = " Types of learned literals.\n\n Specifies categories of literals learned for the method\n Solver::getLearnedLiterals.\n\n Note that a literal may conceptually belong to multiple categories. We\n classify literals based on the first criteria in this list that they meet."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5LearnedLitType {
-	PREPROCESS_SOLVED = 0,
-	PREPROCESS = 1,
-	INPUT = 2,
-	SOLVABLE = 3,
-	CONSTANT_PROP = 4,
-	INTERNAL = 5,
-	UNKNOWN = 6,
-	LAST = 7,
+    PreprocessSolved = 0,
+    Preprocess = 1,
+    Input = 2,
+    Solvable = 3,
+    ConstantProp = 4,
+    Internal = 5,
+    Unknown = 6,
+    Last = 7,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5LearnedLitType.\n @param type The learned literal type.\n @return The string representation."]
-	pub fn cvc5_modes_learned_lit_type_to_string(
-		type_: Cvc5LearnedLitType,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5LearnedLitType.\n @param type The learned literal type.\n @return The string representation."]
+    pub fn cvc5_modes_learned_lit_type_to_string(
+        type_: Cvc5LearnedLitType,
+    ) -> *const ::std::os::raw::c_char;
 }
 #[repr(u32)]
 #[doc = " Components to include in a proof."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5ProofComponent {
-	RAW_PREPROCESS = 0,
-	PREPROCESS = 1,
-	SAT = 2,
-	THEORY_LEMMAS = 3,
-	FULL = 4,
-	LAST = 5,
+    RawPreprocess = 0,
+    Preprocess = 1,
+    Sat = 2,
+    TheoryLemmas = 3,
+    Full = 4,
+    Last = 5,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5ProofComponent.\n @param pc The proof component.\n @return The string representation."]
-	pub fn cvc5_modes_proof_component_to_string(
-		pc: Cvc5ProofComponent,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5ProofComponent.\n @param pc The proof component.\n @return The string representation."]
+    pub fn cvc5_modes_proof_component_to_string(
+        pc: Cvc5ProofComponent,
+    ) -> *const ::std::os::raw::c_char;
 }
 #[repr(u32)]
 #[doc = " Proof format used for proof printing."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5ProofFormat {
-	NONE = 0,
-	DOT = 1,
-	LFSC = 2,
-	ALETHE = 3,
-	CPC = 4,
-	DEFAULT = 5,
-	LAST = 6,
+    None = 0,
+    Dot = 1,
+    Lfsc = 2,
+    Alethe = 3,
+    Cpc = 4,
+    Default = 5,
+    Last = 6,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5ProofFormat.\n @param format The proof format.\n @return The string representation."]
-	pub fn cvc5_modes_proof_format_to_string(
-		format: Cvc5ProofFormat,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5ProofFormat.\n @param format The proof format.\n @return The string representation."]
+    pub fn cvc5_modes_proof_format_to_string(
+        format: Cvc5ProofFormat,
+    ) -> *const ::std::os::raw::c_char;
 }
 #[repr(u32)]
 #[doc = " Find synthesis targets, used as an argument to Solver::findSynth. These\n specify various kinds of terms that can be found by this method."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5FindSynthTarget {
-	ENUM = 0,
-	REWRITE = 1,
-	REWRITE_UNSOUND = 2,
-	REWRITE_INPUT = 3,
-	QUERY = 4,
-	LAST = 5,
+    Enum = 0,
+    Rewrite = 1,
+    RewriteUnsound = 2,
+    RewriteInput = 3,
+    Query = 4,
+    Last = 5,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5FindSynthTarget.\n @param target The synthesis find target.\n @return The string representation."]
-	pub fn cvc5_modes_find_synth_target_to_string(
-		target: Cvc5FindSynthTarget,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5FindSynthTarget.\n @param target The synthesis find target.\n @return The string representation."]
+    pub fn cvc5_modes_find_synth_target_to_string(
+        target: Cvc5FindSynthTarget,
+    ) -> *const ::std::os::raw::c_char;
 }
 #[repr(u32)]
 #[doc = " Option category enumeration.\n Specifies the category of an option for user interface purposes."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5OptionCategory {
-	REGULAR = 0,
-	EXPERT = 1,
-	COMMON = 2,
-	UNDOCUMENTED = 3,
-	LAST = 4,
+    Regular = 0,
+    Expert = 1,
+    Common = 2,
+    Undocumented = 3,
+    Last = 4,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5OptionCategory.\n @param cat The option category.\n @return The string representation."]
-	pub fn cvc5_modes_option_category_to_string(
-		cat: Cvc5OptionCategory,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5OptionCategory.\n @param cat The option category.\n @return The string representation."]
+    pub fn cvc5_modes_option_category_to_string(
+        cat: Cvc5OptionCategory,
+    ) -> *const ::std::os::raw::c_char;
 }
 #[repr(u32)]
 #[doc = " The different reasons for returning an \"unknown\" result."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5InputLanguage {
-	SMT_LIB_2_6 = 0,
-	SYGUS_2_1 = 1,
-	UNKNOWN = 2,
-	LAST = 3,
+    SmtLib26 = 0,
+    Sygus21 = 1,
+    Unknown = 2,
+    Last = 3,
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a Cvc5InputLanguage.\n @param lang The input language.\n @return The string representation."]
-	pub fn cvc5_modes_input_language_to_string(
-		lang: Cvc5InputLanguage,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a Cvc5InputLanguage.\n @param lang The input language.\n @return The string representation."]
+    pub fn cvc5_modes_input_language_to_string(
+        lang: Cvc5InputLanguage,
+    ) -> *const ::std::os::raw::c_char;
 }
 pub type char32_t = __uint_least32_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_result_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " Encapsulation of a three-valued solver result, with explanations."]
 pub type Cvc5Result = *mut cvc5_result_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_synth_result_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " Encapsulation of a solver synth result.\n\n This is the return value of the API functions:\n   - cvc5_check_synth()\n   - cvc5_check_synth_next()\n\n which we call \"synthesis queries\".  This class indicates whether the\n synthesis query has a solution, has no solution, or is unknown."]
 pub type Cvc5SynthResult = *mut cvc5_synth_result_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_sort_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " The sort of a cvc5 term."]
 pub type Cvc5Sort = *mut cvc5_sort_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_term_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " A cvc5 term."]
 pub type Cvc5Term = *mut cvc5_term_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_op_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " A cvc5 operator.\n\n An operator is a term that represents certain operators, instantiated\n with its required parameters, e.g., a Term of kind\n #CVC5_KIND_BITVECTOR_EXTRACT."]
 pub type Cvc5Op = *mut cvc5_op_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_dt_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " A cvc5 datatype."]
 pub type Cvc5Datatype = *mut cvc5_dt_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_dt_sel_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " A cvc5 datatype selector."]
 pub type Cvc5DatatypeSelector = *mut cvc5_dt_sel_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_dt_cons_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " A cvc5 datatype constructor."]
 pub type Cvc5DatatypeConstructor = *mut cvc5_dt_cons_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_dt_cons_decl_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " A cvc5 datatype constructor declaration. A datatype constructor declaration\n is a specification used for creating a datatype constructor."]
 pub type Cvc5DatatypeConstructorDecl = *mut cvc5_dt_cons_decl_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_dt_decl_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " A cvc5 datatype declaration. A datatype declaration is not itself a datatype\n (see Datatype), but a specification for creating a datatype sort.\n\n The interface for a datatype declaration coincides with the syntax for the\n SMT-LIB 2.6 command `declare-datatype`, or a single datatype within the\n `declare-datatypes` command.\n\n Datatype sorts can be constructed from a Cvc5DatatypeDecl using:\n   - cvc5_mk_datatype_sort()\n   - cvc5_mk_datatype_sorts()"]
 pub type Cvc5DatatypeDecl = *mut cvc5_dt_decl_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_grammar_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " A Sygus Grammar. This can be used to define a context-free grammar\n of terms. Its interface coincides with the definition of grammars\n (``GrammarDef``) in the SyGuS IF 2.1 standard."]
 pub type Cvc5Grammar = *mut cvc5_grammar_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Cvc5 {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Cvc5TermManager {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_proof_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " A cvc5 proof."]
 pub type Cvc5Proof = *mut cvc5_proof_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_stat_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " A cvc5 statistic."]
 pub type Cvc5Stat = *mut cvc5_stat_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct cvc5_stats_t {
-	_unused: [u8; 0],
+    _unused: [u8; 0],
 }
 #[doc = " A cvc5 statistics instance."]
 pub type Cvc5Statistics = *mut cvc5_stats_t;
 unsafe extern "C" {
-	#[doc = " Make copy of result, increases reference counter of `result`.\n\n @param result The result to copy.\n @return The same result with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_result_copy(result: Cvc5Result) -> Cvc5Result;
+    #[doc = " Make copy of result, increases reference counter of `result`.\n\n @param result The result to copy.\n @return The same result with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_result_copy(result: Cvc5Result) -> Cvc5Result;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of result, decrements reference counter of `result`.\n\n @param result The result to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
-	pub fn cvc5_result_release(result: Cvc5Result);
+    #[doc = " Release copy of result, decrements reference counter of `result`.\n\n @param result The result to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    pub fn cvc5_result_release(result: Cvc5Result);
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given result is empty (a nullary result) and not an actual\n result returned from a `cvc5_check_sat()` (and friends) query.\n @param result The result.\n @return True if the given result is a nullary result."]
-	pub fn cvc5_result_is_null(result: Cvc5Result) -> bool;
+    #[doc = " Determine if a given result is empty (a nullary result) and not an actual\n result returned from a `cvc5_check_sat()` (and friends) query.\n @param result The result.\n @return True if the given result is a nullary result."]
+    pub fn cvc5_result_is_null(result: Cvc5Result) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given result is from a satisfiable `cvc5_check_sat()` or\n cvc5_check_sat_ssuming() query.\n @param result The result.\n @return True if result is from a satisfiable query."]
-	pub fn cvc5_result_is_sat(result: Cvc5Result) -> bool;
+    #[doc = " Determine if given result is from a satisfiable `cvc5_check_sat()` or\n cvc5_check_sat_ssuming() query.\n @param result The result.\n @return True if result is from a satisfiable query."]
+    pub fn cvc5_result_is_sat(result: Cvc5Result) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given result is from an unsatisfiable `cvc5_check_sat()` or\n cvc5_check_sat_assuming() query.\n @param result The result.\n @return True if result is from an unsatisfiable query."]
-	pub fn cvc5_result_is_unsat(result: Cvc5Result) -> bool;
+    #[doc = " Determine if given result is from an unsatisfiable `cvc5_check_sat()` or\n cvc5_check_sat_assuming() query.\n @param result The result.\n @return True if result is from an unsatisfiable query."]
+    pub fn cvc5_result_is_unsat(result: Cvc5Result) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given result is from a `cvc5_check_sat()` or\n cvc5_check_sat_assuming() query and cvc5 was not able to determine\n (un)satisfiability.\n @param result The result.\n @return True if result is from a query where cvc5 was not able to determine\n         (un)satisfiability."]
-	pub fn cvc5_result_is_unknown(result: Cvc5Result) -> bool;
+    #[doc = " Determine if given result is from a `cvc5_check_sat()` or\n cvc5_check_sat_assuming() query and cvc5 was not able to determine\n (un)satisfiability.\n @param result The result.\n @return True if result is from a query where cvc5 was not able to determine\n         (un)satisfiability."]
+    pub fn cvc5_result_is_unknown(result: Cvc5Result) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine equality of two results.\n @param a The first result to compare to for equality.\n @param b The second result to compare to for equality.\n @return True if the results are equal."]
-	pub fn cvc5_result_is_equal(a: Cvc5Result, b: Cvc5Result) -> bool;
+    #[doc = " Determine equality of two results.\n @param a The first result to compare to for equality.\n @param b The second result to compare to for equality.\n @return True if the results are equal."]
+    pub fn cvc5_result_is_equal(a: Cvc5Result, b: Cvc5Result) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Operator overloading for disequality of two results.\n @param a The first result to compare to for disequality.\n @param b The second result to compare to for disequality.\n @return True if the results are disequal."]
-	pub fn cvc5_result_is_disequal(a: Cvc5Result, b: Cvc5Result) -> bool;
+    #[doc = " Operator overloading for disequality of two results.\n @param a The first result to compare to for disequality.\n @param b The second result to compare to for disequality.\n @return True if the results are disequal."]
+    pub fn cvc5_result_is_disequal(a: Cvc5Result, b: Cvc5Result) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the explanation for an unknown result.\n @param result The result.\n @return An explanation for an unknown query result."]
-	pub fn cvc5_result_get_unknown_explanation(result: Cvc5Result) -> Cvc5UnknownExplanation;
+    #[doc = " Get the explanation for an unknown result.\n @param result The result.\n @return An explanation for an unknown query result."]
+    pub fn cvc5_result_get_unknown_explanation(result: Cvc5Result) -> Cvc5UnknownExplanation;
 }
 unsafe extern "C" {
-	#[doc = " Get the string representation of a given result.\n @param result The result.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_result_to_string(result: Cvc5Result) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the string representation of a given result.\n @param result The result.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_result_to_string(result: Cvc5Result) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of a result.\n @param result The result.\n @return The hash value of the result."]
-	pub fn cvc5_result_hash(result: Cvc5Result) -> usize;
+    #[doc = " Compute the hash value of a result.\n @param result The result.\n @return The hash value of the result."]
+    pub fn cvc5_result_hash(result: Cvc5Result) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given synthesis result is empty (a nullary result) and not an\n actual result returned from a synthesis query.\n @param result The result.\n @return True if the given result is a nullary result."]
-	pub fn cvc5_synth_result_is_null(result: Cvc5SynthResult) -> bool;
+    #[doc = " Determine if a given synthesis result is empty (a nullary result) and not an\n actual result returned from a synthesis query.\n @param result The result.\n @return True if the given result is a nullary result."]
+    pub fn cvc5_synth_result_is_null(result: Cvc5SynthResult) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if the given result is from a synthesis query that has a solution.\n @param result The result.\n @return True if the synthesis query has a solution."]
-	pub fn cvc5_synth_result_has_solution(result: Cvc5SynthResult) -> bool;
+    #[doc = " Determine if the given result is from a synthesis query that has a solution.\n @param result The result.\n @return True if the synthesis query has a solution."]
+    pub fn cvc5_synth_result_has_solution(result: Cvc5SynthResult) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if the given result is from a synthesis query that has no solution.\n @param result The result.\n @return True if the synthesis query has no solution. In this case, it\n         was determined that there was no solution."]
-	pub fn cvc5_synth_result_has_no_solution(result: Cvc5SynthResult) -> bool;
+    #[doc = " Determine if the given result is from a synthesis query that has no solution.\n @param result The result.\n @return True if the synthesis query has no solution. In this case, it\n         was determined that there was no solution."]
+    pub fn cvc5_synth_result_has_no_solution(result: Cvc5SynthResult) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if the given result is from a synthesis query where its result\n could not be determined.\n @param result The result.\n @return True if the result of the synthesis query could not be determined."]
-	pub fn cvc5_synth_result_is_unknown(result: Cvc5SynthResult) -> bool;
+    #[doc = " Determine if the given result is from a synthesis query where its result\n could not be determined.\n @param result The result.\n @return True if the result of the synthesis query could not be determined."]
+    pub fn cvc5_synth_result_is_unknown(result: Cvc5SynthResult) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine equality of two synthesis results.\n @param a The first synthesis result to compare to for equality.\n @param b The second synthesis result to compare to for equality.\n @return True if the synthesis results are equal."]
-	pub fn cvc5_synth_result_is_equal(a: Cvc5SynthResult, b: Cvc5SynthResult) -> bool;
+    #[doc = " Determine equality of two synthesis results.\n @param a The first synthesis result to compare to for equality.\n @param b The second synthesis result to compare to for equality.\n @return True if the synthesis results are equal."]
+    pub fn cvc5_synth_result_is_equal(a: Cvc5SynthResult, b: Cvc5SynthResult) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Operator overloading for disequality of two synthesis results.\n @param a The first synthesis result to compare to for disequality.\n @param b The second synthesis result to compare to for disequality.\n @return True if the synthesis results are disequal."]
-	pub fn cvc5_synth_result_is_disequal(a: Cvc5SynthResult, b: Cvc5SynthResult) -> bool;
+    #[doc = " Operator overloading for disequality of two synthesis results.\n @param a The first synthesis result to compare to for disequality.\n @param b The second synthesis result to compare to for disequality.\n @return True if the synthesis results are disequal."]
+    pub fn cvc5_synth_result_is_disequal(a: Cvc5SynthResult, b: Cvc5SynthResult) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the string representation of a given result.\n @param result The result.\n @return A string representation of the given synthesis result.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_synth_result_to_string(result: Cvc5SynthResult) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the string representation of a given result.\n @param result The result.\n @return A string representation of the given synthesis result.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_synth_result_to_string(result: Cvc5SynthResult) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of a synthesis result.\n @param result The synthesis result.\n @return The hash value of the synthesis result."]
-	pub fn cvc5_synth_result_hash(result: Cvc5SynthResult) -> usize;
+    #[doc = " Compute the hash value of a synthesis result.\n @param result The synthesis result.\n @return The hash value of the synthesis result."]
+    pub fn cvc5_synth_result_hash(result: Cvc5SynthResult) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Make copy of synthesis result, increases reference counter of `result`.\n\n @param result The synthesis  result to copy.\n @return The same result with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_synth_result_copy(result: Cvc5SynthResult) -> Cvc5SynthResult;
+    #[doc = " Make copy of synthesis result, increases reference counter of `result`.\n\n @param result The synthesis  result to copy.\n @return The same result with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_synth_result_copy(result: Cvc5SynthResult) -> Cvc5SynthResult;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of synthesis result, decrements reference counter of `result`.\n\n @param result The result to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
-	pub fn cvc5_synth_result_release(result: Cvc5SynthResult);
+    #[doc = " Release copy of synthesis result, decrements reference counter of `result`.\n\n @param result The result to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    pub fn cvc5_synth_result_release(result: Cvc5SynthResult);
 }
 unsafe extern "C" {
-	#[doc = " Make copy of sort, increases reference counter of `sort`.\n\n @param sort The sort to copy.\n @return The same sort with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_sort_copy(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Make copy of sort, increases reference counter of `sort`.\n\n @param sort The sort to copy.\n @return The same sort with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_sort_copy(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of sort, decrements reference counter of `sort`.\n\n @param sort The sort to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5Sort returns a copy that is owned by the callee of the function\n       and thus, can be released."]
-	pub fn cvc5_sort_release(sort: Cvc5Sort);
+    #[doc = " Release copy of sort, decrements reference counter of `sort`.\n\n @param sort The sort to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5Sort returns a copy that is owned by the callee of the function\n       and thus, can be released."]
+    pub fn cvc5_sort_release(sort: Cvc5Sort);
 }
 unsafe extern "C" {
-	#[doc = " Compare two sorts for structural equality.\n @param a The first sort.\n @param b The second sort.\n @return True if the sorts are equal."]
-	pub fn cvc5_sort_is_equal(a: Cvc5Sort, b: Cvc5Sort) -> bool;
+    #[doc = " Compare two sorts for structural equality.\n @param a The first sort.\n @param b The second sort.\n @return True if the sorts are equal."]
+    pub fn cvc5_sort_is_equal(a: Cvc5Sort, b: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Compare two sorts for structural disequality.\n @param a The first sort.\n @param b The second sort.\n @return True if the sorts are not equal."]
-	pub fn cvc5_sort_is_disequal(a: Cvc5Sort, b: Cvc5Sort) -> bool;
+    #[doc = " Compare two sorts for structural disequality.\n @param a The first sort.\n @param b The second sort.\n @return True if the sorts are not equal."]
+    pub fn cvc5_sort_is_disequal(a: Cvc5Sort, b: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Compare two sorts for ordering.\n @param a The first sort.\n @param b The second sort.\n @return An integer value indicating the ordering: 0 if both sorts are equal,\n         `-1` if `a < b`, and `1` if `b > a`."]
-	pub fn cvc5_sort_compare(a: Cvc5Sort, b: Cvc5Sort) -> i64;
+    #[doc = " Compare two sorts for ordering.\n @param a The first sort.\n @param b The second sort.\n @return An integer value indicating the ordering: 0 if both sorts are equal,\n         `-1` if `a < b`, and `1` if `b > a`."]
+    pub fn cvc5_sort_compare(a: Cvc5Sort, b: Cvc5Sort) -> i64;
 }
 unsafe extern "C" {
-	#[doc = " Get the kind of the given sort.\n @param sort The sort.\n @return The kind of the sort.\n\n @warning This function is experimental and may change in future versions."]
-	pub fn cvc5_sort_get_kind(sort: Cvc5Sort) -> Cvc5SortKind;
+    #[doc = " Get the kind of the given sort.\n @param sort The sort.\n @return The kind of the sort.\n\n @warning This function is experimental and may change in future versions."]
+    pub fn cvc5_sort_get_kind(sort: Cvc5Sort) -> Cvc5SortKind;
 }
 unsafe extern "C" {
-	#[doc = " Determine if the given sort has a symbol (a name).\n\n For example, uninterpreted sorts and uninterpreted sort constructors have\n symbols.\n\n @param sort The sort.\n @return True if the sort has a symbol."]
-	pub fn cvc5_sort_has_symbol(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if the given sort has a symbol (a name).\n\n For example, uninterpreted sorts and uninterpreted sort constructors have\n symbols.\n\n @param sort The sort.\n @return True if the sort has a symbol."]
+    pub fn cvc5_sort_has_symbol(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the symbol of this Sort.\n\n @note Asserts cvc5_sort_has_symbol().\n\n The symbol of this sort is the string that was\n provided when constructing it via\n cvc5_mk_uninterpreted_sort(),\n cvc5_mk_unresolved_sort(), or\n cvc5_mk_uninterpreted_sort_constructor_sort().\n\n @param sort The sort.\n @return The raw symbol of the sort.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_sort_get_symbol(sort: Cvc5Sort) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the symbol of this Sort.\n\n @note Asserts cvc5_sort_has_symbol().\n\n The symbol of this sort is the string that was\n provided when constructing it via\n cvc5_mk_uninterpreted_sort(),\n cvc5_mk_unresolved_sort(), or\n cvc5_mk_uninterpreted_sort_constructor_sort().\n\n @param sort The sort.\n @return The raw symbol of the sort.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_sort_get_symbol(sort: Cvc5Sort) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is the Boolean sort (SMT-LIB: `Bool`).\n @param sort The sort.\n @return True if given sort is the Boolean sort."]
-	pub fn cvc5_sort_is_boolean(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is the Boolean sort (SMT-LIB: `Bool`).\n @param sort The sort.\n @return True if given sort is the Boolean sort."]
+    pub fn cvc5_sort_is_boolean(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is the integer sort (SMT-LIB: `Int`).\n @param sort The sort.\n @return True if given sort is the integer sort."]
-	pub fn cvc5_sort_is_integer(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is the integer sort (SMT-LIB: `Int`).\n @param sort The sort.\n @return True if given sort is the integer sort."]
+    pub fn cvc5_sort_is_integer(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is the real sort (SMT-LIB: `Real`).\n @param sort The sort.\n @return True if given sort is the real sort."]
-	pub fn cvc5_sort_is_real(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is the real sort (SMT-LIB: `Real`).\n @param sort The sort.\n @return True if given sort is the real sort."]
+    pub fn cvc5_sort_is_real(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is the string sort (SMT-LIB: `String`).\n @param sort The sort.\n @return True if given sort is the string sort."]
-	pub fn cvc5_sort_is_string(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is the string sort (SMT-LIB: `String`).\n @param sort The sort.\n @return True if given sort is the string sort."]
+    pub fn cvc5_sort_is_string(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is the regular expression sort (SMT-LIB: `RegLan`).\n @param sort The sort.\n @return True if given sort is the regular expression sort."]
-	pub fn cvc5_sort_is_regexp(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is the regular expression sort (SMT-LIB: `RegLan`).\n @param sort The sort.\n @return True if given sort is the regular expression sort."]
+    pub fn cvc5_sort_is_regexp(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is the rounding mode sort\n (SMT-LIB: `Cvc5RoundingMode`).\n @param sort The sort.\n @return True if given sort is the rounding mode sort."]
-	pub fn cvc5_sort_is_rm(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is the rounding mode sort\n (SMT-LIB: `Cvc5RoundingMode`).\n @param sort The sort.\n @return True if given sort is the rounding mode sort."]
+    pub fn cvc5_sort_is_rm(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a bit-vector sort (SMT-LIB: `(_ BitVec i)`).\n @param sort The sort.\n @return True if given sort is a bit-vector sort."]
-	pub fn cvc5_sort_is_bv(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a bit-vector sort (SMT-LIB: `(_ BitVec i)`).\n @param sort The sort.\n @return True if given sort is a bit-vector sort."]
+    pub fn cvc5_sort_is_bv(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a floatingpoint sort\n (SMT-LIB: `(_ FloatingPoint eb sb)`).\n @param sort The sort.\n @return True if given sort is a floating-point sort."]
-	pub fn cvc5_sort_is_fp(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a floatingpoint sort\n (SMT-LIB: `(_ FloatingPoint eb sb)`).\n @param sort The sort.\n @return True if given sort is a floating-point sort."]
+    pub fn cvc5_sort_is_fp(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a datatype sort.\n @param sort The sort.\n @return True if given sort is a datatype sort."]
-	pub fn cvc5_sort_is_dt(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a datatype sort.\n @param sort The sort.\n @return True if given sort is a datatype sort."]
+    pub fn cvc5_sort_is_dt(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a datatype constructor sort.\n @param sort The sort.\n @return True if given sort is a datatype constructor sort."]
-	pub fn cvc5_sort_is_dt_constructor(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a datatype constructor sort.\n @param sort The sort.\n @return True if given sort is a datatype constructor sort."]
+    pub fn cvc5_sort_is_dt_constructor(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a datatype selector sort.\n @param sort The sort.\n @return True if given sort is a datatype selector sort."]
-	pub fn cvc5_sort_is_dt_selector(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a datatype selector sort.\n @param sort The sort.\n @return True if given sort is a datatype selector sort."]
+    pub fn cvc5_sort_is_dt_selector(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a datatype tester sort.\n @param sort The sort.\n @return True if given sort is a datatype tester sort."]
-	pub fn cvc5_sort_is_dt_tester(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a datatype tester sort.\n @param sort The sort.\n @return True if given sort is a datatype tester sort."]
+    pub fn cvc5_sort_is_dt_tester(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a datatype updater sort.\n @param sort The sort.\n @return True if given sort is a datatype updater sort."]
-	pub fn cvc5_sort_is_dt_updater(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a datatype updater sort.\n @param sort The sort.\n @return True if given sort is a datatype updater sort."]
+    pub fn cvc5_sort_is_dt_updater(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a function sort.\n @param sort The sort.\n @return True if given sort is a function sort."]
-	pub fn cvc5_sort_is_fun(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a function sort.\n @param sort The sort.\n @return True if given sort is a function sort."]
+    pub fn cvc5_sort_is_fun(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a predicate sort.\n\n A predicate sort is a function sort that maps to the Boolean sort. All\n predicate sorts are also function sorts.\n\n @param sort The sort.\n @return True if given sort is a predicate sort."]
-	pub fn cvc5_sort_is_predicate(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a predicate sort.\n\n A predicate sort is a function sort that maps to the Boolean sort. All\n predicate sorts are also function sorts.\n\n @param sort The sort.\n @return True if given sort is a predicate sort."]
+    pub fn cvc5_sort_is_predicate(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a tuple sort.\n @param sort The sort.\n @return True if given sort is a tuple sort."]
-	pub fn cvc5_sort_is_tuple(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a tuple sort.\n @param sort The sort.\n @return True if given sort is a tuple sort."]
+    pub fn cvc5_sort_is_tuple(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a nullable sort.\n @param sort The sort.\n @return True if given sort is a nullable sort."]
-	pub fn cvc5_sort_is_nullable(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a nullable sort.\n @param sort The sort.\n @return True if given sort is a nullable sort."]
+    pub fn cvc5_sort_is_nullable(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a record sort.\n @warning This function is experimental and may change in future versions.\n @param sort The sort.\n @return True if the sort is a record sort."]
-	pub fn cvc5_sort_is_record(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a record sort.\n @warning This function is experimental and may change in future versions.\n @param sort The sort.\n @return True if the sort is a record sort."]
+    pub fn cvc5_sort_is_record(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is an array sort.\n @param sort The sort.\n @return True if the sort is an array sort."]
-	pub fn cvc5_sort_is_array(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is an array sort.\n @param sort The sort.\n @return True if the sort is an array sort."]
+    pub fn cvc5_sort_is_array(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a finite field sort.\n @param sort The sort.\n @return True if the sort is a finite field sort."]
-	pub fn cvc5_sort_is_ff(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a finite field sort.\n @param sort The sort.\n @return True if the sort is a finite field sort."]
+    pub fn cvc5_sort_is_ff(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a Set sort.\n @param sort The sort.\n @return True if the sort is a Set sort."]
-	pub fn cvc5_sort_is_set(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a Set sort.\n @param sort The sort.\n @return True if the sort is a Set sort."]
+    pub fn cvc5_sort_is_set(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a Bag sort.\n @param sort The sort.\n @return True if the sort is a Bag sort."]
-	pub fn cvc5_sort_is_bag(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a Bag sort.\n @param sort The sort.\n @return True if the sort is a Bag sort."]
+    pub fn cvc5_sort_is_bag(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is a Sequence sort.\n @param sort The sort.\n @return True if the sort is a Sequence sort."]
-	pub fn cvc5_sort_is_sequence(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is a Sequence sort.\n @param sort The sort.\n @return True if the sort is a Sequence sort."]
+    pub fn cvc5_sort_is_sequence(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is an abstract sort.\n @param sort The sort.\n @return True if the sort is a abstract sort.\n\n @warning This function is experimental and may change in future versions."]
-	pub fn cvc5_sort_is_abstract(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is an abstract sort.\n @param sort The sort.\n @return True if the sort is a abstract sort.\n\n @warning This function is experimental and may change in future versions."]
+    pub fn cvc5_sort_is_abstract(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is an uninterpreted sort.\n @param sort The sort.\n @return True if given sort is an uninterpreted sort."]
-	pub fn cvc5_sort_is_uninterpreted_sort(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is an uninterpreted sort.\n @param sort The sort.\n @return True if given sort is an uninterpreted sort."]
+    pub fn cvc5_sort_is_uninterpreted_sort(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is an uninterpreted sort constructor.\n\n An uninterpreted sort constructor has arity > 0 and can be instantiated to\n construct uninterpreted sorts with given sort parameters.\n\n @param sort The sort.\n @return True if given sort is of sort constructor kind."]
-	pub fn cvc5_sort_is_uninterpreted_sort_constructor(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is an uninterpreted sort constructor.\n\n An uninterpreted sort constructor has arity > 0 and can be instantiated to\n construct uninterpreted sorts with given sort parameters.\n\n @param sort The sort.\n @return True if given sort is of sort constructor kind."]
+    pub fn cvc5_sort_is_uninterpreted_sort_constructor(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if given sort is an instantiated (parametric datatype or\n uninterpreted sort constructor) sort.\n\n An instantiated sort is a sort that has been constructed from\n instantiating a sort with sort arguments (see cvc5_sort_instantiate().\n\n @param sort The sort.\n @return True if given sort is an instantiated sort."]
-	pub fn cvc5_sort_is_instantiated(sort: Cvc5Sort) -> bool;
+    #[doc = " Determine if given sort is an instantiated (parametric datatype or\n uninterpreted sort constructor) sort.\n\n An instantiated sort is a sort that has been constructed from\n instantiating a sort with sort arguments (see cvc5_sort_instantiate().\n\n @param sort The sort.\n @return True if given sort is an instantiated sort."]
+    pub fn cvc5_sort_is_instantiated(sort: Cvc5Sort) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the associated uninterpreted sort constructor of an instantiated\n uninterpreted sort.\n\n @param sort The sort.\n @return The uninterpreted sort constructor sort."]
-	pub fn cvc5_sort_get_uninterpreted_sort_constructor(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the associated uninterpreted sort constructor of an instantiated\n uninterpreted sort.\n\n @param sort The sort.\n @return The uninterpreted sort constructor sort."]
+    pub fn cvc5_sort_get_uninterpreted_sort_constructor(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the underlying datatype of a datatype sort.\n @param sort The sort.\n @return The underlying datatype of a datatype sort."]
-	pub fn cvc5_sort_get_datatype(sort: Cvc5Sort) -> Cvc5Datatype;
+    #[doc = " Get the underlying datatype of a datatype sort.\n @param sort The sort.\n @return The underlying datatype of a datatype sort."]
+    pub fn cvc5_sort_get_datatype(sort: Cvc5Sort) -> Cvc5Datatype;
 }
 unsafe extern "C" {
-	#[doc = " Instantiate a parameterized datatype sort or uninterpreted sort\n constructor sort.\n\n Create sort parameters with cvc5_mk_param_sort().\n\n @param sort   The sort to instantiate.\n @param size   The number of sort parameters to instantiate with.\n @param params The list of sort parameters to instantiate with.\n @return The instantiated sort."]
-	pub fn cvc5_sort_instantiate(sort: Cvc5Sort, size: usize, params: *const Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Instantiate a parameterized datatype sort or uninterpreted sort\n constructor sort.\n\n Create sort parameters with cvc5_mk_param_sort().\n\n @param sort   The sort to instantiate.\n @param size   The number of sort parameters to instantiate with.\n @param params The list of sort parameters to instantiate with.\n @return The instantiated sort."]
+    pub fn cvc5_sort_instantiate(sort: Cvc5Sort, size: usize, params: *const Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the sorts used to instantiate the sort parameters of a given parametric\n sort (parametric datatype or uninterpreted sort constructor sort,\n see cvc5_sort_instantiate();\n\n @param sort The sort.\n @param size The size of the resulting array of sorts.\n @return The sorts used to instantiate the sort parameters of a\n         parametric sort"]
-	pub fn cvc5_sort_get_instantiated_parameters(
-		sort: Cvc5Sort,
-		size: *mut usize,
-	) -> *const Cvc5Sort;
+    #[doc = " Get the sorts used to instantiate the sort parameters of a given parametric\n sort (parametric datatype or uninterpreted sort constructor sort,\n see cvc5_sort_instantiate();\n\n @param sort The sort.\n @param size The size of the resulting array of sorts.\n @return The sorts used to instantiate the sort parameters of a\n         parametric sort"]
+    pub fn cvc5_sort_get_instantiated_parameters(
+        sort: Cvc5Sort,
+        size: *mut usize,
+    ) -> *const Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Substitution of Sorts.\n\n Note that this replacement is applied during a pre-order traversal and\n only once to the sort. It is not run until fix point.\n\n For example,\n `(Array A B).substitute({A, C}, {(Array C D), (Array A B)})` will\n return `(Array (Array C D) B)`.\n\n @warning This function is experimental and may change in future versions.\n\n @param sort The sort.\n @param s    The subsort to be substituted within the given sort.\n @param replacement The sort replacing the substituted subsort."]
-	pub fn cvc5_sort_substitute(sort: Cvc5Sort, s: Cvc5Sort, replacement: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Substitution of Sorts.\n\n Note that this replacement is applied during a pre-order traversal and\n only once to the sort. It is not run until fix point.\n\n For example,\n `(Array A B).substitute({A, C}, {(Array C D), (Array A B)})` will\n return `(Array (Array C D) B)`.\n\n @warning This function is experimental and may change in future versions.\n\n @param sort The sort.\n @param s    The subsort to be substituted within the given sort.\n @param replacement The sort replacing the substituted subsort."]
+    pub fn cvc5_sort_substitute(sort: Cvc5Sort, s: Cvc5Sort, replacement: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Simultaneous substitution of Sorts.\n\n Note that this replacement is applied during a pre-order traversal and\n only once to the sort. It is not run until fix point. In the case that\n sorts contains duplicates, the replacement earliest in the vector takes\n priority.\n\n @warning This function is experimental and may change in future versions.\n\n @param sort The sort.\n @param sorts The subsorts to be substituted within the given sort.\n @param replacements The sort replacing the substituted subsorts.\n @param size The size of `sorts` and `replacements`."]
-	pub fn cvc5_sort_substitute_sorts(
-		sort: Cvc5Sort,
-		size: usize,
-		sorts: *const Cvc5Sort,
-		replacements: *const Cvc5Sort,
-	) -> Cvc5Sort;
+    #[doc = " Simultaneous substitution of Sorts.\n\n Note that this replacement is applied during a pre-order traversal and\n only once to the sort. It is not run until fix point. In the case that\n sorts contains duplicates, the replacement earliest in the vector takes\n priority.\n\n @warning This function is experimental and may change in future versions.\n\n @param sort The sort.\n @param sorts The subsorts to be substituted within the given sort.\n @param replacements The sort replacing the substituted subsorts.\n @param size The size of `sorts` and `replacements`."]
+    pub fn cvc5_sort_substitute_sorts(
+        sort: Cvc5Sort,
+        size: usize,
+        sorts: *const Cvc5Sort,
+        replacements: *const Cvc5Sort,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given sort.\n @param sort The sort.\n @return A string representation of the given sort.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_sort_to_string(sort: Cvc5Sort) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given sort.\n @param sort The sort.\n @return A string representation of the given sort.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_sort_to_string(sort: Cvc5Sort) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of a sort.\n @param sort The sort.\n @return The hash value of the sort."]
-	pub fn cvc5_sort_hash(sort: Cvc5Sort) -> usize;
+    #[doc = " Compute the hash value of a sort.\n @param sort The sort.\n @return The hash value of the sort."]
+    pub fn cvc5_sort_hash(sort: Cvc5Sort) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Get the arity of a datatype constructor sort.\n @param sort The sort.\n @return The arity of a datatype constructor sort."]
-	pub fn cvc5_sort_dt_constructor_get_arity(sort: Cvc5Sort) -> usize;
+    #[doc = " Get the arity of a datatype constructor sort.\n @param sort The sort.\n @return The arity of a datatype constructor sort."]
+    pub fn cvc5_sort_dt_constructor_get_arity(sort: Cvc5Sort) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Get the domain sorts of a datatype constructor sort.\n @param sort The sort.\n @param size The size of the resulting array of domain sorts.\n @return The domain sorts of a datatype constructor sort."]
-	pub fn cvc5_sort_dt_constructor_get_domain(sort: Cvc5Sort, size: *mut usize) -> *const Cvc5Sort;
+    #[doc = " Get the domain sorts of a datatype constructor sort.\n @param sort The sort.\n @param size The size of the resulting array of domain sorts.\n @return The domain sorts of a datatype constructor sort."]
+    pub fn cvc5_sort_dt_constructor_get_domain(sort: Cvc5Sort, size: *mut usize)
+    -> *const Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the codomain sort of a datatype constructor sort.\n @param sort The sort.\n @return The codomain sort of a constructor sort."]
-	pub fn cvc5_sort_dt_constructor_get_codomain(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the codomain sort of a datatype constructor sort.\n @param sort The sort.\n @return The codomain sort of a constructor sort."]
+    pub fn cvc5_sort_dt_constructor_get_codomain(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the domain sort of a given datatype selector sort.\n @param sort The sort.\n @return The domain sort of a datatype selector sort."]
-	pub fn cvc5_sort_dt_selector_get_domain(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the domain sort of a given datatype selector sort.\n @param sort The sort.\n @return The domain sort of a datatype selector sort."]
+    pub fn cvc5_sort_dt_selector_get_domain(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the codomain sort of a given datatype selector sort.\n @param sort The sort.\n @return The codomain sort of a datatype selector sort."]
-	pub fn cvc5_sort_dt_selector_get_codomain(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the codomain sort of a given datatype selector sort.\n @param sort The sort.\n @return The codomain sort of a datatype selector sort."]
+    pub fn cvc5_sort_dt_selector_get_codomain(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the domain sort of a given datatype tester sort.\n @param sort The sort.\n @return The domain sort of a datatype tester sort."]
-	pub fn cvc5_sort_dt_tester_get_domain(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the domain sort of a given datatype tester sort.\n @param sort The sort.\n @return The domain sort of a datatype tester sort."]
+    pub fn cvc5_sort_dt_tester_get_domain(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the codomain dort of a given datatype tester sort (the Boolean sort).\n @param sort The sort.\n @return The codomain sort of a datatype tester sort.\n\n @note We mainly need this for the symbol table, which doesn't have\n       access to the solver object."]
-	pub fn cvc5_sort_dt_tester_get_codomain(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the codomain dort of a given datatype tester sort (the Boolean sort).\n @param sort The sort.\n @return The codomain sort of a datatype tester sort.\n\n @note We mainly need this for the symbol table, which doesn't have\n       access to the solver object."]
+    pub fn cvc5_sort_dt_tester_get_codomain(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the aritye of a given function sort.\n @param sort The sort.\n @return The arity of a function sort."]
-	pub fn cvc5_sort_fun_get_arity(sort: Cvc5Sort) -> usize;
+    #[doc = " Get the aritye of a given function sort.\n @param sort The sort.\n @return The arity of a function sort."]
+    pub fn cvc5_sort_fun_get_arity(sort: Cvc5Sort) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Get the domain of a given function sort.\n @param sort The sort.\n @param size The size of the resulting array of domain sorts.\n @return The domain sorts of a function sort."]
-	pub fn cvc5_sort_fun_get_domain(sort: Cvc5Sort, size: *mut usize) -> *const Cvc5Sort;
+    #[doc = " Get the domain of a given function sort.\n @param sort The sort.\n @param size The size of the resulting array of domain sorts.\n @return The domain sorts of a function sort."]
+    pub fn cvc5_sort_fun_get_domain(sort: Cvc5Sort, size: *mut usize) -> *const Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the codomain of a given function sort.\n @param sort The sort.\n @return The codomain sort of a function sort."]
-	pub fn cvc5_sort_fun_get_codomain(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the codomain of a given function sort.\n @param sort The sort.\n @return The codomain sort of a function sort."]
+    pub fn cvc5_sort_fun_get_codomain(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the index sort of a given array sort.\n @param sort The sort.\n @return The array index sort of an array sort."]
-	pub fn cvc5_sort_array_get_index_sort(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the index sort of a given array sort.\n @param sort The sort.\n @return The array index sort of an array sort."]
+    pub fn cvc5_sort_array_get_index_sort(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the element sort of a given array sort.\n @param sort The sort.\n @return The array element sort of an array sort."]
-	pub fn cvc5_sort_array_get_element_sort(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the element sort of a given array sort.\n @param sort The sort.\n @return The array element sort of an array sort."]
+    pub fn cvc5_sort_array_get_element_sort(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the element sort of a given set sort.\n @param sort The sort.\n @return The element sort of a set sort."]
-	pub fn cvc5_sort_set_get_element_sort(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the element sort of a given set sort.\n @param sort The sort.\n @return The element sort of a set sort."]
+    pub fn cvc5_sort_set_get_element_sort(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the element sort of a given bag sort.\n @param sort The sort.\n @return The element sort of a bag sort."]
-	pub fn cvc5_sort_bag_get_element_sort(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the element sort of a given bag sort.\n @param sort The sort.\n @return The element sort of a bag sort."]
+    pub fn cvc5_sort_bag_get_element_sort(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the element sort of a sequence sort.\n @param sort The sort.\n @return The element sort of a sequence sort."]
-	pub fn cvc5_sort_sequence_get_element_sort(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the element sort of a sequence sort.\n @param sort The sort.\n @return The element sort of a sequence sort."]
+    pub fn cvc5_sort_sequence_get_element_sort(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the kind of an abstract sort, which denotes the sort kinds that the\n abstract sort denotes.\n\n @param sort The sort.\n @return The kind of an abstract sort.\n\n @warning This function is experimental and may change in future versions."]
-	pub fn cvc5_sort_abstract_get_kind(sort: Cvc5Sort) -> Cvc5SortKind;
+    #[doc = " Get the kind of an abstract sort, which denotes the sort kinds that the\n abstract sort denotes.\n\n @param sort The sort.\n @return The kind of an abstract sort.\n\n @warning This function is experimental and may change in future versions."]
+    pub fn cvc5_sort_abstract_get_kind(sort: Cvc5Sort) -> Cvc5SortKind;
 }
 unsafe extern "C" {
-	#[doc = " Get the arity of an uninterpreted sort constructor sort.\n @param sort The sort.\n @return The arity of an uninterpreted sort constructor sort."]
-	pub fn cvc5_sort_uninterpreted_sort_constructor_get_arity(sort: Cvc5Sort) -> usize;
+    #[doc = " Get the arity of an uninterpreted sort constructor sort.\n @param sort The sort.\n @return The arity of an uninterpreted sort constructor sort."]
+    pub fn cvc5_sort_uninterpreted_sort_constructor_get_arity(sort: Cvc5Sort) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Get the size of a bit-vector sort.\n @param sort The sort.\n @return The bit-width of the bit-vector sort."]
-	pub fn cvc5_sort_bv_get_size(sort: Cvc5Sort) -> u32;
+    #[doc = " Get the size of a bit-vector sort.\n @param sort The sort.\n @return The bit-width of the bit-vector sort."]
+    pub fn cvc5_sort_bv_get_size(sort: Cvc5Sort) -> u32;
 }
 unsafe extern "C" {
-	#[doc = " Get the size of a finite field sort.\n @param sort The sort.\n @return The size of the finite field sort.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_sort_ff_get_size(sort: Cvc5Sort) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the size of a finite field sort.\n @param sort The sort.\n @return The size of the finite field sort.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_sort_ff_get_size(sort: Cvc5Sort) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Get the exponent size of a floating-point sort.\n @param sort The sort.\n @return The bit-width of the exponent of the floating-point sort."]
-	pub fn cvc5_sort_fp_get_exp_size(sort: Cvc5Sort) -> u32;
+    #[doc = " Get the exponent size of a floating-point sort.\n @param sort The sort.\n @return The bit-width of the exponent of the floating-point sort."]
+    pub fn cvc5_sort_fp_get_exp_size(sort: Cvc5Sort) -> u32;
 }
 unsafe extern "C" {
-	#[doc = " Get the significand size of a floating-point sort.\n @param sort The sort.\n @return The width of the significand of the floating-point sort."]
-	pub fn cvc5_sort_fp_get_sig_size(sort: Cvc5Sort) -> u32;
+    #[doc = " Get the significand size of a floating-point sort.\n @param sort The sort.\n @return The width of the significand of the floating-point sort."]
+    pub fn cvc5_sort_fp_get_sig_size(sort: Cvc5Sort) -> u32;
 }
 unsafe extern "C" {
-	#[doc = " Get the arity of a datatype sort, which is the number of type parameters\n if the datatype is parametric, or 0 otherwise.\n @param sort The sort.\n @return The arity of a datatype sort."]
-	pub fn cvc5_sort_dt_get_arity(sort: Cvc5Sort) -> usize;
+    #[doc = " Get the arity of a datatype sort, which is the number of type parameters\n if the datatype is parametric, or 0 otherwise.\n @param sort The sort.\n @return The arity of a datatype sort."]
+    pub fn cvc5_sort_dt_get_arity(sort: Cvc5Sort) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Get the length of a tuple sort.\n @param sort The sort.\n @return The length of a tuple sort."]
-	pub fn cvc5_sort_tuple_get_length(sort: Cvc5Sort) -> usize;
+    #[doc = " Get the length of a tuple sort.\n @param sort The sort.\n @return The length of a tuple sort."]
+    pub fn cvc5_sort_tuple_get_length(sort: Cvc5Sort) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Get the element sorts of a tuple sort.\n @param sort The sort.\n @param size The size of the resulting array of tuple element sorts.\n @return The element sorts of a tuple sort."]
-	pub fn cvc5_sort_tuple_get_element_sorts(sort: Cvc5Sort, size: *mut usize) -> *const Cvc5Sort;
+    #[doc = " Get the element sorts of a tuple sort.\n @param sort The sort.\n @param size The size of the resulting array of tuple element sorts.\n @return The element sorts of a tuple sort."]
+    pub fn cvc5_sort_tuple_get_element_sorts(sort: Cvc5Sort, size: *mut usize) -> *const Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the element sort of a nullable sort.\n @param sort The sort.\n @return The element sort of a nullable sort."]
-	pub fn cvc5_sort_nullable_get_element_sort(sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Get the element sort of a nullable sort.\n @param sort The sort.\n @return The element sort of a nullable sort."]
+    pub fn cvc5_sort_nullable_get_element_sort(sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Make copy of operator, increases reference counter of `op`.\n\n @param op The op to copy.\n @return The same op with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_op_copy(op: Cvc5Op) -> Cvc5Op;
+    #[doc = " Make copy of operator, increases reference counter of `op`.\n\n @param op The op to copy.\n @return The same op with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_op_copy(op: Cvc5Op) -> Cvc5Op;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of operator, decrements reference counter of `op`.\n\n @param op The op to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5Op returns a copy that is owned by the callee of the function\n       and thus, can be released."]
-	pub fn cvc5_op_release(op: Cvc5Op);
+    #[doc = " Release copy of operator, decrements reference counter of `op`.\n\n @param op The op to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5Op returns a copy that is owned by the callee of the function\n       and thus, can be released."]
+    pub fn cvc5_op_release(op: Cvc5Op);
 }
 unsafe extern "C" {
-	#[doc = " Compare two operators for syntactic equality.\n\n @param a The first operator.\n @param b The second operator.\n @return True if both operators are syntactically identical."]
-	pub fn cvc5_op_is_equal(a: Cvc5Op, b: Cvc5Op) -> bool;
+    #[doc = " Compare two operators for syntactic equality.\n\n @param a The first operator.\n @param b The second operator.\n @return True if both operators are syntactically identical."]
+    pub fn cvc5_op_is_equal(a: Cvc5Op, b: Cvc5Op) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Compare two operators for syntactic disequality.\n\n @param a The first operator.\n @param b The second operator.\n @return True if both operators are syntactically disequal."]
-	pub fn cvc5_op_is_disequal(a: Cvc5Op, b: Cvc5Op) -> bool;
+    #[doc = " Compare two operators for syntactic disequality.\n\n @param a The first operator.\n @param b The second operator.\n @return True if both operators are syntactically disequal."]
+    pub fn cvc5_op_is_disequal(a: Cvc5Op, b: Cvc5Op) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the kind of a given operator.\n @param op The operator.\n @return The kind of the operator."]
-	pub fn cvc5_op_get_kind(op: Cvc5Op) -> Cvc5Kind;
+    #[doc = " Get the kind of a given operator.\n @param op The operator.\n @return The kind of the operator."]
+    pub fn cvc5_op_get_kind(op: Cvc5Op) -> Cvc5Kind;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given operator is indexed.\n @param op The operator.\n @return True iff the operator is indexed."]
-	pub fn cvc5_op_is_indexed(op: Cvc5Op) -> bool;
+    #[doc = " Determine if a given operator is indexed.\n @param op The operator.\n @return True iff the operator is indexed."]
+    pub fn cvc5_op_is_indexed(op: Cvc5Op) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the number of indices of a given operator.\n @param op The operator.\n @return The number of indices of the operator."]
-	pub fn cvc5_op_get_num_indices(op: Cvc5Op) -> usize;
+    #[doc = " Get the number of indices of a given operator.\n @param op The operator.\n @return The number of indices of the operator."]
+    pub fn cvc5_op_get_num_indices(op: Cvc5Op) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Get the index at position `i` of an indexed operator.\n @param op The operator.\n @param i  The position of the index to return.\n @return The index at position i."]
-	pub fn cvc5_op_get_index(op: Cvc5Op, i: usize) -> Cvc5Term;
+    #[doc = " Get the index at position `i` of an indexed operator.\n @param op The operator.\n @param i  The position of the index to return.\n @return The index at position i."]
+    pub fn cvc5_op_get_index(op: Cvc5Op, i: usize) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given operator.\n @param op The operator.\n @return A string representation of the operator.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_op_to_string(op: Cvc5Op) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given operator.\n @param op The operator.\n @return A string representation of the operator.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_op_to_string(op: Cvc5Op) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of an operator.\n @param op The operator.\n @return The hash value of the operator."]
-	pub fn cvc5_op_hash(op: Cvc5Op) -> usize;
+    #[doc = " Compute the hash value of an operator.\n @param op The operator.\n @return The hash value of the operator."]
+    pub fn cvc5_op_hash(op: Cvc5Op) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Make copy of term, increases reference counter of `term`.\n\n @param term The term to copy.\n @return The same term with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_term_copy(term: Cvc5Term) -> Cvc5Term;
+    #[doc = " Make copy of term, increases reference counter of `term`.\n\n @param term The term to copy.\n @return The same term with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_term_copy(term: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of term, decrements reference counter of `term`.\n\n @param term The term to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
-	pub fn cvc5_term_release(term: Cvc5Term);
+    #[doc = " Release copy of term, decrements reference counter of `term`.\n\n @param term The term to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    pub fn cvc5_term_release(term: Cvc5Term);
 }
 unsafe extern "C" {
-	#[doc = " Compare two terms for syntactic equality.\n @param a The first term.\n @param b The second term.\n @return True if both term are syntactically identical."]
-	pub fn cvc5_term_is_equal(a: Cvc5Term, b: Cvc5Term) -> bool;
+    #[doc = " Compare two terms for syntactic equality.\n @param a The first term.\n @param b The second term.\n @return True if both term are syntactically identical."]
+    pub fn cvc5_term_is_equal(a: Cvc5Term, b: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Compare two terms for syntactic disequality.\n @param a The first term.\n @param b The second term.\n @return True if both term are syntactically disequal."]
-	pub fn cvc5_term_is_disequal(a: Cvc5Term, b: Cvc5Term) -> bool;
+    #[doc = " Compare two terms for syntactic disequality.\n @param a The first term.\n @param b The second term.\n @return True if both term are syntactically disequal."]
+    pub fn cvc5_term_is_disequal(a: Cvc5Term, b: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Compare two terms for ordering.\n @param a The first term.\n @param b The second term.\n @return An integer value indicating the ordering: 0 if both terms are equal,\n         `-1` if `a < b`, and `1` if `b > a`."]
-	pub fn cvc5_term_compare(a: Cvc5Term, b: Cvc5Term) -> i64;
+    #[doc = " Compare two terms for ordering.\n @param a The first term.\n @param b The second term.\n @return An integer value indicating the ordering: 0 if both terms are equal,\n         `-1` if `a < b`, and `1` if `b > a`."]
+    pub fn cvc5_term_compare(a: Cvc5Term, b: Cvc5Term) -> i64;
 }
 unsafe extern "C" {
-	#[doc = " Get the number of children of a given term.\n @param term The term.\n @return The number of children of this term."]
-	pub fn cvc5_term_get_num_children(term: Cvc5Term) -> usize;
+    #[doc = " Get the number of children of a given term.\n @param term The term.\n @return The number of children of this term."]
+    pub fn cvc5_term_get_num_children(term: Cvc5Term) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Get the child term of a given term at a given index.\n @param term  The term.\n @param index The index of the child.\n @return The child term at the given index."]
-	pub fn cvc5_term_get_child(term: Cvc5Term, index: usize) -> Cvc5Term;
+    #[doc = " Get the child term of a given term at a given index.\n @param term  The term.\n @param index The index of the child.\n @return The child term at the given index."]
+    pub fn cvc5_term_get_child(term: Cvc5Term, index: usize) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the id of a given term.\n @param term The term.\n @return The id of the term."]
-	pub fn cvc5_term_get_id(term: Cvc5Term) -> u64;
+    #[doc = " Get the id of a given term.\n @param term The term.\n @return The id of the term."]
+    pub fn cvc5_term_get_id(term: Cvc5Term) -> u64;
 }
 unsafe extern "C" {
-	#[doc = " Get the kind of a given term.\n @param term The term.\n @return The kind of the term."]
-	pub fn cvc5_term_get_kind(term: Cvc5Term) -> Cvc5Kind;
+    #[doc = " Get the kind of a given term.\n @param term The term.\n @return The kind of the term."]
+    pub fn cvc5_term_get_kind(term: Cvc5Term) -> Cvc5Kind;
 }
 unsafe extern "C" {
-	#[doc = " Get the sort of a given term.\n @param term The term.\n @return The sort of the term."]
-	pub fn cvc5_term_get_sort(term: Cvc5Term) -> Cvc5Sort;
+    #[doc = " Get the sort of a given term.\n @param term The term.\n @return The sort of the term."]
+    pub fn cvc5_term_get_sort(term: Cvc5Term) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Replace a given term `t` with term `replacement` in a given term.\n\n @param term        The term.\n @param t           The term to replace.\n @param replacement The term to replace it with.\n @return The result of replacing `term` with `replacement` in the term.\n\n @note This replacement is applied during a pre-order traversal and\n       only once (it is not run until fixed point)."]
-	pub fn cvc5_term_substitute_term(term: Cvc5Term, t: Cvc5Term, replacement: Cvc5Term)
-	-> Cvc5Term;
+    #[doc = " Replace a given term `t` with term `replacement` in a given term.\n\n @param term        The term.\n @param t           The term to replace.\n @param replacement The term to replace it with.\n @return The result of replacing `term` with `replacement` in the term.\n\n @note This replacement is applied during a pre-order traversal and\n       only once (it is not run until fixed point)."]
+    pub fn cvc5_term_substitute_term(
+        term: Cvc5Term,
+        t: Cvc5Term,
+        replacement: Cvc5Term,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Simultaneously replace given terms `terms` with terms `replacements` in a\n given term.\n\n In the case that `terms` contains duplicates, the replacement earliest in\n the vector takes priority. For example, calling substitute on `f(x,y)`\n with `terms = { x, z }`, `replacements = { g(z), w }` results in the term\n `f(g(z),y)`.\n\n @note Requires that `terms` and `replacements` are of equal size (they are\n       interpreted as 1 : 1 mapping).\n\n @note This replacement is applied during a pre-order traversal and\n       only once (it is not run until fixed point).\n\n @param term        The term.\n @param size         The size of `terms` and `replacements`.\n @param terms        The terms to replace.\n @param replacements The replacement terms.\n @return The result of simultaneously replacing `terms` with `replacements`\n         in the given term."]
-	pub fn cvc5_term_substitute_terms(
-		term: Cvc5Term,
-		size: usize,
-		terms: *const Cvc5Term,
-		replacements: *const Cvc5Term,
-	) -> Cvc5Term;
+    #[doc = " Simultaneously replace given terms `terms` with terms `replacements` in a\n given term.\n\n In the case that `terms` contains duplicates, the replacement earliest in\n the vector takes priority. For example, calling substitute on `f(x,y)`\n with `terms = { x, z }`, `replacements = { g(z), w }` results in the term\n `f(g(z),y)`.\n\n @note Requires that `terms` and `replacements` are of equal size (they are\n       interpreted as 1 : 1 mapping).\n\n @note This replacement is applied during a pre-order traversal and\n       only once (it is not run until fixed point).\n\n @param term        The term.\n @param size         The size of `terms` and `replacements`.\n @param terms        The terms to replace.\n @param replacements The replacement terms.\n @return The result of simultaneously replacing `terms` with `replacements`\n         in the given term."]
+    pub fn cvc5_term_substitute_terms(
+        term: Cvc5Term,
+        size: usize,
+        terms: *const Cvc5Term,
+        replacements: *const Cvc5Term,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term has an operator.\n @param term The term.\n @return True iff the term has an operator."]
-	pub fn cvc5_term_has_op(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term has an operator.\n @param term The term.\n @return True iff the term has an operator."]
+    pub fn cvc5_term_has_op(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the operator of a term with an operator.\n\n @note Requires that the term has an operator (see cvc5_term_has_op()).\n\n @param term        The term.\n @return The Op used to create the term."]
-	pub fn cvc5_term_get_op(term: Cvc5Term) -> Cvc5Op;
+    #[doc = " Get the operator of a term with an operator.\n\n @note Requires that the term has an operator (see cvc5_term_has_op()).\n\n @param term        The term.\n @return The Op used to create the term."]
+    pub fn cvc5_term_get_op(term: Cvc5Term) -> Cvc5Op;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term has a symbol (a name).\n\n For example, free constants and variables have symbols.\n\n @param term The term.\n @return True if the term has a symbol."]
-	pub fn cvc5_term_has_symbol(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term has a symbol (a name).\n\n For example, free constants and variables have symbols.\n\n @param term The term.\n @return True if the term has a symbol."]
+    pub fn cvc5_term_has_symbol(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the symbol of a given term with a symbol.\n\n @note Requires that the term has a symbol (see cvc5_term_has_symbol()).\n\n The symbol of the term is the string that was\n provided when constructing it via cvc5_mk_const() or cvc5_mk_var().\n\n @param term The term.\n @return The raw symbol of the term.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_term_get_symbol(term: Cvc5Term) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the symbol of a given term with a symbol.\n\n @note Requires that the term has a symbol (see cvc5_term_has_symbol()).\n\n The symbol of the term is the string that was\n provided when constructing it via cvc5_mk_const() or cvc5_mk_var().\n\n @param term The term.\n @return The raw symbol of the term.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_term_get_symbol(term: Cvc5Term) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given term.\n @param term The term.\n @return A string representation of the term.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_term_to_string(term: Cvc5Term) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given term.\n @param term The term.\n @return A string representation of the term.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_term_to_string(term: Cvc5Term) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Get the sign of a given integer or real value.\n @note Requires that given term is an integer or real value.\n @param term The value term.\n @return 0 if the term is zero, -1 if the term is a negative real or\n         integer value, 1 if the term is a positive real or integer value."]
-	pub fn cvc5_term_get_real_or_integer_value_sign(term: Cvc5Term) -> i32;
+    #[doc = " Get the sign of a given integer or real value.\n @note Requires that given term is an integer or real value.\n @param term The value term.\n @return 0 if the term is zero, -1 if the term is a negative real or\n         integer value, 1 if the term is a positive real or integer value."]
+    pub fn cvc5_term_get_real_or_integer_value_sign(term: Cvc5Term) -> i32;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is an int32 value.\n @note This will return true for integer constants and real constants that\n       have integer value.\n @param term The term.\n @return True if the term is an integer value that fits within int32_t."]
-	pub fn cvc5_term_is_int32_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is an int32 value.\n @note This will return true for integer constants and real constants that\n       have integer value.\n @param term The term.\n @return True if the term is an integer value that fits within int32_t."]
+    pub fn cvc5_term_is_int32_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the `int32_t` representation of a given integral value.\n @note Requires that the term is an int32 value (see\n       cvc5_term_is_int32_value()).\n @param term The term.\n @return The given term as `int32_t` value."]
-	pub fn cvc5_term_get_int32_value(term: Cvc5Term) -> i32;
+    #[doc = " Get the `int32_t` representation of a given integral value.\n @note Requires that the term is an int32 value (see\n       cvc5_term_is_int32_value()).\n @param term The term.\n @return The given term as `int32_t` value."]
+    pub fn cvc5_term_get_int32_value(term: Cvc5Term) -> i32;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is an uint32 value.\n @note This will return true for integer constants and real constants that\n       have integral value.\n @return True if the term is an integral value and fits within uint32_t."]
-	pub fn cvc5_term_is_uint32_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is an uint32 value.\n @note This will return true for integer constants and real constants that\n       have integral value.\n @return True if the term is an integral value and fits within uint32_t."]
+    pub fn cvc5_term_is_uint32_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the `uint32_t` representation of a given integral value.\n @note Requires that the term is an uint32 value (see\n       cvc5_term_is_uint32_value()).\n @param term The term.\n @return The term as `uint32_t` value."]
-	pub fn cvc5_term_get_uint32_value(term: Cvc5Term) -> u32;
+    #[doc = " Get the `uint32_t` representation of a given integral value.\n @note Requires that the term is an uint32 value (see\n       cvc5_term_is_uint32_value()).\n @param term The term.\n @return The term as `uint32_t` value."]
+    pub fn cvc5_term_get_uint32_value(term: Cvc5Term) -> u32;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is an int64 value.\n @note This will return true for integer constants and real constants that\n       have integral value.\n @param term The term.\n @return True if the term is an integral value that fits within int64_t."]
-	pub fn cvc5_term_is_int64_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is an int64 value.\n @note This will return true for integer constants and real constants that\n       have integral value.\n @param term The term.\n @return True if the term is an integral value that fits within int64_t."]
+    pub fn cvc5_term_is_int64_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the `int64_t` representation of a given integral value.\n @note Requires that the term is an int64 value (see\n       cvc5_term_is_int64_value()).\n @param term The term.\n @return The term as `int64_t` value."]
-	pub fn cvc5_term_get_int64_value(term: Cvc5Term) -> i64;
+    #[doc = " Get the `int64_t` representation of a given integral value.\n @note Requires that the term is an int64 value (see\n       cvc5_term_is_int64_value()).\n @param term The term.\n @return The term as `int64_t` value."]
+    pub fn cvc5_term_get_int64_value(term: Cvc5Term) -> i64;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is an uint64 value.\n @note This will return true for integer constants and real constants that\n       have integral value.\n @param term The term.\n @return True if the term is an integral value that fits within uint64_t."]
-	pub fn cvc5_term_is_uint64_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is an uint64 value.\n @note This will return true for integer constants and real constants that\n       have integral value.\n @param term The term.\n @return True if the term is an integral value that fits within uint64_t."]
+    pub fn cvc5_term_is_uint64_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the `uint64_t` representation of a given integral value.\n @note Requires that the term is an uint64 value (see\n       cvc5_term_is_uint64_value()).\n @param term The term.\n @return The term as `uint64_t` value."]
-	pub fn cvc5_term_get_uint64_value(term: Cvc5Term) -> u64;
+    #[doc = " Get the `uint64_t` representation of a given integral value.\n @note Requires that the term is an uint64 value (see\n       cvc5_term_is_uint64_value()).\n @param term The term.\n @return The term as `uint64_t` value."]
+    pub fn cvc5_term_get_uint64_value(term: Cvc5Term) -> u64;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is an integral value.\n @param term The term.\n @return True if the term is an integer constant or a real constant that\n         has an integral value."]
-	pub fn cvc5_term_is_integer_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is an integral value.\n @param term The term.\n @return True if the term is an integer constant or a real constant that\n         has an integral value."]
+    pub fn cvc5_term_is_integer_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given integral value.\n @note Requires that the term is an integral value (see\n       cvc5_term_is_integer_value()).\n @param term The term.\n @return The integral term in (decimal) string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_term_get_integer_value(term: Cvc5Term) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given integral value.\n @note Requires that the term is an integral value (see\n       cvc5_term_is_integer_value()).\n @param term The term.\n @return The integral term in (decimal) string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_term_get_integer_value(term: Cvc5Term) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a string value.\n @param term The term.\n @return True if the term is a string value."]
-	pub fn cvc5_term_is_string_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a string value.\n @param term The term.\n @return True if the term is a string value."]
+    pub fn cvc5_term_is_string_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the native string representation of a string value.\n @note Requires that the term is a string value (see\n       cvc5_term_is_string_value()).\n @note This is not to be confused with cvc5_term_to_string(), which returns\n       some string representation of the term, whatever data it may hold.\n @param term The term.\n @return The string term as a native string value.\n\n @warning This function is deprecated and replaced by\n          cvc5_term_get_u32string_value(). It will be removed in a future\n          release."]
-	pub fn cvc5_term_get_string_value(term: Cvc5Term) -> *const wchar_t;
+    #[doc = " Get the native string representation of a string value.\n @note Requires that the term is a string value (see\n       cvc5_term_is_string_value()).\n @note This is not to be confused with cvc5_term_to_string(), which returns\n       some string representation of the term, whatever data it may hold.\n @param term The term.\n @return The string term as a native string value.\n\n @warning This function is deprecated and replaced by\n          cvc5_term_get_u32string_value(). It will be removed in a future\n          release."]
+    pub fn cvc5_term_get_string_value(term: Cvc5Term) -> *const wchar_t;
 }
 unsafe extern "C" {
-	#[doc = " Get the native UTF-32 string representation of a string value.\n @note Requires that the term is a string value (see\n       cvc5_term_is_string_value()).\n @note This is not to be confused with cvc5_term_to_string(), which returns\n       some string representation of the term, whatever data it may hold.\n @param term The term.\n @return The string term as a native UTF-32 string value."]
-	pub fn cvc5_term_get_u32string_value(term: Cvc5Term) -> *const char32_t;
+    #[doc = " Get the native UTF-32 string representation of a string value.\n @note Requires that the term is a string value (see\n       cvc5_term_is_string_value()).\n @note This is not to be confused with cvc5_term_to_string(), which returns\n       some string representation of the term, whatever data it may hold.\n @param term The term.\n @return The string term as a native UTF-32 string value."]
+    pub fn cvc5_term_get_u32string_value(term: Cvc5Term) -> *const char32_t;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a rational value whose numerator fits into an\n int32 value and its denominator fits into a uint32 value.\n @param term The term.\n @return True if the term is a rational and its numerator and denominator\n         fit into 32 bit integer values."]
-	pub fn cvc5_term_is_real32_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a rational value whose numerator fits into an\n int32 value and its denominator fits into a uint32 value.\n @param term The term.\n @return True if the term is a rational and its numerator and denominator\n         fit into 32 bit integer values."]
+    pub fn cvc5_term_is_real32_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the 32 bit integer representations of the numerator and denominator of\n a rational value.\n @note Requires that the term is a rational value and its numerator and\n       denominator fit into 32 bit integer values (see\n       cvc5_term_is_real32_value()).\n @param term The term.\n @param num  The resulting int32_t representation of the numerator.\n @param den  The resulting uint32_t representation of the denominator."]
-	pub fn cvc5_term_get_real32_value(term: Cvc5Term, num: *mut i32, den: *mut u32);
+    #[doc = " Get the 32 bit integer representations of the numerator and denominator of\n a rational value.\n @note Requires that the term is a rational value and its numerator and\n       denominator fit into 32 bit integer values (see\n       cvc5_term_is_real32_value()).\n @param term The term.\n @param num  The resulting int32_t representation of the numerator.\n @param den  The resulting uint32_t representation of the denominator."]
+    pub fn cvc5_term_get_real32_value(term: Cvc5Term, num: *mut i32, den: *mut u32);
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a rational value whose numerator fits into an\n int64 value and its denominator fits into a uint64 value.\n @param term The term.\n @return True if the term is a rational value whose numerator and\n         denominator fit within int64_t and uint64_t, respectively."]
-	pub fn cvc5_term_is_real64_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a rational value whose numerator fits into an\n int64 value and its denominator fits into a uint64 value.\n @param term The term.\n @return True if the term is a rational value whose numerator and\n         denominator fit within int64_t and uint64_t, respectively."]
+    pub fn cvc5_term_is_real64_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the 64 bit integer representations of the numerator and denominator of\n a rational value.\n @note Requires that the term is a rational value and its numerator and\n       denominator fit into 64 bit integer values (see\n       cvc5_term_is_real64_value()).\n @param term The term.\n @param num  The resulting int64_t representation of the numerator.\n @param den  The resulting uint64_t representation of the denominator."]
-	pub fn cvc5_term_get_real64_value(term: Cvc5Term, num: *mut i64, den: *mut u64);
+    #[doc = " Get the 64 bit integer representations of the numerator and denominator of\n a rational value.\n @note Requires that the term is a rational value and its numerator and\n       denominator fit into 64 bit integer values (see\n       cvc5_term_is_real64_value()).\n @param term The term.\n @param num  The resulting int64_t representation of the numerator.\n @param den  The resulting uint64_t representation of the denominator."]
+    pub fn cvc5_term_get_real64_value(term: Cvc5Term, num: *mut i64, den: *mut u64);
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a rational value.\n @note A term of kind PI is not considered to be a real value.\n @param term The term.\n @return True if the term is a rational value."]
-	pub fn cvc5_term_is_real_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a rational value.\n @note A term of kind PI is not considered to be a real value.\n @param term The term.\n @return True if the term is a rational value."]
+    pub fn cvc5_term_is_real_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given rational value.\n @note Requires that the term is a rational value (see\n       cvc5_term_is_real_value()).\n @param term The term.\n @return The representation of a rational value as a (rational) string.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_term_get_real_value(term: Cvc5Term) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given rational value.\n @note Requires that the term is a rational value (see\n       cvc5_term_is_real_value()).\n @param term The term.\n @return The representation of a rational value as a (rational) string.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_term_get_real_value(term: Cvc5Term) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a constant array.\n @param term The term.\n @return True if the term is a constant array."]
-	pub fn cvc5_term_is_const_array(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a constant array.\n @param term The term.\n @return True if the term is a constant array."]
+    pub fn cvc5_term_is_const_array(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine the base (element stored at all indices) of a constant array.\n @note Requires that the term is a constant array (see isConstArray()).\n @param term The term.\n @return The base term."]
-	pub fn cvc5_term_get_const_array_base(term: Cvc5Term) -> Cvc5Term;
+    #[doc = " Determine the base (element stored at all indices) of a constant array.\n @note Requires that the term is a constant array (see isConstArray()).\n @param term The term.\n @return The base term."]
+    pub fn cvc5_term_get_const_array_base(term: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a Boolean value.\n @param term The term.\n @return True if the term is a Boolean value."]
-	pub fn cvc5_term_is_boolean_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a Boolean value.\n @param term The term.\n @return True if the term is a Boolean value."]
+    pub fn cvc5_term_is_boolean_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the value of a Boolean term as a native Boolean value.\n @note Asserts cvc5_term_is_boolean_value().\n @param term The term.\n @return The representation of a Boolean value as a native Boolean value."]
-	pub fn cvc5_term_get_boolean_value(term: Cvc5Term) -> bool;
+    #[doc = " Get the value of a Boolean term as a native Boolean value.\n @note Asserts cvc5_term_is_boolean_value().\n @param term The term.\n @return The representation of a Boolean value as a native Boolean value."]
+    pub fn cvc5_term_get_boolean_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a bit-vector value.\n @param term The term.\n @return True if the term is a bit-vector value."]
-	pub fn cvc5_term_is_bv_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a bit-vector value.\n @param term The term.\n @return True if the term is a bit-vector value."]
+    pub fn cvc5_term_is_bv_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the string representation of a bit-vector value.\n @note Asserts cvc5_term_is_bv_value().\n @param term The term.\n @param base `2` for binary, `10` for decimal, and `16` for hexadecimal.\n @return The string representation of a bit-vector value.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_term_get_bv_value(term: Cvc5Term, base: u32) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the string representation of a bit-vector value.\n @note Asserts cvc5_term_is_bv_value().\n @param term The term.\n @param base `2` for binary, `10` for decimal, and `16` for hexadecimal.\n @return The string representation of a bit-vector value.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_term_get_bv_value(term: Cvc5Term, base: u32) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a finite field value.\n @param term The term.\n @return True if the term is a finite field value."]
-	pub fn cvc5_term_is_ff_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a finite field value.\n @param term The term.\n @return True if the term is a finite field value."]
+    pub fn cvc5_term_is_ff_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the string representation of a finite field value (base 10).\n\n @note Asserts cvc5_term_is_ff_value().\n\n @note Uses the integer representative of smallest absolute value.\n\n @param term The term.\n @return The string representation of the integer representation of the\n         finite field value.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_term_get_ff_value(term: Cvc5Term) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the string representation of a finite field value (base 10).\n\n @note Asserts cvc5_term_is_ff_value().\n\n @note Uses the integer representative of smallest absolute value.\n\n @param term The term.\n @return The string representation of the integer representation of the\n         finite field value.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_term_get_ff_value(term: Cvc5Term) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is an uninterpreted sort value.\n @param term The term.\n @return True if the term is an abstract value."]
-	pub fn cvc5_term_is_uninterpreted_sort_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is an uninterpreted sort value.\n @param term The term.\n @return True if the term is an abstract value."]
+    pub fn cvc5_term_is_uninterpreted_sort_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of an uninterpreted sort value.\n @note Asserts cvc5_term_is_uninterpreted_sort_value().\n @param term The term.\n @return The representation of an uninterpreted sort value as a string.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_term_get_uninterpreted_sort_value(term: Cvc5Term) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of an uninterpreted sort value.\n @note Asserts cvc5_term_is_uninterpreted_sort_value().\n @param term The term.\n @return The representation of an uninterpreted sort value as a string.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_term_get_uninterpreted_sort_value(term: Cvc5Term) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a tuple value.\n @param term The term.\n @return True if the term is a tuple value."]
-	pub fn cvc5_term_is_tuple_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a tuple value.\n @param term The term.\n @return True if the term is a tuple value."]
+    pub fn cvc5_term_is_tuple_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get a tuple value as an array of terms.\n @note Asserts cvc5_term_is_tuple_value().\n @param term The term.\n @param size The size of the resulting array.\n @return The representation of a tuple value as an array of terms."]
-	pub fn cvc5_term_get_tuple_value(term: Cvc5Term, size: *mut usize) -> *const Cvc5Term;
+    #[doc = " Get a tuple value as an array of terms.\n @note Asserts cvc5_term_is_tuple_value().\n @param term The term.\n @param size The size of the resulting array.\n @return The representation of a tuple value as an array of terms."]
+    pub fn cvc5_term_get_tuple_value(term: Cvc5Term, size: *mut usize) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a floating-point rounding mode value.\n @param term The term.\n @return True if the term is a rounding mode value."]
-	pub fn cvc5_term_is_rm_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a floating-point rounding mode value.\n @param term The term.\n @return True if the term is a rounding mode value."]
+    pub fn cvc5_term_is_rm_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the Cvc5RoundingMode value of a given rounding-mode value term.\n @note Asserts cvc5_term_is_rounding_mode_value().\n @param term The term.\n @return The floating-point rounding mode value of the term."]
-	pub fn cvc5_term_get_rm_value(term: Cvc5Term) -> Cvc5RoundingMode;
+    #[doc = " Get the Cvc5RoundingMode value of a given rounding-mode value term.\n @note Asserts cvc5_term_is_rounding_mode_value().\n @param term The term.\n @return The floating-point rounding mode value of the term."]
+    pub fn cvc5_term_get_rm_value(term: Cvc5Term) -> Cvc5RoundingMode;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a floating-point positive zero value\n (+zero).\n @param term The term.\n @return True if the term is the floating-point value for positive zero."]
-	pub fn cvc5_term_is_fp_pos_zero(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a floating-point positive zero value\n (+zero).\n @param term The term.\n @return True if the term is the floating-point value for positive zero."]
+    pub fn cvc5_term_is_fp_pos_zero(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a floating-point negative zero value (-zero).\n @param term The term.\n @return True if the term is the floating-point value for negative zero."]
-	pub fn cvc5_term_is_fp_neg_zero(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a floating-point negative zero value (-zero).\n @param term The term.\n @return True if the term is the floating-point value for negative zero."]
+    pub fn cvc5_term_is_fp_neg_zero(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a floating-point positive infinity value (+oo).\n @param term The term.\n @return True if the term is the floating-point value for positive.\n         infinity."]
-	pub fn cvc5_term_is_fp_pos_inf(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a floating-point positive infinity value (+oo).\n @param term The term.\n @return True if the term is the floating-point value for positive.\n         infinity."]
+    pub fn cvc5_term_is_fp_pos_inf(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a floating-point negative infinity value (-oo).\n @param term The term.\n @return True if the term is the floating-point value for negative.\n         infinity."]
-	pub fn cvc5_term_is_fp_neg_inf(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a floating-point negative infinity value (-oo).\n @param term The term.\n @return True if the term is the floating-point value for negative.\n         infinity."]
+    pub fn cvc5_term_is_fp_neg_inf(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a floating-point NaN value.\n @param term The term.\n @return True if the term is the floating-point value for not a number."]
-	pub fn cvc5_term_is_fp_nan(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a floating-point NaN value.\n @param term The term.\n @return True if the term is the floating-point value for not a number."]
+    pub fn cvc5_term_is_fp_nan(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a floating-point value.\n @param term The term.\n @return True if the term is a floating-point value."]
-	pub fn cvc5_term_is_fp_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a floating-point value.\n @param term The term.\n @return True if the term is a floating-point value."]
+    pub fn cvc5_term_is_fp_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the representation of a floating-point value as its exponent width,\n significand width and a bit-vector value term.\n @note Asserts cvc5_term_is_fp_value().\n @param term The term.\n @param ew   The resulting exponent width.\n @param sw   The resulting significand width.\n @param val  The resulting bit-vector value term."]
-	pub fn cvc5_term_get_fp_value(term: Cvc5Term, ew: *mut u32, sw: *mut u32, val: *mut Cvc5Term);
+    #[doc = " Get the representation of a floating-point value as its exponent width,\n significand width and a bit-vector value term.\n @note Asserts cvc5_term_is_fp_value().\n @param term The term.\n @param ew   The resulting exponent width.\n @param sw   The resulting significand width.\n @param val  The resulting bit-vector value term."]
+    pub fn cvc5_term_get_fp_value(term: Cvc5Term, ew: *mut u32, sw: *mut u32, val: *mut Cvc5Term);
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a set value.\n\n A term is a set value if it is considered to be a (canonical) constant set\n value.  A canonical set value is one whose AST is:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (union (singleton c1) ... (union (singleton c_{n-1}) (singleton c_n))))\n \\endverbatim\n\n where @f$c_1 ... c_n@f$ are values ordered by id such that\n @f$c_1 > ... > c_n@f$.\n\n @note A universe set term (kind #CVC5_KIND_SET_UNIVERSE) is not considered\n       to be a set value.\n\n @param term The term.\n @return True if the term is a set value."]
-	pub fn cvc5_term_is_set_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a set value.\n\n A term is a set value if it is considered to be a (canonical) constant set\n value.  A canonical set value is one whose AST is:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (union (singleton c1) ... (union (singleton c_{n-1}) (singleton c_n))))\n \\endverbatim\n\n where @f$c_1 ... c_n@f$ are values ordered by id such that\n @f$c_1 > ... > c_n@f$.\n\n @note A universe set term (kind #CVC5_KIND_SET_UNIVERSE) is not considered\n       to be a set value.\n\n @param term The term.\n @return True if the term is a set value."]
+    pub fn cvc5_term_is_set_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get a set value as an array of terms.\n @note Asserts cvc5_term_is_set_value().\n @param term The term.\n @param size The size of the resulting array.\n @return The representation of a set value as an array of terms."]
-	pub fn cvc5_term_get_set_value(term: Cvc5Term, size: *mut usize) -> *const Cvc5Term;
+    #[doc = " Get a set value as an array of terms.\n @note Asserts cvc5_term_is_set_value().\n @param term The term.\n @param size The size of the resulting array.\n @return The representation of a set value as an array of terms."]
+    pub fn cvc5_term_get_set_value(term: Cvc5Term, size: *mut usize) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a sequence value.\n\n A term is a sequence value if it has kind #CVC5_KIND_CONST_SEQUENCE. In\n contrast to values for the set sort (as described in isSetValue()), a\n sequence value is represented as a Term with no children.\n\n Semantically, a sequence value is a concatenation of unit sequences\n whose elements are themselves values. For example:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (seq.++ (seq.unit 0) (seq.unit 1))\n \\endverbatim\n\n The above term has two representations in Term. One is as the sequence\n concatenation term:\n\n \\rst\n .. code:: lisp\n\n     (SEQ_CONCAT (SEQ_UNIT 0) (SEQ_UNIT 1))\n \\endrst\n\n where 0 and 1 are the terms corresponding to the integer constants 0 and 1.\n\n Alternatively, the above term is represented as the constant sequence\n value:\n\n \\rst\n .. code:: lisp\n\n     CONST_SEQUENCE_{0,1}\n \\endrst\n\n where calling getSequenceValue() on the latter returns the vector `{0, 1}`.\n\n The former term is not a sequence value, but the latter term is.\n\n Constant sequences cannot be constructed directly via the API. They are\n returned in response to API calls such cvc5_get_value() and cvc5_simplify().\n\n @param term The term.\n @return True if the term is a sequence value."]
-	pub fn cvc5_term_is_sequence_value(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a sequence value.\n\n A term is a sequence value if it has kind #CVC5_KIND_CONST_SEQUENCE. In\n contrast to values for the set sort (as described in isSetValue()), a\n sequence value is represented as a Term with no children.\n\n Semantically, a sequence value is a concatenation of unit sequences\n whose elements are themselves values. For example:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (seq.++ (seq.unit 0) (seq.unit 1))\n \\endverbatim\n\n The above term has two representations in Term. One is as the sequence\n concatenation term:\n\n \\rst\n .. code:: lisp\n\n     (SEQ_CONCAT (SEQ_UNIT 0) (SEQ_UNIT 1))\n \\endrst\n\n where 0 and 1 are the terms corresponding to the integer constants 0 and 1.\n\n Alternatively, the above term is represented as the constant sequence\n value:\n\n \\rst\n .. code:: lisp\n\n     CONST_SEQUENCE_{0,1}\n \\endrst\n\n where calling getSequenceValue() on the latter returns the vector `{0, 1}`.\n\n The former term is not a sequence value, but the latter term is.\n\n Constant sequences cannot be constructed directly via the API. They are\n returned in response to API calls such cvc5_get_value() and cvc5_simplify().\n\n @param term The term.\n @return True if the term is a sequence value."]
+    pub fn cvc5_term_is_sequence_value(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get a sequence value as an array of terms.\n @note Asserts cvc5_term_is_sequence_value().\n @param term The term.\n @param size The size of the resulting array.\n @return The representation of a sequence value as a vector of terms."]
-	pub fn cvc5_term_get_sequence_value(term: Cvc5Term, size: *mut usize) -> *const Cvc5Term;
+    #[doc = " Get a sequence value as an array of terms.\n @note Asserts cvc5_term_is_sequence_value().\n @param term The term.\n @param size The size of the resulting array.\n @return The representation of a sequence value as a vector of terms."]
+    pub fn cvc5_term_get_sequence_value(term: Cvc5Term, size: *mut usize) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a cardinality constraint.\n @param term The term.\n @return True if the term is a cardinality constraint."]
-	pub fn cvc5_term_is_cardinality_constraint(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a cardinality constraint.\n @param term The term.\n @return True if the term is a cardinality constraint."]
+    pub fn cvc5_term_is_cardinality_constraint(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get a cardinality constraint as a pair of its sort and upper bound.\n @note Asserts cvc5_term_is_cardinality_constraint().\n @param term  The term.\n @param sort  The resulting sort.\n @param upper The resulting upper bound."]
-	pub fn cvc5_term_get_cardinality_constraint(
-		term: Cvc5Term,
-		sort: *mut Cvc5Sort,
-		upper: *mut u32,
-	);
+    #[doc = " Get a cardinality constraint as a pair of its sort and upper bound.\n @note Asserts cvc5_term_is_cardinality_constraint().\n @param term  The term.\n @param sort  The resulting sort.\n @param upper The resulting upper bound."]
+    pub fn cvc5_term_get_cardinality_constraint(
+        term: Cvc5Term,
+        sort: *mut Cvc5Sort,
+        upper: *mut u32,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given term is a real algebraic number.\n @param term  The term.\n @return True if the term is a real algebraic number."]
-	pub fn cvc5_term_is_real_algebraic_number(term: Cvc5Term) -> bool;
+    #[doc = " Determine if a given term is a real algebraic number.\n @param term  The term.\n @return True if the term is a real algebraic number."]
+    pub fn cvc5_term_is_real_algebraic_number(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the defining polynomial for a real algebraic number term, expressed in\n terms of the given variable.\n @note Asserts cvc5_term_is_real_algebraic_number().\n @param term The real algebraic number term.\n @param v    The variable over which to express the polynomial.\n @return The defining polynomial."]
-	pub fn cvc5_term_get_real_algebraic_number_defining_polynomial(
-		term: Cvc5Term,
-		v: Cvc5Term,
-	) -> Cvc5Term;
+    #[doc = " Get the defining polynomial for a real algebraic number term, expressed in\n terms of the given variable.\n @note Asserts cvc5_term_is_real_algebraic_number().\n @param term The real algebraic number term.\n @param v    The variable over which to express the polynomial.\n @return The defining polynomial."]
+    pub fn cvc5_term_get_real_algebraic_number_defining_polynomial(
+        term: Cvc5Term,
+        v: Cvc5Term,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the lower bound for a real algebraic number value.\n @note Asserts cvc5_term_is_real_algebraic_number().\n @param term The real algebraic number value.\n @return The lower bound."]
-	pub fn cvc5_term_get_real_algebraic_number_lower_bound(term: Cvc5Term) -> Cvc5Term;
+    #[doc = " Get the lower bound for a real algebraic number value.\n @note Asserts cvc5_term_is_real_algebraic_number().\n @param term The real algebraic number value.\n @return The lower bound."]
+    pub fn cvc5_term_get_real_algebraic_number_lower_bound(term: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the upper bound for a real algebraic number value.\n @note Asserts cvc5_term_is_real_algebraic_number().\n @param term The real algebraic number value.\n @return The upper bound."]
-	pub fn cvc5_term_get_real_algebraic_number_upper_bound(term: Cvc5Term) -> Cvc5Term;
+    #[doc = " Get the upper bound for a real algebraic number value.\n @note Asserts cvc5_term_is_real_algebraic_number().\n @param term The real algebraic number value.\n @return The upper bound."]
+    pub fn cvc5_term_get_real_algebraic_number_upper_bound(term: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Is the given term a skolem?\n @warning This function is experimental and may change in future versions.\n @param term The skolem.\n @return True if the term is a skolem function."]
-	pub fn cvc5_term_is_skolem(term: Cvc5Term) -> bool;
+    #[doc = " Is the given term a skolem?\n @warning This function is experimental and may change in future versions.\n @param term The skolem.\n @return True if the term is a skolem function."]
+    pub fn cvc5_term_is_skolem(term: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get skolem identifier of a term.\n @note Asserts isSkolem().\n @warning This function is experimental and may change in future versions.\n @param term The skolem.\n @return The skolem identifier of the term."]
-	pub fn cvc5_term_get_skolem_id(term: Cvc5Term) -> Cvc5SkolemId;
+    #[doc = " Get skolem identifier of a term.\n @note Asserts isSkolem().\n @warning This function is experimental and may change in future versions.\n @param term The skolem.\n @return The skolem identifier of the term."]
+    pub fn cvc5_term_get_skolem_id(term: Cvc5Term) -> Cvc5SkolemId;
 }
 unsafe extern "C" {
-	#[doc = " Get the skolem indices of a term.\n @note Asserts isSkolem().\n @warning This function is experimental and may change in future versions.\n @param term The skolem.\n @param size The size of the resulting array.\n @return The skolem indices of the term. This is list of terms that the\n         skolem function is indexed by. For example, the array diff skolem\n         `Cvc5SkolemId::ARRAY_DEQ_DIFF` is indexed by two arrays."]
-	pub fn cvc5_term_get_skolem_indices(term: Cvc5Term, size: *mut usize) -> *const Cvc5Term;
+    #[doc = " Get the skolem indices of a term.\n @note Asserts isSkolem().\n @warning This function is experimental and may change in future versions.\n @param term The skolem.\n @param size The size of the resulting array.\n @return The skolem indices of the term. This is list of terms that the\n         skolem function is indexed by. For example, the array diff skolem\n         `Cvc5SkolemId::ARRAY_DEQ_DIFF` is indexed by two arrays."]
+    pub fn cvc5_term_get_skolem_indices(term: Cvc5Term, size: *mut usize) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of a term.\n @param term The term.\n @return The hash value of the term."]
-	pub fn cvc5_term_hash(term: Cvc5Term) -> usize;
+    #[doc = " Compute the hash value of a term.\n @param term The term.\n @return The hash value of the term."]
+    pub fn cvc5_term_hash(term: Cvc5Term) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Make copy of datatype constructor declaration, increases reference counter\n of `decl`.\n\n @param decl The datatype constructor declaration to copy.\n @return The same datatype constructor declaration with its reference count\n         increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_dt_cons_decl_copy(decl: Cvc5DatatypeConstructorDecl) -> Cvc5DatatypeConstructorDecl;
+    #[doc = " Make copy of datatype constructor declaration, increases reference counter\n of `decl`.\n\n @param decl The datatype constructor declaration to copy.\n @return The same datatype constructor declaration with its reference count\n         increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_dt_cons_decl_copy(decl: Cvc5DatatypeConstructorDecl)
+    -> Cvc5DatatypeConstructorDecl;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of datatype constructor declaration, decrements reference\n counter of `decl`.\n\n @param decl The datatype constructor declaration to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5DatatypeConstructorDecl returns a copy that is owned by the callee\n       of the function and thus, can be released."]
-	pub fn cvc5_dt_cons_decl_release(decl: Cvc5DatatypeConstructorDecl);
+    #[doc = " Release copy of datatype constructor declaration, decrements reference\n counter of `decl`.\n\n @param decl The datatype constructor declaration to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5DatatypeConstructorDecl returns a copy that is owned by the callee\n       of the function and thus, can be released."]
+    pub fn cvc5_dt_cons_decl_release(decl: Cvc5DatatypeConstructorDecl);
 }
 unsafe extern "C" {
-	#[doc = " Compare two datatype constructor declarations for structural equality.\n @param a The first datatype constructor declaration.\n @param b The second datatype constructor declaration.\n @return True if the datatype constructor declarations are equal."]
-	pub fn cvc5_dt_cons_decl_is_equal(
-		a: Cvc5DatatypeConstructorDecl,
-		b: Cvc5DatatypeConstructorDecl,
-	) -> bool;
+    #[doc = " Compare two datatype constructor declarations for structural equality.\n @param a The first datatype constructor declaration.\n @param b The second datatype constructor declaration.\n @return True if the datatype constructor declarations are equal."]
+    pub fn cvc5_dt_cons_decl_is_equal(
+        a: Cvc5DatatypeConstructorDecl,
+        b: Cvc5DatatypeConstructorDecl,
+    ) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Add datatype selector declaration to a given constructor declaration.\n @param decl The datatype constructor declaration.\n @param name The name of the datatype selector declaration to add.\n @param sort The codomain sort of the datatype selector declaration to add."]
-	pub fn cvc5_dt_cons_decl_add_selector(
-		decl: Cvc5DatatypeConstructorDecl,
-		name: *const ::std::os::raw::c_char,
-		sort: Cvc5Sort,
-	);
+    #[doc = " Add datatype selector declaration to a given constructor declaration.\n @param decl The datatype constructor declaration.\n @param name The name of the datatype selector declaration to add.\n @param sort The codomain sort of the datatype selector declaration to add."]
+    pub fn cvc5_dt_cons_decl_add_selector(
+        decl: Cvc5DatatypeConstructorDecl,
+        name: *const ::std::os::raw::c_char,
+        sort: Cvc5Sort,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Add datatype selector declaration whose codomain type is the datatype\n itself to a given constructor declaration.\n @param decl The datatype constructor declaration.\n @param name The name of the datatype selector declaration to add."]
-	pub fn cvc5_dt_cons_decl_add_selector_self(
-		decl: Cvc5DatatypeConstructorDecl,
-		name: *const ::std::os::raw::c_char,
-	);
+    #[doc = " Add datatype selector declaration whose codomain type is the datatype\n itself to a given constructor declaration.\n @param decl The datatype constructor declaration.\n @param name The name of the datatype selector declaration to add."]
+    pub fn cvc5_dt_cons_decl_add_selector_self(
+        decl: Cvc5DatatypeConstructorDecl,
+        name: *const ::std::os::raw::c_char,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Add datatype selector declaration whose codomain sort is an unresolved\n datatype with the given name to a given constructor declaration.\n @param decl       The datatype constructor declaration.\n @param name       The name of the datatype selector declaration to add.\n @param unres_name The name of the unresolved datatype. The codomain of the\n                   selector will be the resolved datatype with the given name."]
-	pub fn cvc5_dt_cons_decl_add_selector_unresolved(
-		decl: Cvc5DatatypeConstructorDecl,
-		name: *const ::std::os::raw::c_char,
-		unres_name: *const ::std::os::raw::c_char,
-	);
+    #[doc = " Add datatype selector declaration whose codomain sort is an unresolved\n datatype with the given name to a given constructor declaration.\n @param decl       The datatype constructor declaration.\n @param name       The name of the datatype selector declaration to add.\n @param unres_name The name of the unresolved datatype. The codomain of the\n                   selector will be the resolved datatype with the given name."]
+    pub fn cvc5_dt_cons_decl_add_selector_unresolved(
+        decl: Cvc5DatatypeConstructorDecl,
+        name: *const ::std::os::raw::c_char,
+        unres_name: *const ::std::os::raw::c_char,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given constructor declaration.\n @param decl The datatype constructor declaration.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_dt_cons_decl_to_string(
-		decl: Cvc5DatatypeConstructorDecl,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given constructor declaration.\n @param decl The datatype constructor declaration.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_dt_cons_decl_to_string(
+        decl: Cvc5DatatypeConstructorDecl,
+    ) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of a datatype constructor declaration.\n @param decl The datatype constructor declaration.\n @return The hash value of the datatype constructor declaration."]
-	pub fn cvc5_dt_cons_decl_hash(decl: Cvc5DatatypeConstructorDecl) -> usize;
+    #[doc = " Compute the hash value of a datatype constructor declaration.\n @param decl The datatype constructor declaration.\n @return The hash value of the datatype constructor declaration."]
+    pub fn cvc5_dt_cons_decl_hash(decl: Cvc5DatatypeConstructorDecl) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Make copy of datatype declaration, increases reference counter of `decl`.\n\n @param decl The datatype declaration to copy.\n @return The same datatype declarationwith its reference count increased by\n         one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_dt_decl_copy(decl: Cvc5DatatypeDecl) -> Cvc5DatatypeDecl;
+    #[doc = " Make copy of datatype declaration, increases reference counter of `decl`.\n\n @param decl The datatype declaration to copy.\n @return The same datatype declarationwith its reference count increased by\n         one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_dt_decl_copy(decl: Cvc5DatatypeDecl) -> Cvc5DatatypeDecl;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of datatype declaration, decrements reference counter of `decl`.\n\n @param decl The datatype declaration to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5DatatypeDecl returns a copy that is owned by the callee of the\n       function and thus, can be released."]
-	pub fn cvc5_dt_decl_release(decl: Cvc5DatatypeDecl);
+    #[doc = " Release copy of datatype declaration, decrements reference counter of `decl`.\n\n @param decl The datatype declaration to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5DatatypeDecl returns a copy that is owned by the callee of the\n       function and thus, can be released."]
+    pub fn cvc5_dt_decl_release(decl: Cvc5DatatypeDecl);
 }
 unsafe extern "C" {
-	#[doc = " Compare two datatype declarations for structural equality.\n @param a The first datatype declaration.\n @param b The second datatype declaration.\n @return True if the datatype declarations are equal."]
-	pub fn cvc5_dt_decl_is_equal(a: Cvc5DatatypeDecl, b: Cvc5DatatypeDecl) -> bool;
+    #[doc = " Compare two datatype declarations for structural equality.\n @param a The first datatype declaration.\n @param b The second datatype declaration.\n @return True if the datatype declarations are equal."]
+    pub fn cvc5_dt_decl_is_equal(a: Cvc5DatatypeDecl, b: Cvc5DatatypeDecl) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Add datatype constructor declaration.\n @param decl The datatype declaration.\n @param ctor The datatype constructor declaration to add."]
-	pub fn cvc5_dt_decl_add_constructor(decl: Cvc5DatatypeDecl, ctor: Cvc5DatatypeConstructorDecl);
+    #[doc = " Add datatype constructor declaration.\n @param decl The datatype declaration.\n @param ctor The datatype constructor declaration to add."]
+    pub fn cvc5_dt_decl_add_constructor(decl: Cvc5DatatypeDecl, ctor: Cvc5DatatypeConstructorDecl);
 }
 unsafe extern "C" {
-	#[doc = " Get the number of constructors for a given Datatype declaration.\n @param decl The datatype declaration.\n @return The number of constructors."]
-	pub fn cvc5_dt_decl_get_num_constructors(decl: Cvc5DatatypeDecl) -> usize;
+    #[doc = " Get the number of constructors for a given Datatype declaration.\n @param decl The datatype declaration.\n @return The number of constructors."]
+    pub fn cvc5_dt_decl_get_num_constructors(decl: Cvc5DatatypeDecl) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given Datatype declaration is parametric.\n @warning This function is experimental and may change in future versions.\n @param decl The datatype declaration.\n @return True if the datatype declaration is parametric."]
-	pub fn cvc5_dt_decl_is_parametric(decl: Cvc5DatatypeDecl) -> bool;
+    #[doc = " Determine if a given Datatype declaration is parametric.\n @warning This function is experimental and may change in future versions.\n @param decl The datatype declaration.\n @return True if the datatype declaration is parametric."]
+    pub fn cvc5_dt_decl_is_parametric(decl: Cvc5DatatypeDecl) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given datatype declaration is resolved (has already been\n used to declare a datatype).\n @param decl The datatype declaration.\n @return True if the datatype declaration is resolved."]
-	pub fn cvc5_dt_decl_is_resolved(decl: Cvc5DatatypeDecl) -> bool;
+    #[doc = " Determine if a given datatype declaration is resolved (has already been\n used to declare a datatype).\n @param decl The datatype declaration.\n @return True if the datatype declaration is resolved."]
+    pub fn cvc5_dt_decl_is_resolved(decl: Cvc5DatatypeDecl) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given datatype declaration.\n @param decl The datatype declaration.\n @return A string representation of the datatype declaration.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_dt_decl_to_string(decl: Cvc5DatatypeDecl) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given datatype declaration.\n @param decl The datatype declaration.\n @return A string representation of the datatype declaration.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_dt_decl_to_string(decl: Cvc5DatatypeDecl) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Get the name of a given datatype declaration.\n @param decl The datatype declaration.\n @return The name of the datatype declaration.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_dt_decl_get_name(decl: Cvc5DatatypeDecl) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the name of a given datatype declaration.\n @param decl The datatype declaration.\n @return The name of the datatype declaration.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_dt_decl_get_name(decl: Cvc5DatatypeDecl) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of a datatype declaration.\n @param decl The datatype declaration.\n @return The hash value of the datatype declaration."]
-	pub fn cvc5_dt_decl_hash(decl: Cvc5DatatypeDecl) -> usize;
+    #[doc = " Compute the hash value of a datatype declaration.\n @param decl The datatype declaration.\n @return The hash value of the datatype declaration."]
+    pub fn cvc5_dt_decl_hash(decl: Cvc5DatatypeDecl) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Make copy of datatype selector, increases reference counter of `sel`.\n\n @param sel The datatype selector to copy.\n @return The same datatype selector with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_dt_sel_copy(sel: Cvc5DatatypeSelector) -> Cvc5DatatypeSelector;
+    #[doc = " Make copy of datatype selector, increases reference counter of `sel`.\n\n @param sel The datatype selector to copy.\n @return The same datatype selector with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_dt_sel_copy(sel: Cvc5DatatypeSelector) -> Cvc5DatatypeSelector;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of datatype selector, decrements reference counter of `sel`.\n\n @param sel The datatype selector to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5DatatypeSelector returns a copy that is owned by the callee of the\n       function and thus, can be released."]
-	pub fn cvc5_dt_sel_release(sel: Cvc5DatatypeSelector);
+    #[doc = " Release copy of datatype selector, decrements reference counter of `sel`.\n\n @param sel The datatype selector to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5DatatypeSelector returns a copy that is owned by the callee of the\n       function and thus, can be released."]
+    pub fn cvc5_dt_sel_release(sel: Cvc5DatatypeSelector);
 }
 unsafe extern "C" {
-	#[doc = " Compare two datatype selectors for structural equality.\n @param a The first datatype selector.\n @param b The second datatype selector.\n @return True if the datatype selectors are equal."]
-	pub fn cvc5_dt_sel_is_equal(a: Cvc5DatatypeSelector, b: Cvc5DatatypeSelector) -> bool;
+    #[doc = " Compare two datatype selectors for structural equality.\n @param a The first datatype selector.\n @param b The second datatype selector.\n @return True if the datatype selectors are equal."]
+    pub fn cvc5_dt_sel_is_equal(a: Cvc5DatatypeSelector, b: Cvc5DatatypeSelector) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the name of a given datatype selector.\n @param sel The datatype selector.\n @return The name of the Datatype selector.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_dt_sel_get_name(sel: Cvc5DatatypeSelector) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the name of a given datatype selector.\n @param sel The datatype selector.\n @return The name of the Datatype selector.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_dt_sel_get_name(sel: Cvc5DatatypeSelector) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Get the selector term of a given datatype selector.\n\n Selector terms are a class of function-like terms of selector\n sort (cvc5_sort_is_dt_selector()), and should be used as the first\n argument of Terms of kind #CVC5_KIND_APPLY_SELECTOR.\n\n @param sel The datatype selector.\n @return The selector term."]
-	pub fn cvc5_dt_sel_get_term(sel: Cvc5DatatypeSelector) -> Cvc5Term;
+    #[doc = " Get the selector term of a given datatype selector.\n\n Selector terms are a class of function-like terms of selector\n sort (cvc5_sort_is_dt_selector()), and should be used as the first\n argument of Terms of kind #CVC5_KIND_APPLY_SELECTOR.\n\n @param sel The datatype selector.\n @return The selector term."]
+    pub fn cvc5_dt_sel_get_term(sel: Cvc5DatatypeSelector) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the updater term of a given datatype selector.\n\n Similar to selectors, updater terms are a class of function-like terms of\n updater Sort (cvc5_sort_is_dt_updater()), and should be used as the first\n argument of Terms of kind #CVC5_KIND_APPLY_UPDATER.\n\n @param sel The datatype selector.\n @return The updater term."]
-	pub fn cvc5_dt_sel_get_updater_term(sel: Cvc5DatatypeSelector) -> Cvc5Term;
+    #[doc = " Get the updater term of a given datatype selector.\n\n Similar to selectors, updater terms are a class of function-like terms of\n updater Sort (cvc5_sort_is_dt_updater()), and should be used as the first\n argument of Terms of kind #CVC5_KIND_APPLY_UPDATER.\n\n @param sel The datatype selector.\n @return The updater term."]
+    pub fn cvc5_dt_sel_get_updater_term(sel: Cvc5DatatypeSelector) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the codomain sort of a given datatype selector.\n @param sel The datatype selector.\n @return The codomain sort of the selector."]
-	pub fn cvc5_dt_sel_get_codomain_sort(sel: Cvc5DatatypeSelector) -> Cvc5Sort;
+    #[doc = " Get the codomain sort of a given datatype selector.\n @param sel The datatype selector.\n @return The codomain sort of the selector."]
+    pub fn cvc5_dt_sel_get_codomain_sort(sel: Cvc5DatatypeSelector) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the string representation of a given datatype selector.\n @param sel The datatype selector.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_dt_sel_to_string(sel: Cvc5DatatypeSelector) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the string representation of a given datatype selector.\n @param sel The datatype selector.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_dt_sel_to_string(sel: Cvc5DatatypeSelector) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of a datatype selector.\n @param sel The datatype selector.\n @return The hash value of the datatype selector."]
-	pub fn cvc5_dt_sel_hash(sel: Cvc5DatatypeSelector) -> usize;
+    #[doc = " Compute the hash value of a datatype selector.\n @param sel The datatype selector.\n @return The hash value of the datatype selector."]
+    pub fn cvc5_dt_sel_hash(sel: Cvc5DatatypeSelector) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Make copy of datatype constructor, increases reference counter of `cons`.\n\n @param cons The datatype constructor to copy.\n @return The same datatype constructor with its reference count increased by\n         one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_dt_cons_copy(cons: Cvc5DatatypeConstructor) -> Cvc5DatatypeConstructor;
+    #[doc = " Make copy of datatype constructor, increases reference counter of `cons`.\n\n @param cons The datatype constructor to copy.\n @return The same datatype constructor with its reference count increased by\n         one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_dt_cons_copy(cons: Cvc5DatatypeConstructor) -> Cvc5DatatypeConstructor;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of datatype constructor, decrements reference counter of `cons`.\n\n @param cons The datatype constructor to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5DatatypeConstructor returns a copy that is owned by the callee of\n       the function and thus, can be released."]
-	pub fn cvc5_dt_cons_release(cons: Cvc5DatatypeConstructor);
+    #[doc = " Release copy of datatype constructor, decrements reference counter of `cons`.\n\n @param cons The datatype constructor to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5DatatypeConstructor returns a copy that is owned by the callee of\n       the function and thus, can be released."]
+    pub fn cvc5_dt_cons_release(cons: Cvc5DatatypeConstructor);
 }
 unsafe extern "C" {
-	#[doc = " Compare two datatype constructors for structural equality.\n @param a The first datatype constructor.\n @param b The second datatype constructor.\n @return True if the datatype constructors are equal."]
-	pub fn cvc5_dt_cons_is_equal(a: Cvc5DatatypeConstructor, b: Cvc5DatatypeConstructor) -> bool;
+    #[doc = " Compare two datatype constructors for structural equality.\n @param a The first datatype constructor.\n @param b The second datatype constructor.\n @return True if the datatype constructors are equal."]
+    pub fn cvc5_dt_cons_is_equal(a: Cvc5DatatypeConstructor, b: Cvc5DatatypeConstructor) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the name of a given datatype constructor.\n @param cons The datatype constructor.\n @return The name.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_dt_cons_get_name(cons: Cvc5DatatypeConstructor) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the name of a given datatype constructor.\n @param cons The datatype constructor.\n @return The name.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_dt_cons_get_name(cons: Cvc5DatatypeConstructor) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Get the constructor term of a given datatype constructor.\n\n Datatype constructors are a special class of function-like terms whose sort\n is datatype constructor (cvc5_sort_is_dt_constructor()). All datatype\n constructors, including nullary ones, should be used as the\n first argument to Terms whose kind is #CVC5_KIND_APPLY_CONSTRUCTOR.\n For example, the nil list can be constructed by\n `cvc5_mk_term(CVC5_KIND_APPLY_CONSTRUCTOR, {t})`, where `t` is the term\n returned by this function.\n\n @note This function should not be used for parametric datatypes. Instead,\n       use the function cvc5_dt_cons_get_instantiated_term() below.\n\n @param cons The datatype constructor.\n @return The constructor term."]
-	pub fn cvc5_dt_cons_get_term(cons: Cvc5DatatypeConstructor) -> Cvc5Term;
+    #[doc = " Get the constructor term of a given datatype constructor.\n\n Datatype constructors are a special class of function-like terms whose sort\n is datatype constructor (cvc5_sort_is_dt_constructor()). All datatype\n constructors, including nullary ones, should be used as the\n first argument to Terms whose kind is #CVC5_KIND_APPLY_CONSTRUCTOR.\n For example, the nil list can be constructed by\n `cvc5_mk_term(CVC5_KIND_APPLY_CONSTRUCTOR, {t})`, where `t` is the term\n returned by this function.\n\n @note This function should not be used for parametric datatypes. Instead,\n       use the function cvc5_dt_cons_get_instantiated_term() below.\n\n @param cons The datatype constructor.\n @return The constructor term."]
+    pub fn cvc5_dt_cons_get_term(cons: Cvc5DatatypeConstructor) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the constructor term of this datatype constructor whose return\n type is `sort`.\n\n This function is intended to be used on constructors of parametric datatypes\n and can be seen as returning the constructor term that has been explicitly\n cast to the given sort.\n\n This function is required for constructors of parametric datatypes whose\n return type cannot be determined by type inference. For example, given:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-datatype List\n         (par (T) ((nil) (cons (head T) (tail (List T))))))\n \\endverbatim\n\n The type of nil terms must be provided by the user. In SMT version 2.6,\n this is done via the syntax for qualified identifiers:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (as nil (List Int))\n \\endverbatim\n\n This function is equivalent of applying the above, where the\n datatype constructor is the one corresponding to `nil`, and `sort` is\n `(List Int)`.\n\n @note The returned constructor term `t` is used to construct the above\n       (nullary) application of `nil` with\n       `cvc5_mk_term(CVC5_KIND_APPLY_CONSTRUCTOR, {t})`.\n\n @warning This function is experimental and may change in future versions.\n\n @param cons The datatype constructor.\n @param sort The desired return sort of the constructor.\n @return The constructor term."]
-	pub fn cvc5_dt_cons_get_instantiated_term(
-		cons: Cvc5DatatypeConstructor,
-		sort: Cvc5Sort,
-	) -> Cvc5Term;
+    #[doc = " Get the constructor term of this datatype constructor whose return\n type is `sort`.\n\n This function is intended to be used on constructors of parametric datatypes\n and can be seen as returning the constructor term that has been explicitly\n cast to the given sort.\n\n This function is required for constructors of parametric datatypes whose\n return type cannot be determined by type inference. For example, given:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-datatype List\n         (par (T) ((nil) (cons (head T) (tail (List T))))))\n \\endverbatim\n\n The type of nil terms must be provided by the user. In SMT version 2.6,\n this is done via the syntax for qualified identifiers:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (as nil (List Int))\n \\endverbatim\n\n This function is equivalent of applying the above, where the\n datatype constructor is the one corresponding to `nil`, and `sort` is\n `(List Int)`.\n\n @note The returned constructor term `t` is used to construct the above\n       (nullary) application of `nil` with\n       `cvc5_mk_term(CVC5_KIND_APPLY_CONSTRUCTOR, {t})`.\n\n @warning This function is experimental and may change in future versions.\n\n @param cons The datatype constructor.\n @param sort The desired return sort of the constructor.\n @return The constructor term."]
+    pub fn cvc5_dt_cons_get_instantiated_term(
+        cons: Cvc5DatatypeConstructor,
+        sort: Cvc5Sort,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the tester term of a given datatype constructor.\n\n Similar to constructors, testers are a class of function-like terms of\n tester sort (cvc5_sort_is_dt_constructor()) which should be used as the\n first argument of Terms of kind #CVC5_KIND_APPLY_TESTER.\n\n @param cons The datatype constructor.\n @return The tester term."]
-	pub fn cvc5_dt_cons_get_tester_term(cons: Cvc5DatatypeConstructor) -> Cvc5Term;
+    #[doc = " Get the tester term of a given datatype constructor.\n\n Similar to constructors, testers are a class of function-like terms of\n tester sort (cvc5_sort_is_dt_constructor()) which should be used as the\n first argument of Terms of kind #CVC5_KIND_APPLY_TESTER.\n\n @param cons The datatype constructor.\n @return The tester term."]
+    pub fn cvc5_dt_cons_get_tester_term(cons: Cvc5DatatypeConstructor) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the number of selectors of a given datatype constructor.\n @param cons The datatype constructor.\n @return The number of selectors."]
-	pub fn cvc5_dt_cons_get_num_selectors(cons: Cvc5DatatypeConstructor) -> usize;
+    #[doc = " Get the number of selectors of a given datatype constructor.\n @param cons The datatype constructor.\n @return The number of selectors."]
+    pub fn cvc5_dt_cons_get_num_selectors(cons: Cvc5DatatypeConstructor) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Get the selector at index `i` of a given datatype constructor.\n @param cons  The datatype constructor.\n @param index The index of the selector.\n @return The i^th DatatypeSelector."]
-	pub fn cvc5_dt_cons_get_selector(
-		cons: Cvc5DatatypeConstructor,
-		index: usize,
-	) -> Cvc5DatatypeSelector;
+    #[doc = " Get the selector at index `i` of a given datatype constructor.\n @param cons  The datatype constructor.\n @param index The index of the selector.\n @return The i^th DatatypeSelector."]
+    pub fn cvc5_dt_cons_get_selector(
+        cons: Cvc5DatatypeConstructor,
+        index: usize,
+    ) -> Cvc5DatatypeSelector;
 }
 unsafe extern "C" {
-	#[doc = " Get the datatype selector with the given name.\n @note This is a linear search through the selectors, so in case of\n       multiple, similarly-named selectors, the first is returned.\n @param cons The datatype constructor.\n @param name The name of the datatype selector.\n @return The first datatype selector with the given name."]
-	pub fn cvc5_dt_cons_get_selector_by_name(
-		cons: Cvc5DatatypeConstructor,
-		name: *const ::std::os::raw::c_char,
-	) -> Cvc5DatatypeSelector;
+    #[doc = " Get the datatype selector with the given name.\n @note This is a linear search through the selectors, so in case of\n       multiple, similarly-named selectors, the first is returned.\n @param cons The datatype constructor.\n @param name The name of the datatype selector.\n @return The first datatype selector with the given name."]
+    pub fn cvc5_dt_cons_get_selector_by_name(
+        cons: Cvc5DatatypeConstructor,
+        name: *const ::std::os::raw::c_char,
+    ) -> Cvc5DatatypeSelector;
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given datatype constructor.\n @param cons The datatype constructor.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_dt_cons_to_string(cons: Cvc5DatatypeConstructor) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given datatype constructor.\n @param cons The datatype constructor.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_dt_cons_to_string(cons: Cvc5DatatypeConstructor) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of a datatype constructor.\n @param cons The datatype constructor.\n @return The hash value of the datatype constructor."]
-	pub fn cvc5_dt_cons_hash(cons: Cvc5DatatypeConstructor) -> usize;
+    #[doc = " Compute the hash value of a datatype constructor.\n @param cons The datatype constructor.\n @return The hash value of the datatype constructor."]
+    pub fn cvc5_dt_cons_hash(cons: Cvc5DatatypeConstructor) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Make copy of datatype, increases reference counter of `dt`.\n\n @param dt The datatype to copy.\n @return The same datatype with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_dt_copy(dt: Cvc5Datatype) -> Cvc5Datatype;
+    #[doc = " Make copy of datatype, increases reference counter of `dt`.\n\n @param dt The datatype to copy.\n @return The same datatype with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_dt_copy(dt: Cvc5Datatype) -> Cvc5Datatype;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of datatype, decrements reference counter of `dt`.\n\n @param dt The datatype to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5Datatype returns a copy that is owned by the callee of the\n       function and thus, can be released."]
-	pub fn cvc5_dt_release(dt: Cvc5Datatype);
+    #[doc = " Release copy of datatype, decrements reference counter of `dt`.\n\n @param dt The datatype to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a\n       Cvc5Datatype returns a copy that is owned by the callee of the\n       function and thus, can be released."]
+    pub fn cvc5_dt_release(dt: Cvc5Datatype);
 }
 unsafe extern "C" {
-	#[doc = " Compare two datatypes for structural equality.\n @param a The first datatype.\n @param b The second datatype.\n @return True if the datatypes are equal."]
-	pub fn cvc5_dt_is_equal(a: Cvc5Datatype, b: Cvc5Datatype) -> bool;
+    #[doc = " Compare two datatypes for structural equality.\n @param a The first datatype.\n @param b The second datatype.\n @return True if the datatypes are equal."]
+    pub fn cvc5_dt_is_equal(a: Cvc5Datatype, b: Cvc5Datatype) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the datatype constructor of a given datatype at a given index.\n @param dt  The datatype.\n @param idx The index of the datatype constructor to return.\n @return The datatype constructor with the given index."]
-	pub fn cvc5_dt_get_constructor(dt: Cvc5Datatype, idx: usize) -> Cvc5DatatypeConstructor;
+    #[doc = " Get the datatype constructor of a given datatype at a given index.\n @param dt  The datatype.\n @param idx The index of the datatype constructor to return.\n @return The datatype constructor with the given index."]
+    pub fn cvc5_dt_get_constructor(dt: Cvc5Datatype, idx: usize) -> Cvc5DatatypeConstructor;
 }
 unsafe extern "C" {
-	#[doc = " Get the datatype constructor of a given datatype with the given name.\n @note This is a linear search through the constructors, so in case of\n multiple, similarly-named constructors, the first is returned.\n @param dt  The datatype.\n @param name The name of the datatype constructor.\n @return The datatype constructor with the given name."]
-	pub fn cvc5_dt_get_constructor_by_name(
-		dt: Cvc5Datatype,
-		name: *const ::std::os::raw::c_char,
-	) -> Cvc5DatatypeConstructor;
+    #[doc = " Get the datatype constructor of a given datatype with the given name.\n @note This is a linear search through the constructors, so in case of\n multiple, similarly-named constructors, the first is returned.\n @param dt  The datatype.\n @param name The name of the datatype constructor.\n @return The datatype constructor with the given name."]
+    pub fn cvc5_dt_get_constructor_by_name(
+        dt: Cvc5Datatype,
+        name: *const ::std::os::raw::c_char,
+    ) -> Cvc5DatatypeConstructor;
 }
 unsafe extern "C" {
-	#[doc = " Get the datatype selector of a given datatype with the given name.\n @note This is a linear search through the constructors and their selectors,\n       so in case of multiple, similarly-named selectors, the first is\n       returned.\n @param dt   The datatype.\n @param name The name of the datatype selector.\n @return The datatype selector with the given name."]
-	pub fn cvc5_dt_get_selector(
-		dt: Cvc5Datatype,
-		name: *const ::std::os::raw::c_char,
-	) -> Cvc5DatatypeSelector;
+    #[doc = " Get the datatype selector of a given datatype with the given name.\n @note This is a linear search through the constructors and their selectors,\n       so in case of multiple, similarly-named selectors, the first is\n       returned.\n @param dt   The datatype.\n @param name The name of the datatype selector.\n @return The datatype selector with the given name."]
+    pub fn cvc5_dt_get_selector(
+        dt: Cvc5Datatype,
+        name: *const ::std::os::raw::c_char,
+    ) -> Cvc5DatatypeSelector;
 }
 unsafe extern "C" {
-	#[doc = " Get the name of a given datatype.\n @param dt   The datatype.\n @return The name.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_dt_get_name(dt: Cvc5Datatype) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the name of a given datatype.\n @param dt   The datatype.\n @return The name.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_dt_get_name(dt: Cvc5Datatype) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Get the number of constructors of a given datatype.\n @param dt   The datatype.\n @return The number of constructors."]
-	pub fn cvc5_dt_get_num_constructors(dt: Cvc5Datatype) -> usize;
+    #[doc = " Get the number of constructors of a given datatype.\n @param dt   The datatype.\n @return The number of constructors."]
+    pub fn cvc5_dt_get_num_constructors(dt: Cvc5Datatype) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Get the parameters of a given datatype, if it is parametric.\n @note Asserts that this datatype is parametric.\n @warning This function is experimental and may change in future versions.\n @param dt The datatype.\n @param size The size of the resulting array.\n @return The parameters of this datatype."]
-	pub fn cvc5_dt_get_parameters(dt: Cvc5Datatype, size: *mut usize) -> *const Cvc5Sort;
+    #[doc = " Get the parameters of a given datatype, if it is parametric.\n @note Asserts that this datatype is parametric.\n @warning This function is experimental and may change in future versions.\n @param dt The datatype.\n @param size The size of the resulting array.\n @return The parameters of this datatype."]
+    pub fn cvc5_dt_get_parameters(dt: Cvc5Datatype, size: *mut usize) -> *const Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given datatype is parametric.\n @warning This function is experimental and may change in future versions.\n @param dt The datatype.\n @return True if the datatype is parametric."]
-	pub fn cvc5_dt_is_parametric(dt: Cvc5Datatype) -> bool;
+    #[doc = " Determine if a given datatype is parametric.\n @warning This function is experimental and may change in future versions.\n @param dt The datatype.\n @return True if the datatype is parametric."]
+    pub fn cvc5_dt_is_parametric(dt: Cvc5Datatype) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given datatype corresponds to a co-datatype.\n @param dt The datatype.\n @return True if the datatype corresponds to a co-datatype."]
-	pub fn cvc5_dt_is_codatatype(dt: Cvc5Datatype) -> bool;
+    #[doc = " Determine if a given datatype corresponds to a co-datatype.\n @param dt The datatype.\n @return True if the datatype corresponds to a co-datatype."]
+    pub fn cvc5_dt_is_codatatype(dt: Cvc5Datatype) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given datatype corresponds to a tuple.\n @param dt The datatype.\n @return True if this datatype corresponds to a tuple."]
-	pub fn cvc5_dt_is_tuple(dt: Cvc5Datatype) -> bool;
+    #[doc = " Determine if a given datatype corresponds to a tuple.\n @param dt The datatype.\n @return True if this datatype corresponds to a tuple."]
+    pub fn cvc5_dt_is_tuple(dt: Cvc5Datatype) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given datatype corresponds to a record.\n @warning This function is experimental and may change in future versions.\n @param dt The datatype.\n @return True if the datatype corresponds to a record."]
-	pub fn cvc5_dt_is_record(dt: Cvc5Datatype) -> bool;
+    #[doc = " Determine if a given datatype corresponds to a record.\n @warning This function is experimental and may change in future versions.\n @param dt The datatype.\n @return True if the datatype corresponds to a record."]
+    pub fn cvc5_dt_is_record(dt: Cvc5Datatype) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given datatype is finite.\n @param dt The datatype.\n @return True if the datatype is finite."]
-	pub fn cvc5_dt_is_finite(dt: Cvc5Datatype) -> bool;
+    #[doc = " Determine if a given datatype is finite.\n @param dt The datatype.\n @return True if the datatype is finite."]
+    pub fn cvc5_dt_is_finite(dt: Cvc5Datatype) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given datatype is well-founded.\n\n If the datatype is not a codatatype, this returns false if there are no\n values of the datatype that are of finite size.\n\n @param dt The datatype.\n @return True if the datatype is well-founded."]
-	pub fn cvc5_dt_is_well_founded(dt: Cvc5Datatype) -> bool;
+    #[doc = " Determine if a given datatype is well-founded.\n\n If the datatype is not a codatatype, this returns false if there are no\n values of the datatype that are of finite size.\n\n @param dt The datatype.\n @return True if the datatype is well-founded."]
+    pub fn cvc5_dt_is_well_founded(dt: Cvc5Datatype) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given datatype.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_dt_to_string(dt: Cvc5Datatype) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given datatype.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_dt_to_string(dt: Cvc5Datatype) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of a datatype.\n @param dt The datatype.\n @return The hash value of the datatype."]
-	pub fn cvc5_dt_hash(dt: Cvc5Datatype) -> usize;
+    #[doc = " Compute the hash value of a datatype.\n @param dt The datatype.\n @return The hash value of the datatype."]
+    pub fn cvc5_dt_hash(dt: Cvc5Datatype) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Add `rule` to the set of rules corresponding to `symbol` of a given grammar.\n @param grammar The grammar.\n @param symbol  The non-terminal to which the rule is added.\n @param rule The rule to add."]
-	pub fn cvc5_grammar_add_rule(grammar: Cvc5Grammar, symbol: Cvc5Term, rule: Cvc5Term);
+    #[doc = " Add `rule` to the set of rules corresponding to `symbol` of a given grammar.\n @param grammar The grammar.\n @param symbol  The non-terminal to which the rule is added.\n @param rule The rule to add."]
+    pub fn cvc5_grammar_add_rule(grammar: Cvc5Grammar, symbol: Cvc5Term, rule: Cvc5Term);
 }
 unsafe extern "C" {
-	#[doc = " Add `rules` to the set of rules corresponding to `symbol` of a given grammar.\n @param grammar The grammar.\n @param symbol The non-terminal to which the rules are added.\n @param size   The number of rules to add.\n @param rules The rules to add."]
-	pub fn cvc5_grammar_add_rules(
-		grammar: Cvc5Grammar,
-		symbol: Cvc5Term,
-		size: usize,
-		rules: *const Cvc5Term,
-	);
+    #[doc = " Add `rules` to the set of rules corresponding to `symbol` of a given grammar.\n @param grammar The grammar.\n @param symbol The non-terminal to which the rules are added.\n @param size   The number of rules to add.\n @param rules The rules to add."]
+    pub fn cvc5_grammar_add_rules(
+        grammar: Cvc5Grammar,
+        symbol: Cvc5Term,
+        size: usize,
+        rules: *const Cvc5Term,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Allow `symbol` to be an arbitrary constant of a given grammar.\n @param grammar The grammar.\n @param symbol The non-terminal allowed to be any constant."]
-	pub fn cvc5_grammar_add_any_constant(grammar: Cvc5Grammar, symbol: Cvc5Term);
+    #[doc = " Allow `symbol` to be an arbitrary constant of a given grammar.\n @param grammar The grammar.\n @param symbol The non-terminal allowed to be any constant."]
+    pub fn cvc5_grammar_add_any_constant(grammar: Cvc5Grammar, symbol: Cvc5Term);
 }
 unsafe extern "C" {
-	#[doc = " Allow `symbol` to be any input variable of a given grammar to corresponding\n synth-fun/synth-inv with the same sort as `symbol`.\n @param grammar The grammar.\n @param symbol The non-terminal allowed to be any input variable."]
-	pub fn cvc5_grammar_add_any_variable(grammar: Cvc5Grammar, symbol: Cvc5Term);
+    #[doc = " Allow `symbol` to be any input variable of a given grammar to corresponding\n synth-fun/synth-inv with the same sort as `symbol`.\n @param grammar The grammar.\n @param symbol The non-terminal allowed to be any input variable."]
+    pub fn cvc5_grammar_add_any_variable(grammar: Cvc5Grammar, symbol: Cvc5Term);
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given grammar.\n @param grammar The grammar.\n @return A string representation of the grammar.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_grammar_to_string(grammar: Cvc5Grammar) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given grammar.\n @param grammar The grammar.\n @return A string representation of the grammar.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_grammar_to_string(grammar: Cvc5Grammar) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Compare two grammars for referential equality.\n @param a The first grammar.\n @param b The second grammar.\n @return  True if both grammar pointers point to the same internal grammar\n          object."]
-	pub fn cvc5_grammar_is_equal(a: Cvc5Grammar, b: Cvc5Grammar) -> bool;
+    #[doc = " Compare two grammars for referential equality.\n @param a The first grammar.\n @param b The second grammar.\n @return  True if both grammar pointers point to the same internal grammar\n          object."]
+    pub fn cvc5_grammar_is_equal(a: Cvc5Grammar, b: Cvc5Grammar) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Compare two grammars for referential disequality.\n @param a The first grammar.\n @param b The second grammar.\n @return  True if both grammar pointers point to different internal grammar\n          objects."]
-	pub fn cvc5_grammar_is_disequal(a: Cvc5Grammar, b: Cvc5Grammar) -> bool;
+    #[doc = " Compare two grammars for referential disequality.\n @param a The first grammar.\n @param b The second grammar.\n @return  True if both grammar pointers point to different internal grammar\n          objects."]
+    pub fn cvc5_grammar_is_disequal(a: Cvc5Grammar, b: Cvc5Grammar) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of a grammar.\n @param grammar The grammar.\n @return The hash value of the grammar."]
-	pub fn cvc5_grammar_hash(grammar: Cvc5Grammar) -> usize;
+    #[doc = " Compute the hash value of a grammar.\n @param grammar The grammar.\n @return The hash value of the grammar."]
+    pub fn cvc5_grammar_hash(grammar: Cvc5Grammar) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Make copy of grammar, increases reference counter of `grammar`.\n\n @param grammar The grammar to copy.\n @return The same grammar with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_grammar_copy(grammar: Cvc5Grammar) -> Cvc5Grammar;
+    #[doc = " Make copy of grammar, increases reference counter of `grammar`.\n\n @param grammar The grammar to copy.\n @return The same grammar with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_grammar_copy(grammar: Cvc5Grammar) -> Cvc5Grammar;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of grammar, decrements reference counter of `grammar`.\n\n @param grammar The grammar to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
-	pub fn cvc5_grammar_release(grammar: Cvc5Grammar);
+    #[doc = " Release copy of grammar, decrements reference counter of `grammar`.\n\n @param grammar The grammar to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    pub fn cvc5_grammar_release(grammar: Cvc5Grammar);
 }
 unsafe extern "C" {
-	#[doc = " Construct a new instance of a cvc5 term manager.\n @return The cvc5 term manager."]
-	pub fn cvc5_term_manager_new() -> *mut Cvc5TermManager;
+    #[doc = " Construct a new instance of a cvc5 term manager.\n @return The cvc5 term manager."]
+    pub fn cvc5_term_manager_new() -> *mut Cvc5TermManager;
 }
 unsafe extern "C" {
-	#[doc = " Delete a cvc5 term manager instance.\n @param tm The term manager instance."]
-	pub fn cvc5_term_manager_delete(tm: *mut Cvc5TermManager);
+    #[doc = " Delete a cvc5 term manager instance.\n @param tm The term manager instance."]
+    pub fn cvc5_term_manager_delete(tm: *mut Cvc5TermManager);
 }
 unsafe extern "C" {
-	#[doc = " Release all managed references.\n\n This will free all memory used by any managed objects allocated by the\n term manager.\n\n @note This invalidates all managed objects created by the term manager.\n\n @param tm The term manager instance."]
-	pub fn cvc5_term_manager_release(tm: *mut Cvc5TermManager);
+    #[doc = " Release all managed references.\n\n This will free all memory used by any managed objects allocated by the\n term manager.\n\n @note This invalidates all managed objects created by the term manager.\n\n @param tm The term manager instance."]
+    pub fn cvc5_term_manager_release(tm: *mut Cvc5TermManager);
 }
 unsafe extern "C" {
-	#[doc = " Print the term manager statistics to the given file descriptor, suitable for\n usage in signal handlers.\n @param tm The term manager instance.\n @param fd The file descriptor."]
-	pub fn cvc5_term_manager_print_stats_safe(tm: *mut Cvc5TermManager, fd: ::std::os::raw::c_int);
+    #[doc = " Print the term manager statistics to the given file descriptor, suitable for\n usage in signal handlers.\n @param tm The term manager instance.\n @param fd The file descriptor."]
+    pub fn cvc5_term_manager_print_stats_safe(tm: *mut Cvc5TermManager, fd: ::std::os::raw::c_int);
 }
 unsafe extern "C" {
-	#[doc = " Get a snapshot of the current state of the statistic values of this term\n manager. The returned object is completely decoupled from the term manager\n and will not change when the term manager is used again.\n @param tm The term manager instance.\n @return A snapshot of the current state of the statistic values."]
-	pub fn cvc5_term_manager_get_statistics(tm: *mut Cvc5TermManager) -> Cvc5Statistics;
+    #[doc = " Get a snapshot of the current state of the statistic values of this term\n manager. The returned object is completely decoupled from the term manager\n and will not change when the term manager is used again.\n @param tm The term manager instance.\n @return A snapshot of the current state of the statistic values."]
+    pub fn cvc5_term_manager_get_statistics(tm: *mut Cvc5TermManager) -> Cvc5Statistics;
 }
 unsafe extern "C" {
-	#[doc = " Get the Boolean sort.\n @param tm The term manager instance.\n @return Sort Boolean."]
-	pub fn cvc5_get_boolean_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
+    #[doc = " Get the Boolean sort.\n @param tm The term manager instance.\n @return Sort Boolean."]
+    pub fn cvc5_get_boolean_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the Integer sort.\n @param tm The term manager instance.\n @return Sort Integer."]
-	pub fn cvc5_get_integer_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
+    #[doc = " Get the Integer sort.\n @param tm The term manager instance.\n @return Sort Integer."]
+    pub fn cvc5_get_integer_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the Real sort.\n @param tm The term manager instance.\n @return Sort Real."]
-	pub fn cvc5_get_real_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
+    #[doc = " Get the Real sort.\n @param tm The term manager instance.\n @return Sort Real."]
+    pub fn cvc5_get_real_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the regular expression sort.\n @param tm The term manager instance.\n @return Sort RegExp."]
-	pub fn cvc5_get_regexp_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
+    #[doc = " Get the regular expression sort.\n @param tm The term manager instance.\n @return Sort RegExp."]
+    pub fn cvc5_get_regexp_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the rounding mode sort.\n @param tm The term manager instance.\n @return The rounding mode sort."]
-	pub fn cvc5_get_rm_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
+    #[doc = " Get the rounding mode sort.\n @param tm The term manager instance.\n @return The rounding mode sort."]
+    pub fn cvc5_get_rm_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Get the string sort.\n @param tm The term manager instance.\n @return Sort String."]
-	pub fn cvc5_get_string_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
+    #[doc = " Get the string sort.\n @param tm The term manager instance.\n @return Sort String."]
+    pub fn cvc5_get_string_sort(tm: *mut Cvc5TermManager) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create an array sort.\n @param tm The term manager instance.\n @param index The array index sort.\n @param elem  The array element sort.\n @return The array sort."]
-	pub fn cvc5_mk_array_sort(tm: *mut Cvc5TermManager, index: Cvc5Sort, elem: Cvc5Sort)
-	-> Cvc5Sort;
+    #[doc = " Create an array sort.\n @param tm The term manager instance.\n @param index The array index sort.\n @param elem  The array element sort.\n @return The array sort."]
+    pub fn cvc5_mk_array_sort(
+        tm: *mut Cvc5TermManager,
+        index: Cvc5Sort,
+        elem: Cvc5Sort,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a bit-vector sort.\n @param tm The term manager instance.\n @param size The bit-width of the bit-vector sort.\n @return The bit-vector sort."]
-	pub fn cvc5_mk_bv_sort(tm: *mut Cvc5TermManager, size: u32) -> Cvc5Sort;
+    #[doc = " Create a bit-vector sort.\n @param tm The term manager instance.\n @param size The bit-width of the bit-vector sort.\n @return The bit-vector sort."]
+    pub fn cvc5_mk_bv_sort(tm: *mut Cvc5TermManager, size: u32) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a floating-point sort.\n @param tm The term manager instance.\n @param exp The bit-width of the exponent of the floating-point sort.\n @param sig The bit-width of the significand of the floating-point sort."]
-	pub fn cvc5_mk_fp_sort(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Sort;
+    #[doc = " Create a floating-point sort.\n @param tm The term manager instance.\n @param exp The bit-width of the exponent of the floating-point sort.\n @param sig The bit-width of the significand of the floating-point sort."]
+    pub fn cvc5_mk_fp_sort(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a finite-field sort from a given string of\n base n.\n\n @param tm The term manager instance.\n @param size The modulus of the field. Must be prime.\n @param base The base of the string representation of `size`.\n @return The finite-field sort."]
-	pub fn cvc5_mk_ff_sort(
-		tm: *mut Cvc5TermManager,
-		size: *const ::std::os::raw::c_char,
-		base: u32,
-	) -> Cvc5Sort;
+    #[doc = " Create a finite-field sort from a given string of\n base n.\n\n @param tm The term manager instance.\n @param size The modulus of the field. Must be prime.\n @param base The base of the string representation of `size`.\n @return The finite-field sort."]
+    pub fn cvc5_mk_ff_sort(
+        tm: *mut Cvc5TermManager,
+        size: *const ::std::os::raw::c_char,
+        base: u32,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a datatype sort.\n @param tm   The term manager instance.\n @param decl The datatype declaration from which the sort is created.\n @return The datatype sort."]
-	pub fn cvc5_mk_dt_sort(tm: *mut Cvc5TermManager, decl: Cvc5DatatypeDecl) -> Cvc5Sort;
+    #[doc = " Create a datatype sort.\n @param tm   The term manager instance.\n @param decl The datatype declaration from which the sort is created.\n @return The datatype sort."]
+    pub fn cvc5_mk_dt_sort(tm: *mut Cvc5TermManager, decl: Cvc5DatatypeDecl) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a vector of datatype sorts.\n @note The names of the datatype declarations must be distinct.\n @param tm    The term manager instance.\n @param size  The number of datatype declarations.\n @param decls The datatype declarations from which the sort is created.\n @return The datatype sorts."]
-	pub fn cvc5_mk_dt_sorts(
-		tm: *mut Cvc5TermManager,
-		size: usize,
-		decls: *const Cvc5DatatypeDecl,
-	) -> *const Cvc5Sort;
+    #[doc = " Create a vector of datatype sorts.\n @note The names of the datatype declarations must be distinct.\n @param tm    The term manager instance.\n @param size  The number of datatype declarations.\n @param decls The datatype declarations from which the sort is created.\n @return The datatype sorts."]
+    pub fn cvc5_mk_dt_sorts(
+        tm: *mut Cvc5TermManager,
+        size: usize,
+        decls: *const Cvc5DatatypeDecl,
+    ) -> *const Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create function sort.\n @param tm    The term manager instance.\n @param size  The number of domain sorts.\n @param sorts The sort of the function arguments (the domain sorts).\n @param codomain The sort of the function return value.\n @return The function sort."]
-	pub fn cvc5_mk_fun_sort(
-		tm: *mut Cvc5TermManager,
-		size: usize,
-		sorts: *const Cvc5Sort,
-		codomain: Cvc5Sort,
-	) -> Cvc5Sort;
+    #[doc = " Create function sort.\n @param tm    The term manager instance.\n @param size  The number of domain sorts.\n @param sorts The sort of the function arguments (the domain sorts).\n @param codomain The sort of the function return value.\n @return The function sort."]
+    pub fn cvc5_mk_fun_sort(
+        tm: *mut Cvc5TermManager,
+        size: usize,
+        sorts: *const Cvc5Sort,
+        codomain: Cvc5Sort,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a sort parameter.\n @warning This function is experimental and may change in future versions.\n @param tm     The term manager instance.\n @param symbol The name of the sort, may be NULL.\n @return The sort parameter."]
-	pub fn cvc5_mk_param_sort(
-		tm: *mut Cvc5TermManager,
-		symbol: *const ::std::os::raw::c_char,
-	) -> Cvc5Sort;
+    #[doc = " Create a sort parameter.\n @warning This function is experimental and may change in future versions.\n @param tm     The term manager instance.\n @param symbol The name of the sort, may be NULL.\n @return The sort parameter."]
+    pub fn cvc5_mk_param_sort(
+        tm: *mut Cvc5TermManager,
+        symbol: *const ::std::os::raw::c_char,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a predicate sort.\n @note This is equivalent to calling mkFunctionSort() with the Boolean sort\n as the codomain.\n @param tm    The term manager instance.\n @param size  The number of sorts.\n @param sorts The list of sorts of the predicate.\n @return The predicate sort."]
-	pub fn cvc5_mk_predicate_sort(
-		tm: *mut Cvc5TermManager,
-		size: usize,
-		sorts: *const Cvc5Sort,
-	) -> Cvc5Sort;
+    #[doc = " Create a predicate sort.\n @note This is equivalent to calling mkFunctionSort() with the Boolean sort\n as the codomain.\n @param tm    The term manager instance.\n @param size  The number of sorts.\n @param sorts The list of sorts of the predicate.\n @return The predicate sort."]
+    pub fn cvc5_mk_predicate_sort(
+        tm: *mut Cvc5TermManager,
+        size: usize,
+        sorts: *const Cvc5Sort,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a record sort\n @warning This function is experimental and may change in future versions.\n @param tm    The term manager instance.\n @param size  The number of fields of the record.\n @param names The names of the fields of the record.\n @param sorts The sorts of the fields of the record.\n @return The record sort."]
-	pub fn cvc5_mk_record_sort(
-		tm: *mut Cvc5TermManager,
-		size: usize,
-		names: *mut *const ::std::os::raw::c_char,
-		sorts: *const Cvc5Sort,
-	) -> Cvc5Sort;
+    #[doc = " Create a record sort\n @warning This function is experimental and may change in future versions.\n @param tm    The term manager instance.\n @param size  The number of fields of the record.\n @param names The names of the fields of the record.\n @param sorts The sorts of the fields of the record.\n @return The record sort."]
+    pub fn cvc5_mk_record_sort(
+        tm: *mut Cvc5TermManager,
+        size: usize,
+        names: *mut *const ::std::os::raw::c_char,
+        sorts: *const Cvc5Sort,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a set sort.\n @param tm   The term manager instance.\n @param sort The sort of the set elements.\n @return The set sort."]
-	pub fn cvc5_mk_set_sort(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Create a set sort.\n @param tm   The term manager instance.\n @param sort The sort of the set elements.\n @return The set sort."]
+    pub fn cvc5_mk_set_sort(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a bag sort.\n @param tm   The term manager instance.\n @param sort The sort of the bag elements.\n @return The bag sort."]
-	pub fn cvc5_mk_bag_sort(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Create a bag sort.\n @param tm   The term manager instance.\n @param sort The sort of the bag elements.\n @return The bag sort."]
+    pub fn cvc5_mk_bag_sort(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a sequence sort.\n @param tm   The term manager instance.\n @param sort The sort of the sequence elements.\n @return The sequence sort."]
-	pub fn cvc5_mk_sequence_sort(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Create a sequence sort.\n @param tm   The term manager instance.\n @param sort The sort of the sequence elements.\n @return The sequence sort."]
+    pub fn cvc5_mk_sequence_sort(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create an abstract sort. An abstract sort represents a sort for a given\n kind whose parameters and arguments are unspecified.\n\n The kind `k` must be the kind of a sort that can be abstracted, i.e., a\n sort that has indices or argument sorts. For example,\n #CVC5_SORT_KIND_ARRAY_SORT and #CVC5_SORT_KIND_BITVECTOR_SORT can be passed\n as the kind `k` to this function, while #CVC5_SORT_KIND_INTEGER_SORT and\n #CVC5_SORT_KIND_STRING_SORT cannot.\n\n @note Providing the kind #CVC5_SORT_KIND_ABSTRACT_SORT as an argument to\n       this function returns the (fully) unspecified sort, denoted `?`.\n\n @note Providing a kind `k` that has no indices and a fixed arity\n       of argument sorts will return the sort of kind `k` whose arguments are\n       the unspecified sort. For example,\n       `cvc5_mk_abstract_sort(tm, CVC5_SORT_KIND_ARRAY_SORT)` will return the\n       sort `(ARRAY_SORT ? ?)` instead of the abstract sort whose abstract\n       kind is #CVC5_SORT_KIND_ARRAY_SORT.\n\n @warning This function is experimental and may change in future versions.\n\n @param tm The term manager instance.\n @param k The kind of the abstract sort\n @return The abstract sort."]
-	pub fn cvc5_mk_abstract_sort(tm: *mut Cvc5TermManager, k: Cvc5SortKind) -> Cvc5Sort;
+    #[doc = " Create an abstract sort. An abstract sort represents a sort for a given\n kind whose parameters and arguments are unspecified.\n\n The kind `k` must be the kind of a sort that can be abstracted, i.e., a\n sort that has indices or argument sorts. For example,\n #CVC5_SORT_KIND_ARRAY_SORT and #CVC5_SORT_KIND_BITVECTOR_SORT can be passed\n as the kind `k` to this function, while #CVC5_SORT_KIND_INTEGER_SORT and\n #CVC5_SORT_KIND_STRING_SORT cannot.\n\n @note Providing the kind #CVC5_SORT_KIND_ABSTRACT_SORT as an argument to\n       this function returns the (fully) unspecified sort, denoted `?`.\n\n @note Providing a kind `k` that has no indices and a fixed arity\n       of argument sorts will return the sort of kind `k` whose arguments are\n       the unspecified sort. For example,\n       `cvc5_mk_abstract_sort(tm, CVC5_SORT_KIND_ARRAY_SORT)` will return the\n       sort `(ARRAY_SORT ? ?)` instead of the abstract sort whose abstract\n       kind is #CVC5_SORT_KIND_ARRAY_SORT.\n\n @warning This function is experimental and may change in future versions.\n\n @param tm The term manager instance.\n @param k The kind of the abstract sort\n @return The abstract sort."]
+    pub fn cvc5_mk_abstract_sort(tm: *mut Cvc5TermManager, k: Cvc5SortKind) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create an uninterpreted sort.\n @param tm The term manager instance.\n @param symbol The name of the sort, may be NULL.\n @return The uninterpreted sort."]
-	pub fn cvc5_mk_uninterpreted_sort(
-		tm: *mut Cvc5TermManager,
-		symbol: *const ::std::os::raw::c_char,
-	) -> Cvc5Sort;
+    #[doc = " Create an uninterpreted sort.\n @param tm The term manager instance.\n @param symbol The name of the sort, may be NULL.\n @return The uninterpreted sort."]
+    pub fn cvc5_mk_uninterpreted_sort(
+        tm: *mut Cvc5TermManager,
+        symbol: *const ::std::os::raw::c_char,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create an unresolved datatype sort.\n\n This is for creating yet unresolved sort placeholders for mutually\n recursive parametric datatypes.\n\n @param tm The term manager instance.\n @param symbol The symbol of the sort.\n @param arity The number of sort parameters of the sort.\n @return The unresolved sort.\n\n @warning This function is experimental and may change in future versions."]
-	pub fn cvc5_mk_unresolved_dt_sort(
-		tm: *mut Cvc5TermManager,
-		symbol: *const ::std::os::raw::c_char,
-		arity: usize,
-	) -> Cvc5Sort;
+    #[doc = " Create an unresolved datatype sort.\n\n This is for creating yet unresolved sort placeholders for mutually\n recursive parametric datatypes.\n\n @param tm The term manager instance.\n @param symbol The symbol of the sort.\n @param arity The number of sort parameters of the sort.\n @return The unresolved sort.\n\n @warning This function is experimental and may change in future versions."]
+    pub fn cvc5_mk_unresolved_dt_sort(
+        tm: *mut Cvc5TermManager,
+        symbol: *const ::std::os::raw::c_char,
+        arity: usize,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create an uninterpreted sort constructor sort.\n\n An uninterpreted sort constructor is an uninterpreted sort with arity > 0.\n\n @param tm The term manager instance.\n @param symbol The symbol of the sort.\n @param arity The arity of the sort (must be > 0)\n @return The uninterpreted sort constructor sort."]
-	pub fn cvc5_mk_uninterpreted_sort_constructor_sort(
-		tm: *mut Cvc5TermManager,
-		arity: usize,
-		symbol: *const ::std::os::raw::c_char,
-	) -> Cvc5Sort;
+    #[doc = " Create an uninterpreted sort constructor sort.\n\n An uninterpreted sort constructor is an uninterpreted sort with arity > 0.\n\n @param tm The term manager instance.\n @param symbol The symbol of the sort.\n @param arity The arity of the sort (must be > 0)\n @return The uninterpreted sort constructor sort."]
+    pub fn cvc5_mk_uninterpreted_sort_constructor_sort(
+        tm: *mut Cvc5TermManager,
+        arity: usize,
+        symbol: *const ::std::os::raw::c_char,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a tuple sort.\n @param tm The term manager instance.\n @param size The number of sorts.\n @param sorts The sorts of f the elements of the tuple.\n @return The tuple sort."]
-	pub fn cvc5_mk_tuple_sort(
-		tm: *mut Cvc5TermManager,
-		size: usize,
-		sorts: *const Cvc5Sort,
-	) -> Cvc5Sort;
+    #[doc = " Create a tuple sort.\n @param tm The term manager instance.\n @param size The number of sorts.\n @param sorts The sorts of f the elements of the tuple.\n @return The tuple sort."]
+    pub fn cvc5_mk_tuple_sort(
+        tm: *mut Cvc5TermManager,
+        size: usize,
+        sorts: *const Cvc5Sort,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create a nullable sort.\n @param tm The term manager instance.\n @param sort The sort of the element of the nullable.\n @return The nullable sort."]
-	pub fn cvc5_mk_nullable_sort(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Sort;
+    #[doc = " Create a nullable sort.\n @param tm The term manager instance.\n @param sort The sort of the element of the nullable.\n @return The nullable sort."]
+    pub fn cvc5_mk_nullable_sort(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Create operator of Kind:\n   - #CVC5_KIND_BITVECTOR_EXTRACT\n   - #CVC5_KIND_BITVECTOR_REPEAT\n   - #CVC5_KIND_BITVECTOR_ROTATE_LEFT\n   - #CVC5_KIND_BITVECTOR_ROTATE_RIGHT\n   - #CVC5_KIND_BITVECTOR_SIGN_EXTEND\n   - #CVC5_KIND_BITVECTOR_ZERO_EXTEND\n   - #CVC5_KIND_DIVISIBLE\n   - #CVC5_KIND_FLOATINGPOINT_TO_FP_FROM_FP\n   - #CVC5_KIND_FLOATINGPOINT_TO_FP_FROM_IEEE_BV\n   - #CVC5_KIND_FLOATINGPOINT_TO_FP_FROM_REAL\n   - #CVC5_KIND_FLOATINGPOINT_TO_FP_FROM_SBV\n   - #CVC5_KIND_FLOATINGPOINT_TO_FP_FROM_UBV\n   - #CVC5_KIND_FLOATINGPOINT_TO_SBV\n   - #CVC5_KIND_FLOATINGPOINT_TO_UBV\n   - #CVC5_KIND_INT_TO_BITVECTOR\n   - #CVC5_KIND_TUPLE_PROJECT\n\n See `Cvc5Kind` for a description of the parameters.\n\n @param tm The term manager instance.\n @param kind The kind of the operator.\n @param size The number of indices of the operator.\n @param idxs The indices.\n\n @note If `idxs` is empty, the Cvc5Op simply wraps the Cvc5Kind. The Cvc5Kind\n can be used in cvc5_mk_term directly without creating a Cvc5Op first."]
-	pub fn cvc5_mk_op(
-		tm: *mut Cvc5TermManager,
-		kind: Cvc5Kind,
-		size: usize,
-		idxs: *const u32,
-	) -> Cvc5Op;
+    #[doc = " Create operator of Kind:\n   - #CVC5_KIND_BITVECTOR_EXTRACT\n   - #CVC5_KIND_BITVECTOR_REPEAT\n   - #CVC5_KIND_BITVECTOR_ROTATE_LEFT\n   - #CVC5_KIND_BITVECTOR_ROTATE_RIGHT\n   - #CVC5_KIND_BITVECTOR_SIGN_EXTEND\n   - #CVC5_KIND_BITVECTOR_ZERO_EXTEND\n   - #CVC5_KIND_DIVISIBLE\n   - #CVC5_KIND_FLOATINGPOINT_TO_FP_FROM_FP\n   - #CVC5_KIND_FLOATINGPOINT_TO_FP_FROM_IEEE_BV\n   - #CVC5_KIND_FLOATINGPOINT_TO_FP_FROM_REAL\n   - #CVC5_KIND_FLOATINGPOINT_TO_FP_FROM_SBV\n   - #CVC5_KIND_FLOATINGPOINT_TO_FP_FROM_UBV\n   - #CVC5_KIND_FLOATINGPOINT_TO_SBV\n   - #CVC5_KIND_FLOATINGPOINT_TO_UBV\n   - #CVC5_KIND_INT_TO_BITVECTOR\n   - #CVC5_KIND_TUPLE_PROJECT\n\n See `Cvc5Kind` for a description of the parameters.\n\n @param tm The term manager instance.\n @param kind The kind of the operator.\n @param size The number of indices of the operator.\n @param idxs The indices.\n\n @note If `idxs` is empty, the Cvc5Op simply wraps the Cvc5Kind. The Cvc5Kind\n can be used in cvc5_mk_term directly without creating a Cvc5Op first."]
+    pub fn cvc5_mk_op(
+        tm: *mut Cvc5TermManager,
+        kind: Cvc5Kind,
+        size: usize,
+        idxs: *const u32,
+    ) -> Cvc5Op;
 }
 unsafe extern "C" {
-	#[doc = " Create operator of kind:\n   - #CVC5_KIND_DIVISIBLE (to support arbitrary precision integers)\n\n See CKind for a description of the parameters.\n\n @param tm The term manager instance.\n @param kind The kind of the operator.\n @param arg The string argument to this operator."]
-	pub fn cvc5_mk_op_from_str(
-		tm: *mut Cvc5TermManager,
-		kind: Cvc5Kind,
-		arg: *const ::std::os::raw::c_char,
-	) -> Cvc5Op;
+    #[doc = " Create operator of kind:\n   - #CVC5_KIND_DIVISIBLE (to support arbitrary precision integers)\n\n See CKind for a description of the parameters.\n\n @param tm The term manager instance.\n @param kind The kind of the operator.\n @param arg The string argument to this operator."]
+    pub fn cvc5_mk_op_from_str(
+        tm: *mut Cvc5TermManager,
+        kind: Cvc5Kind,
+        arg: *const ::std::os::raw::c_char,
+    ) -> Cvc5Op;
 }
 unsafe extern "C" {
-	#[doc = " Create n-ary term of given kind.\n @param tm The term manager instance.\n @param kind The kind of the term.\n @param size The number of childrens.\n @param children The children of the term.\n @return The Term"]
-	pub fn cvc5_mk_term(
-		tm: *mut Cvc5TermManager,
-		kind: Cvc5Kind,
-		size: usize,
-		children: *const Cvc5Term,
-	) -> Cvc5Term;
+    #[doc = " Create n-ary term of given kind.\n @param tm The term manager instance.\n @param kind The kind of the term.\n @param size The number of childrens.\n @param children The children of the term.\n @return The Term"]
+    pub fn cvc5_mk_term(
+        tm: *mut Cvc5TermManager,
+        kind: Cvc5Kind,
+        size: usize,
+        children: *const Cvc5Term,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create n-ary term of given kind from a given operator.\n Create operators with `cvc5_mk_op()` and `cvc5_mk_op_from_str()`.\n @param tm The term manager instance.\n @param op The operator.\n @param size The number of children.\n @param children The children of the term.\n @return The Term."]
-	pub fn cvc5_mk_term_from_op(
-		tm: *mut Cvc5TermManager,
-		op: Cvc5Op,
-		size: usize,
-		children: *const Cvc5Term,
-	) -> Cvc5Term;
+    #[doc = " Create n-ary term of given kind from a given operator.\n Create operators with `cvc5_mk_op()` and `cvc5_mk_op_from_str()`.\n @param tm The term manager instance.\n @param op The operator.\n @param size The number of children.\n @param children The children of the term.\n @return The Term."]
+    pub fn cvc5_mk_term_from_op(
+        tm: *mut Cvc5TermManager,
+        op: Cvc5Op,
+        size: usize,
+        children: *const Cvc5Term,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a tuple term.\n @param tm The term manager instance.\n @param size The number of elements in the tuple.\n @param terms The elements.\n @return The tuple Term."]
-	pub fn cvc5_mk_tuple(tm: *mut Cvc5TermManager, size: usize, terms: *const Cvc5Term) -> Cvc5Term;
+    #[doc = " Create a tuple term.\n @param tm The term manager instance.\n @param size The number of elements in the tuple.\n @param terms The elements.\n @return The tuple Term."]
+    pub fn cvc5_mk_tuple(tm: *mut Cvc5TermManager, size: usize, terms: *const Cvc5Term)
+    -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a nullable some term.\n @param tm The term manager instance.\n @param term The element value.\n @return the Element value wrapped in some constructor."]
-	pub fn cvc5_mk_nullable_some(tm: *mut Cvc5TermManager, term: Cvc5Term) -> Cvc5Term;
+    #[doc = " Create a nullable some term.\n @param tm The term manager instance.\n @param term The element value.\n @return the Element value wrapped in some constructor."]
+    pub fn cvc5_mk_nullable_some(tm: *mut Cvc5TermManager, term: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a selector for nullable term.\n @param tm The term manager instance.\n @param term A nullable term.\n @return The element value of the nullable term."]
-	pub fn cvc5_mk_nullable_val(tm: *mut Cvc5TermManager, term: Cvc5Term) -> Cvc5Term;
+    #[doc = " Create a selector for nullable term.\n @param tm The term manager instance.\n @param term A nullable term.\n @return The element value of the nullable term."]
+    pub fn cvc5_mk_nullable_val(tm: *mut Cvc5TermManager, term: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a null tester for a nullable term.\n @param tm The term manager instance.\n @param term A nullable term.\n @return A tester whether term is null."]
-	pub fn cvc5_mk_nullable_is_null(tm: *mut Cvc5TermManager, term: Cvc5Term) -> Cvc5Term;
+    #[doc = " Create a null tester for a nullable term.\n @param tm The term manager instance.\n @param term A nullable term.\n @return A tester whether term is null."]
+    pub fn cvc5_mk_nullable_is_null(tm: *mut Cvc5TermManager, term: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a some tester for a nullable term.\n @param tm The term manager instance.\n @param term A nullable term.\n @return A tester whether term is some."]
-	pub fn cvc5_mk_nullable_is_some(tm: *mut Cvc5TermManager, term: Cvc5Term) -> Cvc5Term;
+    #[doc = " Create a some tester for a nullable term.\n @param tm The term manager instance.\n @param term A nullable term.\n @return A tester whether term is some."]
+    pub fn cvc5_mk_nullable_is_some(tm: *mut Cvc5TermManager, term: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a constant representing an null of the given sort.\n @param tm The term manager instance.\n @param sort The sort of the Nullable element.\n @return The null constant."]
-	pub fn cvc5_mk_nullable_null(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
+    #[doc = " Create a constant representing an null of the given sort.\n @param tm The term manager instance.\n @param sort The sort of the Nullable element.\n @return The null constant."]
+    pub fn cvc5_mk_nullable_null(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a term that lifts kind to nullable terms.\n\n Example:\n If we have the term ((_ nullable.lift +) x y),\n where x, y of type (Nullable Int), then\n kind would be ADD, and args would be [x, y].\n This function would return\n (nullable.lift (lambda ((a Int) (b Int)) (+ a b)) x y)\n\n @param tm The term manager instance.\n @param kind The lifted operator.\n @param size The number of arguments of the lifted operator.\n @param args The arguments of the lifted operator.\n @return A term of kind #CVC5_KIND_NULLABLE_LIFT where the first child\n         is a lambda expression, and the remaining children are\n         the original arguments."]
-	pub fn cvc5_mk_nullable_lift(
-		tm: *mut Cvc5TermManager,
-		kind: Cvc5Kind,
-		size: usize,
-		args: *const Cvc5Term,
-	) -> Cvc5Term;
+    #[doc = " Create a term that lifts kind to nullable terms.\n\n Example:\n If we have the term ((_ nullable.lift +) x y),\n where x, y of type (Nullable Int), then\n kind would be ADD, and args would be [x, y].\n This function would return\n (nullable.lift (lambda ((a Int) (b Int)) (+ a b)) x y)\n\n @param tm The term manager instance.\n @param kind The lifted operator.\n @param size The number of arguments of the lifted operator.\n @param args The arguments of the lifted operator.\n @return A term of kind #CVC5_KIND_NULLABLE_LIFT where the first child\n         is a lambda expression, and the remaining children are\n         the original arguments."]
+    pub fn cvc5_mk_nullable_lift(
+        tm: *mut Cvc5TermManager,
+        kind: Cvc5Kind,
+        size: usize,
+        args: *const Cvc5Term,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a skolem.\n @param tm      The term manager instance.\n @param id      The skolem identifier.\n @param size    The number of arguments of the lifted operator.\n @param indices The indices of the skolem.\n @return The skolem."]
-	pub fn cvc5_mk_skolem(
-		tm: *mut Cvc5TermManager,
-		id: Cvc5SkolemId,
-		size: usize,
-		indices: *const Cvc5Term,
-	) -> Cvc5Term;
+    #[doc = " Create a skolem.\n @param tm      The term manager instance.\n @param id      The skolem identifier.\n @param size    The number of arguments of the lifted operator.\n @param indices The indices of the skolem.\n @return The skolem."]
+    pub fn cvc5_mk_skolem(
+        tm: *mut Cvc5TermManager,
+        id: Cvc5SkolemId,
+        size: usize,
+        indices: *const Cvc5Term,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the number of indices for a skolem id.\n @param tm The term manager instance.\n @param id The skolem id.\n @return The number of indices for the skolem id."]
-	pub fn cvc5_get_num_idxs_for_skolem_id(tm: *mut Cvc5TermManager, id: Cvc5SkolemId) -> usize;
+    #[doc = " Get the number of indices for a skolem id.\n @param tm The term manager instance.\n @param id The skolem id.\n @return The number of indices for the skolem id."]
+    pub fn cvc5_get_num_idxs_for_skolem_id(tm: *mut Cvc5TermManager, id: Cvc5SkolemId) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Create a Boolean true constant.\n @param tm The term manager instance.\n @return The true constant."]
-	pub fn cvc5_mk_true(tm: *mut Cvc5TermManager) -> Cvc5Term;
+    #[doc = " Create a Boolean true constant.\n @param tm The term manager instance.\n @return The true constant."]
+    pub fn cvc5_mk_true(tm: *mut Cvc5TermManager) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a Boolean false constant.\n @param tm The term manager instance.\n @return The false constant."]
-	pub fn cvc5_mk_false(tm: *mut Cvc5TermManager) -> Cvc5Term;
+    #[doc = " Create a Boolean false constant.\n @param tm The term manager instance.\n @return The false constant."]
+    pub fn cvc5_mk_false(tm: *mut Cvc5TermManager) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a Boolean constant.\n @param tm The term manager instance.\n @return The Boolean constant.\n @param val The value of the constant."]
-	pub fn cvc5_mk_boolean(tm: *mut Cvc5TermManager, val: bool) -> Cvc5Term;
+    #[doc = " Create a Boolean constant.\n @param tm The term manager instance.\n @return The Boolean constant.\n @param val The value of the constant."]
+    pub fn cvc5_mk_boolean(tm: *mut Cvc5TermManager, val: bool) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a constant representing the number Pi.\n @param tm The term manager instance.\n @return A constant representing Pi."]
-	pub fn cvc5_mk_pi(tm: *mut Cvc5TermManager) -> Cvc5Term;
+    #[doc = " Create a constant representing the number Pi.\n @param tm The term manager instance.\n @return A constant representing Pi."]
+    pub fn cvc5_mk_pi(tm: *mut Cvc5TermManager) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create an integer constant from a string.\n @param tm The term manager instance.\n @param s The string representation of the constant, may represent an\n          integer (e.g., \"123\").\n @return A constant of sort Integer assuming `s` represents an integer)"]
-	pub fn cvc5_mk_integer(tm: *mut Cvc5TermManager, s: *const ::std::os::raw::c_char) -> Cvc5Term;
+    #[doc = " Create an integer constant from a string.\n @param tm The term manager instance.\n @param s The string representation of the constant, may represent an\n          integer (e.g., \"123\").\n @return A constant of sort Integer assuming `s` represents an integer)"]
+    pub fn cvc5_mk_integer(tm: *mut Cvc5TermManager, s: *const ::std::os::raw::c_char) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create an integer constant from a c++ int.\n @param tm The term manager instance.\n @param val The value of the constant.\n @return A constant of sort Integer."]
-	pub fn cvc5_mk_integer_int64(tm: *mut Cvc5TermManager, val: i64) -> Cvc5Term;
+    #[doc = " Create an integer constant from a c++ int.\n @param tm The term manager instance.\n @param val The value of the constant.\n @return A constant of sort Integer."]
+    pub fn cvc5_mk_integer_int64(tm: *mut Cvc5TermManager, val: i64) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a real constant from a string.\n @param tm The term manager instance.\n @param s The string representation of the constant, may represent an\n          integer (e.g., \"123\") or real constant (e.g., \"12.34\" or \"12/34\").\n @return A constant of sort Real."]
-	pub fn cvc5_mk_real(tm: *mut Cvc5TermManager, s: *const ::std::os::raw::c_char) -> Cvc5Term;
+    #[doc = " Create a real constant from a string.\n @param tm The term manager instance.\n @param s The string representation of the constant, may represent an\n          integer (e.g., \"123\") or real constant (e.g., \"12.34\" or \"12/34\").\n @return A constant of sort Real."]
+    pub fn cvc5_mk_real(tm: *mut Cvc5TermManager, s: *const ::std::os::raw::c_char) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a real constant from an integer.\n @param tm The term manager instance.\n @param val The value of the constant.\n @return A constant of sort Integer."]
-	pub fn cvc5_mk_real_int64(tm: *mut Cvc5TermManager, val: i64) -> Cvc5Term;
+    #[doc = " Create a real constant from an integer.\n @param tm The term manager instance.\n @param val The value of the constant.\n @return A constant of sort Integer."]
+    pub fn cvc5_mk_real_int64(tm: *mut Cvc5TermManager, val: i64) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a real constant from a rational.\n @param tm The term manager instance.\n @param num The value of the numerator.\n @param den The value of the denominator.\n @return A constant of sort Real."]
-	pub fn cvc5_mk_real_num_den(tm: *mut Cvc5TermManager, num: i64, den: i64) -> Cvc5Term;
+    #[doc = " Create a real constant from a rational.\n @param tm The term manager instance.\n @param num The value of the numerator.\n @param den The value of the denominator.\n @return A constant of sort Real."]
+    pub fn cvc5_mk_real_num_den(tm: *mut Cvc5TermManager, num: i64, den: i64) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a regular expression all (re.all) term.\n @param tm The term manager instance.\n @return The all term."]
-	pub fn cvc5_mk_regexp_all(tm: *mut Cvc5TermManager) -> Cvc5Term;
+    #[doc = " Create a regular expression all (re.all) term.\n @param tm The term manager instance.\n @return The all term."]
+    pub fn cvc5_mk_regexp_all(tm: *mut Cvc5TermManager) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a regular expression allchar (re.allchar) term.\n @param tm The term manager instance.\n @return The allchar term."]
-	pub fn cvc5_mk_regexp_allchar(tm: *mut Cvc5TermManager) -> Cvc5Term;
+    #[doc = " Create a regular expression allchar (re.allchar) term.\n @param tm The term manager instance.\n @return The allchar term."]
+    pub fn cvc5_mk_regexp_allchar(tm: *mut Cvc5TermManager) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a regular expression none (re.none) term.\n @param tm The term manager instance.\n @return The none term."]
-	pub fn cvc5_mk_regexp_none(tm: *mut Cvc5TermManager) -> Cvc5Term;
+    #[doc = " Create a regular expression none (re.none) term.\n @param tm The term manager instance.\n @return The none term."]
+    pub fn cvc5_mk_regexp_none(tm: *mut Cvc5TermManager) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a constant representing an empty set of the given sort.\n @param tm The term manager instance.\n @param sort The sort of the set elements.\n @return The empty set constant."]
-	pub fn cvc5_mk_empty_set(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
+    #[doc = " Create a constant representing an empty set of the given sort.\n @param tm The term manager instance.\n @param sort The sort of the set elements.\n @return The empty set constant."]
+    pub fn cvc5_mk_empty_set(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a constant representing an empty bag of the given sort.\n @param tm The term manager instance.\n @param sort The sort of the bag elements.\n @return The empty bag constant."]
-	pub fn cvc5_mk_empty_bag(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
+    #[doc = " Create a constant representing an empty bag of the given sort.\n @param tm The term manager instance.\n @param sort The sort of the bag elements.\n @return The empty bag constant."]
+    pub fn cvc5_mk_empty_bag(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a separation logic empty term.\n\n @warning This function is experimental and may change in future versions.\n\n @param tm The term manager instance.\n @return The separation logic empty term."]
-	pub fn cvc5_mk_sep_emp(tm: *mut Cvc5TermManager) -> Cvc5Term;
+    #[doc = " Create a separation logic empty term.\n\n @warning This function is experimental and may change in future versions.\n\n @param tm The term manager instance.\n @return The separation logic empty term."]
+    pub fn cvc5_mk_sep_emp(tm: *mut Cvc5TermManager) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a separation logic nil term.\n\n @warning This function is experimental and may change in future versions.\n\n @param tm The term manager instance.\n @param sort The sort of the nil term.\n @return The separation logic nil term."]
-	pub fn cvc5_mk_sep_nil(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
+    #[doc = " Create a separation logic nil term.\n\n @warning This function is experimental and may change in future versions.\n\n @param tm The term manager instance.\n @param sort The sort of the nil term.\n @return The separation logic nil term."]
+    pub fn cvc5_mk_sep_nil(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a String constant from a regular character string which may contain\n SMT-LIB compatible escape sequences like `\\u1234` to encode unicode\n characters.\n @param tm The term manager instance.\n @param s The string this constant represents.\n @param use_esc_seq Determines whether escape sequences in `s` should.\n be converted to the corresponding unicode character\n @return The String constant."]
-	pub fn cvc5_mk_string(
-		tm: *mut Cvc5TermManager,
-		s: *const ::std::os::raw::c_char,
-		use_esc_seq: bool,
-	) -> Cvc5Term;
+    #[doc = " Create a String constant from a regular character string which may contain\n SMT-LIB compatible escape sequences like `\\u1234` to encode unicode\n characters.\n @param tm The term manager instance.\n @param s The string this constant represents.\n @param use_esc_seq Determines whether escape sequences in `s` should.\n be converted to the corresponding unicode character\n @return The String constant."]
+    pub fn cvc5_mk_string(
+        tm: *mut Cvc5TermManager,
+        s: *const ::std::os::raw::c_char,
+        use_esc_seq: bool,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a String constant from a wide character string.\n This function does not support escape sequences as wide character already\n supports unicode characters.\n @param tm The term manager instance.\n @param s The string this constant represents.\n @return The String constant.\n\n @warning This function is deprecated and replaced by\n          cvc5_mk_string_from_char32(). It will be removed in a future\n          release."]
-	pub fn cvc5_mk_string_from_wchar(tm: *mut Cvc5TermManager, s: *const wchar_t) -> Cvc5Term;
+    #[doc = " Create a String constant from a wide character string.\n This function does not support escape sequences as wide character already\n supports unicode characters.\n @param tm The term manager instance.\n @param s The string this constant represents.\n @return The String constant.\n\n @warning This function is deprecated and replaced by\n          cvc5_mk_string_from_char32(). It will be removed in a future\n          release."]
+    pub fn cvc5_mk_string_from_wchar(tm: *mut Cvc5TermManager, s: *const wchar_t) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a String constant from a UTF-32 string.\n This function does not support escape sequences as wide character already\n supports unicode characters.\n @param tm The term manager instance.\n @param s The UTF-32 string this constant represents.\n @return The String constant."]
-	pub fn cvc5_mk_string_from_char32(tm: *mut Cvc5TermManager, s: *const char32_t) -> Cvc5Term;
+    #[doc = " Create a String constant from a UTF-32 string.\n This function does not support escape sequences as wide character already\n supports unicode characters.\n @param tm The term manager instance.\n @param s The UTF-32 string this constant represents.\n @return The String constant."]
+    pub fn cvc5_mk_string_from_char32(tm: *mut Cvc5TermManager, s: *const char32_t) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create an empty sequence of the given element sort.\n @param tm The term manager instance.\n @param sort The element sort of the sequence.\n @return The empty sequence with given element sort."]
-	pub fn cvc5_mk_empty_sequence(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
+    #[doc = " Create an empty sequence of the given element sort.\n @param tm The term manager instance.\n @param sort The element sort of the sequence.\n @return The empty sequence with given element sort."]
+    pub fn cvc5_mk_empty_sequence(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a universe set of the given sort.\n @param tm The term manager instance.\n @param sort The sort of the set elements.\n @return The universe set constant."]
-	pub fn cvc5_mk_universe_set(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
+    #[doc = " Create a universe set of the given sort.\n @param tm The term manager instance.\n @param sort The sort of the set elements.\n @return The universe set constant."]
+    pub fn cvc5_mk_universe_set(tm: *mut Cvc5TermManager, sort: Cvc5Sort) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a bit-vector constant of given size and value.\n\n @note The given value must fit into a bit-vector of the given size.\n\n @param tm The term manager instance.\n @param size The bit-width of the bit-vector sort.\n @param val The value of the constant.\n @return The bit-vector constant."]
-	pub fn cvc5_mk_bv_uint64(tm: *mut Cvc5TermManager, size: u32, val: u64) -> Cvc5Term;
+    #[doc = " Create a bit-vector constant of given size and value.\n\n @note The given value must fit into a bit-vector of the given size.\n\n @param tm The term manager instance.\n @param size The bit-width of the bit-vector sort.\n @param val The value of the constant.\n @return The bit-vector constant."]
+    pub fn cvc5_mk_bv_uint64(tm: *mut Cvc5TermManager, size: u32, val: u64) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a bit-vector constant of a given bit-width from a given string of\n base 2, 10 or 16.\n\n @note The given value must fit into a bit-vector of the given size.\n\n @param tm The term manager instance.\n @param size The bit-width of the constant.\n @param s The string representation of the constant.\n @param base The base of the string representation (`2` for binary, `10` for\n decimal, and `16` for hexadecimal).\n @return The bit-vector constant."]
-	pub fn cvc5_mk_bv(
-		tm: *mut Cvc5TermManager,
-		size: u32,
-		s: *const ::std::os::raw::c_char,
-		base: u32,
-	) -> Cvc5Term;
+    #[doc = " Create a bit-vector constant of a given bit-width from a given string of\n base 2, 10 or 16.\n\n @note The given value must fit into a bit-vector of the given size.\n\n @param tm The term manager instance.\n @param size The bit-width of the constant.\n @param s The string representation of the constant.\n @param base The base of the string representation (`2` for binary, `10` for\n decimal, and `16` for hexadecimal).\n @return The bit-vector constant."]
+    pub fn cvc5_mk_bv(
+        tm: *mut Cvc5TermManager,
+        size: u32,
+        s: *const ::std::os::raw::c_char,
+        base: u32,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a finite field constant in a given field from a given string\n of base n.\n\n @param tm    The term manager instance.\n @param value The string representation of the constant.\n @param sort  The field sort.\n @param base  The base of the string representation of `value`.\n\n If `size` is the field size, the constant needs not be in the range\n [0,size). If it is outside this range, it will be reduced modulo size\n before being constructed.\n"]
-	pub fn cvc5_mk_ff_elem(
-		tm: *mut Cvc5TermManager,
-		value: *const ::std::os::raw::c_char,
-		sort: Cvc5Sort,
-		base: u32,
-	) -> Cvc5Term;
+    #[doc = " Create a finite field constant in a given field from a given string\n of base n.\n\n @param tm    The term manager instance.\n @param value The string representation of the constant.\n @param sort  The field sort.\n @param base  The base of the string representation of `value`.\n\n If `size` is the field size, the constant needs not be in the range\n [0,size). If it is outside this range, it will be reduced modulo size\n before being constructed.\n"]
+    pub fn cvc5_mk_ff_elem(
+        tm: *mut Cvc5TermManager,
+        value: *const ::std::os::raw::c_char,
+        sort: Cvc5Sort,
+        base: u32,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a constant array with the provided constant value stored at every\n index.\n @param tm The term manager instance.\n @param sort The sort of the constant array (must be an array sort).\n @param val The constant value to store (must match the sort's element sort).\n @return The constant array term."]
-	pub fn cvc5_mk_const_array(tm: *mut Cvc5TermManager, sort: Cvc5Sort, val: Cvc5Term) -> Cvc5Term;
+    #[doc = " Create a constant array with the provided constant value stored at every\n index.\n @param tm The term manager instance.\n @param sort The sort of the constant array (must be an array sort).\n @param val The constant value to store (must match the sort's element sort).\n @return The constant array term."]
+    pub fn cvc5_mk_const_array(tm: *mut Cvc5TermManager, sort: Cvc5Sort, val: Cvc5Term)
+    -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a positive infinity floating-point constant (SMT-LIB: `+oo`).\n @param tm The term manager instance.\n @param exp Number of bits in the exponent.\n @param sig Number of bits in the significand.\n @return The floating-point constant."]
-	pub fn cvc5_mk_fp_pos_inf(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Term;
+    #[doc = " Create a positive infinity floating-point constant (SMT-LIB: `+oo`).\n @param tm The term manager instance.\n @param exp Number of bits in the exponent.\n @param sig Number of bits in the significand.\n @return The floating-point constant."]
+    pub fn cvc5_mk_fp_pos_inf(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a negative infinity floating-point constant (SMT-LIB: `-oo`).\n @param tm The term manager instance.\n @param exp Number of bits in the exponent.\n @param sig Number of bits in the significand.\n @return The floating-point constant."]
-	pub fn cvc5_mk_fp_neg_inf(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Term;
+    #[doc = " Create a negative infinity floating-point constant (SMT-LIB: `-oo`).\n @param tm The term manager instance.\n @param exp Number of bits in the exponent.\n @param sig Number of bits in the significand.\n @return The floating-point constant."]
+    pub fn cvc5_mk_fp_neg_inf(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a not-a-number floating-point constant (Cvc5TermManager* tm, SMT-LIB:\n `NaN`).\n @param tm The term manager instance.\n @param exp Number of bits in the exponent.\n @param sig Number of bits in the significand.\n @return The floating-point constant."]
-	pub fn cvc5_mk_fp_nan(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Term;
+    #[doc = " Create a not-a-number floating-point constant (Cvc5TermManager* tm, SMT-LIB:\n `NaN`).\n @param tm The term manager instance.\n @param exp Number of bits in the exponent.\n @param sig Number of bits in the significand.\n @return The floating-point constant."]
+    pub fn cvc5_mk_fp_nan(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a positive zero floating-point constant (Cvc5TermManager* tm, SMT-LIB:\n +zero).\n @param tm The term manager instance.\n @param exp Number of bits in the exponent.\n @param sig Number of bits in the significand.\n @return The floating-point constant."]
-	pub fn cvc5_mk_fp_pos_zero(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Term;
+    #[doc = " Create a positive zero floating-point constant (Cvc5TermManager* tm, SMT-LIB:\n +zero).\n @param tm The term manager instance.\n @param exp Number of bits in the exponent.\n @param sig Number of bits in the significand.\n @return The floating-point constant."]
+    pub fn cvc5_mk_fp_pos_zero(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a negative zero floating-point constant (Cvc5TermManager* tm, SMT-LIB:\n -zero).\n @param tm The term manager instance.\n @param exp Number of bits in the exponent.\n @param sig Number of bits in the significand.\n @return The floating-point constant."]
-	pub fn cvc5_mk_fp_neg_zero(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Term;
+    #[doc = " Create a negative zero floating-point constant (Cvc5TermManager* tm, SMT-LIB:\n -zero).\n @param tm The term manager instance.\n @param exp Number of bits in the exponent.\n @param sig Number of bits in the significand.\n @return The floating-point constant."]
+    pub fn cvc5_mk_fp_neg_zero(tm: *mut Cvc5TermManager, exp: u32, sig: u32) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a rounding mode value.\n @param tm The term manager instance.\n @param rm The floating point rounding mode this constant represents.\n @return The rounding mode value."]
-	pub fn cvc5_mk_rm(tm: *mut Cvc5TermManager, rm: Cvc5RoundingMode) -> Cvc5Term;
+    #[doc = " Create a rounding mode value.\n @param tm The term manager instance.\n @param rm The floating point rounding mode this constant represents.\n @return The rounding mode value."]
+    pub fn cvc5_mk_rm(tm: *mut Cvc5TermManager, rm: Cvc5RoundingMode) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a floating-point value from a bit-vector given in IEEE-754 format.\n @param tm The term manager instance.\n @param exp Size of the exponent.\n @param sig Size of the significand.\n @param val Value of the floating-point constant as a bit-vector term.\n @return The floating-point value."]
-	pub fn cvc5_mk_fp(tm: *mut Cvc5TermManager, exp: u32, sig: u32, val: Cvc5Term) -> Cvc5Term;
+    #[doc = " Create a floating-point value from a bit-vector given in IEEE-754 format.\n @param tm The term manager instance.\n @param exp Size of the exponent.\n @param sig Size of the significand.\n @param val Value of the floating-point constant as a bit-vector term.\n @return The floating-point value."]
+    pub fn cvc5_mk_fp(tm: *mut Cvc5TermManager, exp: u32, sig: u32, val: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a floating-point value from its three IEEE-754 bit-vector\n value components (sign bit, exponent, significand).\n @param tm The term manager instance.\n @param sign The sign bit.\n @param exp  The bit-vector representing the exponent.\n @param sig The bit-vector representing the significand.\n @return The floating-point value."]
-	pub fn cvc5_mk_fp_from_ieee(
-		tm: *mut Cvc5TermManager,
-		sign: Cvc5Term,
-		exp: Cvc5Term,
-		sig: Cvc5Term,
-	) -> Cvc5Term;
+    #[doc = " Create a floating-point value from its three IEEE-754 bit-vector\n value components (sign bit, exponent, significand).\n @param tm The term manager instance.\n @param sign The sign bit.\n @param exp  The bit-vector representing the exponent.\n @param sig The bit-vector representing the significand.\n @return The floating-point value."]
+    pub fn cvc5_mk_fp_from_ieee(
+        tm: *mut Cvc5TermManager,
+        sign: Cvc5Term,
+        exp: Cvc5Term,
+        sig: Cvc5Term,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a cardinality constraint for an uninterpreted sort.\n\n @warning This function is experimental and may change in future versions.\n\n @param tm The term manager instance.\n @param sort The sort the cardinality constraint is for.\n @param upperBound The upper bound on the cardinality of the sort.\n @return The cardinality constraint."]
-	pub fn cvc5_mk_cardinality_constraint(
-		tm: *mut Cvc5TermManager,
-		sort: Cvc5Sort,
-		upperBound: u32,
-	) -> Cvc5Term;
+    #[doc = " Create a cardinality constraint for an uninterpreted sort.\n\n @warning This function is experimental and may change in future versions.\n\n @param tm The term manager instance.\n @param sort The sort the cardinality constraint is for.\n @param upperBound The upper bound on the cardinality of the sort.\n @return The cardinality constraint."]
+    pub fn cvc5_mk_cardinality_constraint(
+        tm: *mut Cvc5TermManager,
+        sort: Cvc5Sort,
+        upperBound: u32,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a free constant.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-const <symbol> <sort>)\n     (declare-fun <symbol> () <sort>)\n \\endverbatim\n\n @param tm The term manager instance.\n @param sort The sort of the constant.\n @param symbol The name of the constant, may be NULL.\n @return The constant."]
-	pub fn cvc5_mk_const(
-		tm: *mut Cvc5TermManager,
-		sort: Cvc5Sort,
-		symbol: *const ::std::os::raw::c_char,
-	) -> Cvc5Term;
+    #[doc = " Create a free constant.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-const <symbol> <sort>)\n     (declare-fun <symbol> () <sort>)\n \\endverbatim\n\n @param tm The term manager instance.\n @param sort The sort of the constant.\n @param symbol The name of the constant, may be NULL.\n @return The constant."]
+    pub fn cvc5_mk_const(
+        tm: *mut Cvc5TermManager,
+        sort: Cvc5Sort,
+        symbol: *const ::std::os::raw::c_char,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a bound variable to be used in a binder (i.e., a quantifier, a\n lambda, or a witness binder).\n @param tm The term manager instance.\n @param sort The sort of the variable.\n @param symbol The name of the variable, may be NULL.\n @return The variable."]
-	pub fn cvc5_mk_var(
-		tm: *mut Cvc5TermManager,
-		sort: Cvc5Sort,
-		symbol: *const ::std::os::raw::c_char,
-	) -> Cvc5Term;
+    #[doc = " Create a bound variable to be used in a binder (i.e., a quantifier, a\n lambda, or a witness binder).\n @param tm The term manager instance.\n @param sort The sort of the variable.\n @param symbol The name of the variable, may be NULL.\n @return The variable."]
+    pub fn cvc5_mk_var(
+        tm: *mut Cvc5TermManager,
+        sort: Cvc5Sort,
+        symbol: *const ::std::os::raw::c_char,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a datatype constructor declaration.\n @param tm The term manager instance.\n @param name The name of the datatype constructor.\n @return The DatatypeConstructorDecl."]
-	pub fn cvc5_mk_dt_cons_decl(
-		tm: *mut Cvc5TermManager,
-		name: *const ::std::os::raw::c_char,
-	) -> Cvc5DatatypeConstructorDecl;
+    #[doc = " Create a datatype constructor declaration.\n @param tm The term manager instance.\n @param name The name of the datatype constructor.\n @return The DatatypeConstructorDecl."]
+    pub fn cvc5_mk_dt_cons_decl(
+        tm: *mut Cvc5TermManager,
+        name: *const ::std::os::raw::c_char,
+    ) -> Cvc5DatatypeConstructorDecl;
 }
 unsafe extern "C" {
-	#[doc = " Create a datatype declaration.\n @param tm The term manager instance.\n @param name The name of the datatype.\n @param is_codt True if a codatatype is to be constructed.\n @return The Cvc5DatatypeDecl."]
-	pub fn cvc5_mk_dt_decl(
-		tm: *mut Cvc5TermManager,
-		name: *const ::std::os::raw::c_char,
-		is_codt: bool,
-	) -> Cvc5DatatypeDecl;
+    #[doc = " Create a datatype declaration.\n @param tm The term manager instance.\n @param name The name of the datatype.\n @param is_codt True if a codatatype is to be constructed.\n @return The Cvc5DatatypeDecl."]
+    pub fn cvc5_mk_dt_decl(
+        tm: *mut Cvc5TermManager,
+        name: *const ::std::os::raw::c_char,
+        is_codt: bool,
+    ) -> Cvc5DatatypeDecl;
 }
 unsafe extern "C" {
-	#[doc = " Create a datatype declaration.\n Create sorts parameter with `cvc5_mk_param_sort()`.\n\n @warning This function is experimental and may change in future versions.\n\n @param tm The term manager instance.\n @param name The name of the datatype.\n @param size The number of sort parameters.\n @param params A list of sort parameters.\n @param is_codt True if a codatatype is to be constructed.\n @return The Cvc5DatatypeDecl."]
-	pub fn cvc5_mk_dt_decl_with_params(
-		tm: *mut Cvc5TermManager,
-		name: *const ::std::os::raw::c_char,
-		size: usize,
-		params: *const Cvc5Sort,
-		is_codt: bool,
-	) -> Cvc5DatatypeDecl;
+    #[doc = " Create a datatype declaration.\n Create sorts parameter with `cvc5_mk_param_sort()`.\n\n @warning This function is experimental and may change in future versions.\n\n @param tm The term manager instance.\n @param name The name of the datatype.\n @param size The number of sort parameters.\n @param params A list of sort parameters.\n @param is_codt True if a codatatype is to be constructed.\n @return The Cvc5DatatypeDecl."]
+    pub fn cvc5_mk_dt_decl_with_params(
+        tm: *mut Cvc5TermManager,
+        name: *const ::std::os::raw::c_char,
+        size: usize,
+        params: *const Cvc5Sort,
+        is_codt: bool,
+    ) -> Cvc5DatatypeDecl;
 }
 #[repr(u32)]
 #[doc = " @}"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Cvc5OptionInfoKind {
-	#[doc = " The empty option info, does not hold value information."]
-	VOID = 0,
-	#[doc = " Information for option with boolean option value."]
-	BOOL = 1,
-	#[doc = " Information for option with string option value."]
-	STR = 2,
-	#[doc = " Information for option with int64 option value."]
-	INT64 = 3,
-	#[doc = " Information for option with uint64 option value."]
-	UINT64 = 4,
-	#[doc = " Information for option with double value."]
-	DOUBLE = 5,
-	#[doc = " Information for option with option modes."]
-	MODES = 6,
+    #[doc = " The empty option info, does not hold value information."]
+    Void = 0,
+    #[doc = " Information for option with boolean option value."]
+    Bool = 1,
+    #[doc = " Information for option with string option value."]
+    Str = 2,
+    #[doc = " Information for option with int64 option value."]
+    Int64 = 3,
+    #[doc = " Information for option with uint64 option value."]
+    Uint64 = 4,
+    #[doc = " Information for option with double value."]
+    Double = 5,
+    #[doc = " Information for option with option modes."]
+    Modes = 6,
 }
 #[doc = " \\verbatim embed:rst:leading-asterisk\n Holds information about a specific option, including its name, its\n aliases, whether the option was explicitly set by the user, and information\n concerning its value.\n It can be obtained via :cpp:func:`cvc5_get_option_info()` and allows for a\n more detailed inspection of options than :cpp:func:`cvc5_get_option()`.\n Union member ``info`` holds any of the following alternatives:\n\n - Neither of the following if the option holds no value (or the value has no\n   native type). In that case, the kind of the option will be denoted as\n   #CVC5_OPTION_INFO_VOID.\n - Struct ``BoolInfo`` if the option is of type ``bool``. It holds the current\n   value and the default value of the option. Option kind is denoted as\n   #CVC5_OPTION_INFO_BOOL.\n - Struct ``StringInfo`` if the option is of type ``const char*``. It holds\n   the current value and the default value of the option. Option kind is\n   denoted as #CVC5_OPTION_INFO_STR.\n - Struct ``IntInfo`` if the option is of type ``int64_t``. It holds the\n   current, default, minimum and maximum value of the option. Option kind is\n   denoted as #CVC5_OPTION_INFO_INT64.\n - Struct ``UIntInfo`` if the option is of type ``uint64_t``. It holds the\n   current, default, minimum and maximum value of the option. Option kind is\n   denoted as #CVC5_OPTION_INFO_UINT64.\n - Struct ``DoubleInfo`` if the option is of type ``double``. It holds the\n   current, default, minimum and maximum value of the option. Option kind is\n   denoted as #CVC5_OPTION_INFO_DOUBLE.\n - Struct ``ModeInfo`` if the option has modes. It holds the current and\n   default valuesof the option, as well as a list of valid modes. Option kind\n   is denoted as #CVC5_OPTION_INFO_MODES.\n\n \\endverbatim\n\n  @note A typedef alias with the same name is also available for convenience."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Cvc5OptionInfo {
-	#[doc = " The kind of the option info."]
-	pub kind: Cvc5OptionInfoKind,
-	#[doc = " The option name"]
-	pub name: *const ::std::os::raw::c_char,
-	#[doc = " The number of option name aliases"]
-	pub num_aliases: usize,
-	#[doc = " The option name aliases"]
-	pub aliases: *mut *const ::std::os::raw::c_char,
-	#[doc = " The number of unsupported features"]
-	pub num_no_supports: usize,
-	#[doc = " The unsupported features"]
-	pub no_supports: *mut *const ::std::os::raw::c_char,
-	#[doc = " True if the option was explicitly set by the user"]
-	pub is_set_by_user: bool,
-	#[doc = " True if the option is an expert option\n @warning This field is deprecated and replaced by `category`. It will be\n          removed in a future release."]
-	pub is_expert: bool,
-	#[doc = " True if the option is a regular option\n @warning This field is deprecated and replaced by `category`. It will be\n          removed in a future release."]
-	pub is_regular: bool,
-	#[doc = " The category of this option."]
-	pub category: Cvc5OptionCategory,
-	pub info_bool: Cvc5OptionInfo_BoolInfo,
-	pub info_str: Cvc5OptionInfo_StringInfo,
-	pub info_int: Cvc5OptionInfo_IntInfo,
-	pub info_uint: Cvc5OptionInfo_UIntInfo,
-	pub info_double: Cvc5OptionInfo_DoubleInfo,
-	pub info_mode: Cvc5OptionInfo_ModeInfo,
-	#[doc = " The associated C++ info. For internal use, only."]
-	pub d_cpp_info: *mut ::std::os::raw::c_void,
+    #[doc = " The kind of the option info."]
+    pub kind: Cvc5OptionInfoKind,
+    #[doc = " The option name"]
+    pub name: *const ::std::os::raw::c_char,
+    #[doc = " The number of option name aliases"]
+    pub num_aliases: usize,
+    #[doc = " The option name aliases"]
+    pub aliases: *mut *const ::std::os::raw::c_char,
+    #[doc = " The number of unsupported features"]
+    pub num_no_supports: usize,
+    #[doc = " The unsupported features"]
+    pub no_supports: *mut *const ::std::os::raw::c_char,
+    #[doc = " True if the option was explicitly set by the user"]
+    pub is_set_by_user: bool,
+    #[doc = " True if the option is an expert option\n @warning This field is deprecated and replaced by `category`. It will be\n          removed in a future release."]
+    pub is_expert: bool,
+    #[doc = " True if the option is a regular option\n @warning This field is deprecated and replaced by `category`. It will be\n          removed in a future release."]
+    pub is_regular: bool,
+    #[doc = " The category of this option."]
+    pub category: Cvc5OptionCategory,
+    pub info_bool: Cvc5OptionInfo_BoolInfo,
+    pub info_str: Cvc5OptionInfo_StringInfo,
+    pub info_int: Cvc5OptionInfo_IntInfo,
+    pub info_uint: Cvc5OptionInfo_UIntInfo,
+    pub info_double: Cvc5OptionInfo_DoubleInfo,
+    pub info_mode: Cvc5OptionInfo_ModeInfo,
+    #[doc = " The associated C++ info. For internal use, only."]
+    pub d_cpp_info: *mut ::std::os::raw::c_void,
 }
 #[doc = " Information for boolean option values."]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct Cvc5OptionInfo_BoolInfo {
-	#[doc = " The default value."]
-	pub dflt: bool,
-	#[doc = " The current value."]
-	pub cur: bool,
+    #[doc = " The default value."]
+    pub dflt: bool,
+    #[doc = " The current value."]
+    pub cur: bool,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-	["Size of Cvc5OptionInfo_BoolInfo"][::std::mem::size_of::<Cvc5OptionInfo_BoolInfo>() - 2usize];
-	["Alignment of Cvc5OptionInfo_BoolInfo"]
-		[::std::mem::align_of::<Cvc5OptionInfo_BoolInfo>() - 1usize];
-	["Offset of field: Cvc5OptionInfo_BoolInfo::dflt"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_BoolInfo, dflt) - 0usize];
-	["Offset of field: Cvc5OptionInfo_BoolInfo::cur"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_BoolInfo, cur) - 1usize];
+    ["Size of Cvc5OptionInfo_BoolInfo"][::std::mem::size_of::<Cvc5OptionInfo_BoolInfo>() - 2usize];
+    ["Alignment of Cvc5OptionInfo_BoolInfo"]
+        [::std::mem::align_of::<Cvc5OptionInfo_BoolInfo>() - 1usize];
+    ["Offset of field: Cvc5OptionInfo_BoolInfo::dflt"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_BoolInfo, dflt) - 0usize];
+    ["Offset of field: Cvc5OptionInfo_BoolInfo::cur"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_BoolInfo, cur) - 1usize];
 };
 #[doc = " Information for string option values."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Cvc5OptionInfo_StringInfo {
-	#[doc = " The default value."]
-	pub dflt: *const ::std::os::raw::c_char,
-	#[doc = " The current value."]
-	pub cur: *const ::std::os::raw::c_char,
+    #[doc = " The default value."]
+    pub dflt: *const ::std::os::raw::c_char,
+    #[doc = " The current value."]
+    pub cur: *const ::std::os::raw::c_char,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-	["Size of Cvc5OptionInfo_StringInfo"]
-		[::std::mem::size_of::<Cvc5OptionInfo_StringInfo>() - 16usize];
-	["Alignment of Cvc5OptionInfo_StringInfo"]
-		[::std::mem::align_of::<Cvc5OptionInfo_StringInfo>() - 8usize];
-	["Offset of field: Cvc5OptionInfo_StringInfo::dflt"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_StringInfo, dflt) - 0usize];
-	["Offset of field: Cvc5OptionInfo_StringInfo::cur"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_StringInfo, cur) - 8usize];
+    ["Size of Cvc5OptionInfo_StringInfo"]
+        [::std::mem::size_of::<Cvc5OptionInfo_StringInfo>() - 16usize];
+    ["Alignment of Cvc5OptionInfo_StringInfo"]
+        [::std::mem::align_of::<Cvc5OptionInfo_StringInfo>() - 8usize];
+    ["Offset of field: Cvc5OptionInfo_StringInfo::dflt"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_StringInfo, dflt) - 0usize];
+    ["Offset of field: Cvc5OptionInfo_StringInfo::cur"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_StringInfo, cur) - 8usize];
 };
 impl Default for Cvc5OptionInfo_StringInfo {
-	fn default() -> Self {
-		let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-		unsafe {
-			::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-			s.assume_init()
-		}
-	}
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[doc = " Information for int64 values."]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct Cvc5OptionInfo_IntInfo {
-	#[doc = " The default value."]
-	pub dflt: i64,
-	#[doc = " The current value."]
-	pub cur: i64,
-	#[doc = " The minimum value."]
-	pub min: i64,
-	#[doc = " The maximum value."]
-	pub max: i64,
-	#[doc = " True if option has a minimum value."]
-	pub has_min: bool,
-	#[doc = " True if option has a maximum value."]
-	pub has_max: bool,
+    #[doc = " The default value."]
+    pub dflt: i64,
+    #[doc = " The current value."]
+    pub cur: i64,
+    #[doc = " The minimum value."]
+    pub min: i64,
+    #[doc = " The maximum value."]
+    pub max: i64,
+    #[doc = " True if option has a minimum value."]
+    pub has_min: bool,
+    #[doc = " True if option has a maximum value."]
+    pub has_max: bool,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-	["Size of Cvc5OptionInfo_IntInfo"][::std::mem::size_of::<Cvc5OptionInfo_IntInfo>() - 40usize];
-	["Alignment of Cvc5OptionInfo_IntInfo"]
-		[::std::mem::align_of::<Cvc5OptionInfo_IntInfo>() - 8usize];
-	["Offset of field: Cvc5OptionInfo_IntInfo::dflt"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, dflt) - 0usize];
-	["Offset of field: Cvc5OptionInfo_IntInfo::cur"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, cur) - 8usize];
-	["Offset of field: Cvc5OptionInfo_IntInfo::min"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, min) - 16usize];
-	["Offset of field: Cvc5OptionInfo_IntInfo::max"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, max) - 24usize];
-	["Offset of field: Cvc5OptionInfo_IntInfo::has_min"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, has_min) - 32usize];
-	["Offset of field: Cvc5OptionInfo_IntInfo::has_max"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, has_max) - 33usize];
+    ["Size of Cvc5OptionInfo_IntInfo"][::std::mem::size_of::<Cvc5OptionInfo_IntInfo>() - 40usize];
+    ["Alignment of Cvc5OptionInfo_IntInfo"]
+        [::std::mem::align_of::<Cvc5OptionInfo_IntInfo>() - 8usize];
+    ["Offset of field: Cvc5OptionInfo_IntInfo::dflt"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, dflt) - 0usize];
+    ["Offset of field: Cvc5OptionInfo_IntInfo::cur"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, cur) - 8usize];
+    ["Offset of field: Cvc5OptionInfo_IntInfo::min"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, min) - 16usize];
+    ["Offset of field: Cvc5OptionInfo_IntInfo::max"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, max) - 24usize];
+    ["Offset of field: Cvc5OptionInfo_IntInfo::has_min"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, has_min) - 32usize];
+    ["Offset of field: Cvc5OptionInfo_IntInfo::has_max"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_IntInfo, has_max) - 33usize];
 };
 #[doc = " Information for uint64 values."]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct Cvc5OptionInfo_UIntInfo {
-	#[doc = " The default value."]
-	pub dflt: u64,
-	#[doc = " The current value."]
-	pub cur: u64,
-	#[doc = " The minimum value."]
-	pub min: u64,
-	#[doc = " The maximum value."]
-	pub max: u64,
-	#[doc = " True if option has a minimum value."]
-	pub has_min: bool,
-	#[doc = " True if option has a maximum value."]
-	pub has_max: bool,
+    #[doc = " The default value."]
+    pub dflt: u64,
+    #[doc = " The current value."]
+    pub cur: u64,
+    #[doc = " The minimum value."]
+    pub min: u64,
+    #[doc = " The maximum value."]
+    pub max: u64,
+    #[doc = " True if option has a minimum value."]
+    pub has_min: bool,
+    #[doc = " True if option has a maximum value."]
+    pub has_max: bool,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-	["Size of Cvc5OptionInfo_UIntInfo"][::std::mem::size_of::<Cvc5OptionInfo_UIntInfo>() - 40usize];
-	["Alignment of Cvc5OptionInfo_UIntInfo"]
-		[::std::mem::align_of::<Cvc5OptionInfo_UIntInfo>() - 8usize];
-	["Offset of field: Cvc5OptionInfo_UIntInfo::dflt"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, dflt) - 0usize];
-	["Offset of field: Cvc5OptionInfo_UIntInfo::cur"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, cur) - 8usize];
-	["Offset of field: Cvc5OptionInfo_UIntInfo::min"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, min) - 16usize];
-	["Offset of field: Cvc5OptionInfo_UIntInfo::max"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, max) - 24usize];
-	["Offset of field: Cvc5OptionInfo_UIntInfo::has_min"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, has_min) - 32usize];
-	["Offset of field: Cvc5OptionInfo_UIntInfo::has_max"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, has_max) - 33usize];
+    ["Size of Cvc5OptionInfo_UIntInfo"][::std::mem::size_of::<Cvc5OptionInfo_UIntInfo>() - 40usize];
+    ["Alignment of Cvc5OptionInfo_UIntInfo"]
+        [::std::mem::align_of::<Cvc5OptionInfo_UIntInfo>() - 8usize];
+    ["Offset of field: Cvc5OptionInfo_UIntInfo::dflt"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, dflt) - 0usize];
+    ["Offset of field: Cvc5OptionInfo_UIntInfo::cur"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, cur) - 8usize];
+    ["Offset of field: Cvc5OptionInfo_UIntInfo::min"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, min) - 16usize];
+    ["Offset of field: Cvc5OptionInfo_UIntInfo::max"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, max) - 24usize];
+    ["Offset of field: Cvc5OptionInfo_UIntInfo::has_min"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, has_min) - 32usize];
+    ["Offset of field: Cvc5OptionInfo_UIntInfo::has_max"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_UIntInfo, has_max) - 33usize];
 };
 #[doc = " Information for double values."]
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct Cvc5OptionInfo_DoubleInfo {
-	#[doc = " The default value."]
-	pub dflt: f64,
-	#[doc = " The current value."]
-	pub cur: f64,
-	#[doc = " The minimum value."]
-	pub min: f64,
-	#[doc = " The maximum value."]
-	pub max: f64,
-	#[doc = " True if option has a minimum value."]
-	pub has_min: bool,
-	#[doc = " True if option has a maximum value."]
-	pub has_max: bool,
+    #[doc = " The default value."]
+    pub dflt: f64,
+    #[doc = " The current value."]
+    pub cur: f64,
+    #[doc = " The minimum value."]
+    pub min: f64,
+    #[doc = " The maximum value."]
+    pub max: f64,
+    #[doc = " True if option has a minimum value."]
+    pub has_min: bool,
+    #[doc = " True if option has a maximum value."]
+    pub has_max: bool,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-	["Size of Cvc5OptionInfo_DoubleInfo"]
-		[::std::mem::size_of::<Cvc5OptionInfo_DoubleInfo>() - 40usize];
-	["Alignment of Cvc5OptionInfo_DoubleInfo"]
-		[::std::mem::align_of::<Cvc5OptionInfo_DoubleInfo>() - 8usize];
-	["Offset of field: Cvc5OptionInfo_DoubleInfo::dflt"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, dflt) - 0usize];
-	["Offset of field: Cvc5OptionInfo_DoubleInfo::cur"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, cur) - 8usize];
-	["Offset of field: Cvc5OptionInfo_DoubleInfo::min"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, min) - 16usize];
-	["Offset of field: Cvc5OptionInfo_DoubleInfo::max"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, max) - 24usize];
-	["Offset of field: Cvc5OptionInfo_DoubleInfo::has_min"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, has_min) - 32usize];
-	["Offset of field: Cvc5OptionInfo_DoubleInfo::has_max"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, has_max) - 33usize];
+    ["Size of Cvc5OptionInfo_DoubleInfo"]
+        [::std::mem::size_of::<Cvc5OptionInfo_DoubleInfo>() - 40usize];
+    ["Alignment of Cvc5OptionInfo_DoubleInfo"]
+        [::std::mem::align_of::<Cvc5OptionInfo_DoubleInfo>() - 8usize];
+    ["Offset of field: Cvc5OptionInfo_DoubleInfo::dflt"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, dflt) - 0usize];
+    ["Offset of field: Cvc5OptionInfo_DoubleInfo::cur"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, cur) - 8usize];
+    ["Offset of field: Cvc5OptionInfo_DoubleInfo::min"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, min) - 16usize];
+    ["Offset of field: Cvc5OptionInfo_DoubleInfo::max"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, max) - 24usize];
+    ["Offset of field: Cvc5OptionInfo_DoubleInfo::has_min"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, has_min) - 32usize];
+    ["Offset of field: Cvc5OptionInfo_DoubleInfo::has_max"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_DoubleInfo, has_max) - 33usize];
 };
 #[doc = " Information for mode option values."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Cvc5OptionInfo_ModeInfo {
-	#[doc = " The default value."]
-	pub dflt: *const ::std::os::raw::c_char,
-	#[doc = " The current value."]
-	pub cur: *const ::std::os::raw::c_char,
-	#[doc = " The number of possible modes."]
-	pub num_modes: usize,
-	#[doc = " The possible modes."]
-	pub modes: *mut *const ::std::os::raw::c_char,
+    #[doc = " The default value."]
+    pub dflt: *const ::std::os::raw::c_char,
+    #[doc = " The current value."]
+    pub cur: *const ::std::os::raw::c_char,
+    #[doc = " The number of possible modes."]
+    pub num_modes: usize,
+    #[doc = " The possible modes."]
+    pub modes: *mut *const ::std::os::raw::c_char,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-	["Size of Cvc5OptionInfo_ModeInfo"][::std::mem::size_of::<Cvc5OptionInfo_ModeInfo>() - 32usize];
-	["Alignment of Cvc5OptionInfo_ModeInfo"]
-		[::std::mem::align_of::<Cvc5OptionInfo_ModeInfo>() - 8usize];
-	["Offset of field: Cvc5OptionInfo_ModeInfo::dflt"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_ModeInfo, dflt) - 0usize];
-	["Offset of field: Cvc5OptionInfo_ModeInfo::cur"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_ModeInfo, cur) - 8usize];
-	["Offset of field: Cvc5OptionInfo_ModeInfo::num_modes"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_ModeInfo, num_modes) - 16usize];
-	["Offset of field: Cvc5OptionInfo_ModeInfo::modes"]
-		[::std::mem::offset_of!(Cvc5OptionInfo_ModeInfo, modes) - 24usize];
+    ["Size of Cvc5OptionInfo_ModeInfo"][::std::mem::size_of::<Cvc5OptionInfo_ModeInfo>() - 32usize];
+    ["Alignment of Cvc5OptionInfo_ModeInfo"]
+        [::std::mem::align_of::<Cvc5OptionInfo_ModeInfo>() - 8usize];
+    ["Offset of field: Cvc5OptionInfo_ModeInfo::dflt"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_ModeInfo, dflt) - 0usize];
+    ["Offset of field: Cvc5OptionInfo_ModeInfo::cur"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_ModeInfo, cur) - 8usize];
+    ["Offset of field: Cvc5OptionInfo_ModeInfo::num_modes"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_ModeInfo, num_modes) - 16usize];
+    ["Offset of field: Cvc5OptionInfo_ModeInfo::modes"]
+        [::std::mem::offset_of!(Cvc5OptionInfo_ModeInfo, modes) - 24usize];
 };
 impl Default for Cvc5OptionInfo_ModeInfo {
-	fn default() -> Self {
-		let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-		unsafe {
-			::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-			s.assume_init()
-		}
-	}
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-	["Size of Cvc5OptionInfo"][::std::mem::size_of::<Cvc5OptionInfo>() - 240usize];
-	["Alignment of Cvc5OptionInfo"][::std::mem::align_of::<Cvc5OptionInfo>() - 8usize];
-	["Offset of field: Cvc5OptionInfo::kind"][::std::mem::offset_of!(Cvc5OptionInfo, kind) - 0usize];
-	["Offset of field: Cvc5OptionInfo::name"][::std::mem::offset_of!(Cvc5OptionInfo, name) - 8usize];
-	["Offset of field: Cvc5OptionInfo::num_aliases"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, num_aliases) - 16usize];
-	["Offset of field: Cvc5OptionInfo::aliases"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, aliases) - 24usize];
-	["Offset of field: Cvc5OptionInfo::num_no_supports"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, num_no_supports) - 32usize];
-	["Offset of field: Cvc5OptionInfo::no_supports"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, no_supports) - 40usize];
-	["Offset of field: Cvc5OptionInfo::is_set_by_user"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, is_set_by_user) - 48usize];
-	["Offset of field: Cvc5OptionInfo::is_expert"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, is_expert) - 49usize];
-	["Offset of field: Cvc5OptionInfo::is_regular"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, is_regular) - 50usize];
-	["Offset of field: Cvc5OptionInfo::category"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, category) - 52usize];
-	["Offset of field: Cvc5OptionInfo::info_bool"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, info_bool) - 56usize];
-	["Offset of field: Cvc5OptionInfo::info_str"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, info_str) - 64usize];
-	["Offset of field: Cvc5OptionInfo::info_int"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, info_int) - 80usize];
-	["Offset of field: Cvc5OptionInfo::info_uint"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, info_uint) - 120usize];
-	["Offset of field: Cvc5OptionInfo::info_double"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, info_double) - 160usize];
-	["Offset of field: Cvc5OptionInfo::info_mode"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, info_mode) - 200usize];
-	["Offset of field: Cvc5OptionInfo::d_cpp_info"]
-		[::std::mem::offset_of!(Cvc5OptionInfo, d_cpp_info) - 232usize];
+    ["Size of Cvc5OptionInfo"][::std::mem::size_of::<Cvc5OptionInfo>() - 240usize];
+    ["Alignment of Cvc5OptionInfo"][::std::mem::align_of::<Cvc5OptionInfo>() - 8usize];
+    ["Offset of field: Cvc5OptionInfo::kind"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, kind) - 0usize];
+    ["Offset of field: Cvc5OptionInfo::name"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, name) - 8usize];
+    ["Offset of field: Cvc5OptionInfo::num_aliases"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, num_aliases) - 16usize];
+    ["Offset of field: Cvc5OptionInfo::aliases"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, aliases) - 24usize];
+    ["Offset of field: Cvc5OptionInfo::num_no_supports"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, num_no_supports) - 32usize];
+    ["Offset of field: Cvc5OptionInfo::no_supports"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, no_supports) - 40usize];
+    ["Offset of field: Cvc5OptionInfo::is_set_by_user"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, is_set_by_user) - 48usize];
+    ["Offset of field: Cvc5OptionInfo::is_expert"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, is_expert) - 49usize];
+    ["Offset of field: Cvc5OptionInfo::is_regular"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, is_regular) - 50usize];
+    ["Offset of field: Cvc5OptionInfo::category"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, category) - 52usize];
+    ["Offset of field: Cvc5OptionInfo::info_bool"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, info_bool) - 56usize];
+    ["Offset of field: Cvc5OptionInfo::info_str"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, info_str) - 64usize];
+    ["Offset of field: Cvc5OptionInfo::info_int"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, info_int) - 80usize];
+    ["Offset of field: Cvc5OptionInfo::info_uint"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, info_uint) - 120usize];
+    ["Offset of field: Cvc5OptionInfo::info_double"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, info_double) - 160usize];
+    ["Offset of field: Cvc5OptionInfo::info_mode"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, info_mode) - 200usize];
+    ["Offset of field: Cvc5OptionInfo::d_cpp_info"]
+        [::std::mem::offset_of!(Cvc5OptionInfo, d_cpp_info) - 232usize];
 };
 impl Default for Cvc5OptionInfo {
-	fn default() -> Self {
-		let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-		unsafe {
-			::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-			s.assume_init()
-		}
-	}
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given option info.\n @param info The option info.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_option_info_to_string(info: *const Cvc5OptionInfo) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given option info.\n @param info The option info.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_option_info_to_string(info: *const Cvc5OptionInfo)
+    -> *const ::std::os::raw::c_char;
 }
 #[doc = " A cvc5 plugin.\n\n @note A typedef alias with the same name is also available for convenience."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Cvc5Plugin {
-	#[doc = " Call to check, return list of lemmas to add to the SAT solver.\n This method is called periodically, roughly at every SAT decision.\n @param size  The size of the returned array of lemmas.\n @param state The state data for the function, may be NULL.\n @return The vector of lemmas to add to the SAT solver.\n @note This function pointer may be NULL to use the default implementation."]
-	pub check: ::std::option::Option<
-		unsafe extern "C" fn(size: *mut usize, state: *mut ::std::os::raw::c_void) -> *const Cvc5Term,
-	>,
-	#[doc = " Notify SAT clause, called when `clause` is learned by the SAT solver.\n @param clause The learned clause.\n @param state The state data for the function, may be NULL.\n @note This function pointer may be NULL to use the default implementation."]
-	pub notify_sat_clause: ::std::option::Option<
-		unsafe extern "C" fn(clause: Cvc5Term, state: *mut ::std::os::raw::c_void),
-	>,
-	#[doc = " Notify theory lemma, called when `lemma` is sent by a theory solver.\n @param lemma The theory lemma.\n @param state The state data for the function, may be NULL.\n @note This function pointer may be NULL to use the default implementation."]
-	pub notify_theory_lemma: ::std::option::Option<
-		unsafe extern "C" fn(lemma: Cvc5Term, state: *mut ::std::os::raw::c_void),
-	>,
-	#[doc = " Get the name of the plugin (for debugging).\n @return The name of the plugin.\n @note This function pointer may NOT be NULL."]
-	pub get_name: ::std::option::Option<unsafe extern "C" fn() -> *const ::std::os::raw::c_char>,
-	#[doc = " The state to pass into `check`."]
-	pub d_check_state: *mut ::std::os::raw::c_void,
-	#[doc = " The state to pass into `notify_sat_clause`."]
-	pub d_notify_sat_clause_state: *mut ::std::os::raw::c_void,
-	#[doc = " The state to pass into `notify_theory_lemma`."]
-	pub d_notify_theory_lemma_state: *mut ::std::os::raw::c_void,
+    #[doc = " Call to check, return list of lemmas to add to the SAT solver.\n This method is called periodically, roughly at every SAT decision.\n @param size  The size of the returned array of lemmas.\n @param state The state data for the function, may be NULL.\n @return The vector of lemmas to add to the SAT solver.\n @note This function pointer may be NULL to use the default implementation."]
+    pub check: ::std::option::Option<
+        unsafe extern "C" fn(
+            size: *mut usize,
+            state: *mut ::std::os::raw::c_void,
+        ) -> *const Cvc5Term,
+    >,
+    #[doc = " Notify SAT clause, called when `clause` is learned by the SAT solver.\n @param clause The learned clause.\n @param state The state data for the function, may be NULL.\n @note This function pointer may be NULL to use the default implementation."]
+    pub notify_sat_clause: ::std::option::Option<
+        unsafe extern "C" fn(clause: Cvc5Term, state: *mut ::std::os::raw::c_void),
+    >,
+    #[doc = " Notify theory lemma, called when `lemma` is sent by a theory solver.\n @param lemma The theory lemma.\n @param state The state data for the function, may be NULL.\n @note This function pointer may be NULL to use the default implementation."]
+    pub notify_theory_lemma: ::std::option::Option<
+        unsafe extern "C" fn(lemma: Cvc5Term, state: *mut ::std::os::raw::c_void),
+    >,
+    #[doc = " Get the name of the plugin (for debugging).\n @return The name of the plugin.\n @note This function pointer may NOT be NULL."]
+    pub get_name: ::std::option::Option<unsafe extern "C" fn() -> *const ::std::os::raw::c_char>,
+    #[doc = " The state to pass into `check`."]
+    pub d_check_state: *mut ::std::os::raw::c_void,
+    #[doc = " The state to pass into `notify_sat_clause`."]
+    pub d_notify_sat_clause_state: *mut ::std::os::raw::c_void,
+    #[doc = " The state to pass into `notify_theory_lemma`."]
+    pub d_notify_theory_lemma_state: *mut ::std::os::raw::c_void,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-	["Size of Cvc5Plugin"][::std::mem::size_of::<Cvc5Plugin>() - 56usize];
-	["Alignment of Cvc5Plugin"][::std::mem::align_of::<Cvc5Plugin>() - 8usize];
-	["Offset of field: Cvc5Plugin::check"][::std::mem::offset_of!(Cvc5Plugin, check) - 0usize];
-	["Offset of field: Cvc5Plugin::notify_sat_clause"]
-		[::std::mem::offset_of!(Cvc5Plugin, notify_sat_clause) - 8usize];
-	["Offset of field: Cvc5Plugin::notify_theory_lemma"]
-		[::std::mem::offset_of!(Cvc5Plugin, notify_theory_lemma) - 16usize];
-	["Offset of field: Cvc5Plugin::get_name"]
-		[::std::mem::offset_of!(Cvc5Plugin, get_name) - 24usize];
-	["Offset of field: Cvc5Plugin::d_check_state"]
-		[::std::mem::offset_of!(Cvc5Plugin, d_check_state) - 32usize];
-	["Offset of field: Cvc5Plugin::d_notify_sat_clause_state"]
-		[::std::mem::offset_of!(Cvc5Plugin, d_notify_sat_clause_state) - 40usize];
-	["Offset of field: Cvc5Plugin::d_notify_theory_lemma_state"]
-		[::std::mem::offset_of!(Cvc5Plugin, d_notify_theory_lemma_state) - 48usize];
+    ["Size of Cvc5Plugin"][::std::mem::size_of::<Cvc5Plugin>() - 56usize];
+    ["Alignment of Cvc5Plugin"][::std::mem::align_of::<Cvc5Plugin>() - 8usize];
+    ["Offset of field: Cvc5Plugin::check"][::std::mem::offset_of!(Cvc5Plugin, check) - 0usize];
+    ["Offset of field: Cvc5Plugin::notify_sat_clause"]
+        [::std::mem::offset_of!(Cvc5Plugin, notify_sat_clause) - 8usize];
+    ["Offset of field: Cvc5Plugin::notify_theory_lemma"]
+        [::std::mem::offset_of!(Cvc5Plugin, notify_theory_lemma) - 16usize];
+    ["Offset of field: Cvc5Plugin::get_name"]
+        [::std::mem::offset_of!(Cvc5Plugin, get_name) - 24usize];
+    ["Offset of field: Cvc5Plugin::d_check_state"]
+        [::std::mem::offset_of!(Cvc5Plugin, d_check_state) - 32usize];
+    ["Offset of field: Cvc5Plugin::d_notify_sat_clause_state"]
+        [::std::mem::offset_of!(Cvc5Plugin, d_notify_sat_clause_state) - 40usize];
+    ["Offset of field: Cvc5Plugin::d_notify_theory_lemma_state"]
+        [::std::mem::offset_of!(Cvc5Plugin, d_notify_theory_lemma_state) - 48usize];
 };
 impl Default for Cvc5Plugin {
-	fn default() -> Self {
-		let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-		unsafe {
-			::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-			s.assume_init()
-		}
-	}
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 unsafe extern "C" {
-	#[doc = " Get the proof rule used by the root step of a given proof.\n @return The proof rule."]
-	pub fn cvc5_proof_get_rule(proof: Cvc5Proof) -> Cvc5ProofRule;
+    #[doc = " Get the proof rule used by the root step of a given proof.\n @return The proof rule."]
+    pub fn cvc5_proof_get_rule(proof: Cvc5Proof) -> Cvc5ProofRule;
 }
 unsafe extern "C" {
-	#[doc = " Get the proof rewrite rule used  by the root step of the proof.\n\n Requires that `cvc5_proof_get_rule()` does not return\n #CVC5_PROOF_RULE_DSL_REWRITE or #CVC5_PROOF_RULE_THEORY_REWRITE.\n\n @param proof The proof.\n @return The proof rewrite rule."]
-	pub fn cvc5_proof_get_rewrite_rule(proof: Cvc5Proof) -> Cvc5ProofRewriteRule;
+    #[doc = " Get the proof rewrite rule used  by the root step of the proof.\n\n Requires that `cvc5_proof_get_rule()` does not return\n #CVC5_PROOF_RULE_DSL_REWRITE or #CVC5_PROOF_RULE_THEORY_REWRITE.\n\n @param proof The proof.\n @return The proof rewrite rule."]
+    pub fn cvc5_proof_get_rewrite_rule(proof: Cvc5Proof) -> Cvc5ProofRewriteRule;
 }
 unsafe extern "C" {
-	#[doc = " Get the conclusion of the root step of a given proof.\n @param proof The proof.\n @return The conclusion term."]
-	pub fn cvc5_proof_get_result(proof: Cvc5Proof) -> Cvc5Term;
+    #[doc = " Get the conclusion of the root step of a given proof.\n @param proof The proof.\n @return The conclusion term."]
+    pub fn cvc5_proof_get_result(proof: Cvc5Proof) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the premises of the root step of a given proof.\n @param proof The proof.\n @param size  Output parameter to store the number of resulting premise\n              proofs.\n @return The premise proofs.\n @note The returned Cvc5Proof array pointer is only valid until the next call\n       to this function."]
-	pub fn cvc5_proof_get_children(proof: Cvc5Proof, size: *mut usize) -> *const Cvc5Proof;
+    #[doc = " Get the premises of the root step of a given proof.\n @param proof The proof.\n @param size  Output parameter to store the number of resulting premise\n              proofs.\n @return The premise proofs.\n @note The returned Cvc5Proof array pointer is only valid until the next call\n       to this function."]
+    pub fn cvc5_proof_get_children(proof: Cvc5Proof, size: *mut usize) -> *const Cvc5Proof;
 }
 unsafe extern "C" {
-	#[doc = " Get the arguments of the root step of a given proof.\n @param proof The proof.\n @param size  Output parameter to store the number of resulting argument\n              terms.\n @return The argument terms."]
-	pub fn cvc5_proof_get_arguments(proof: Cvc5Proof, size: *mut usize) -> *const Cvc5Term;
+    #[doc = " Get the arguments of the root step of a given proof.\n @param proof The proof.\n @param size  Output parameter to store the number of resulting argument\n              terms.\n @return The argument terms."]
+    pub fn cvc5_proof_get_arguments(proof: Cvc5Proof, size: *mut usize) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Compare two proofs for referential equality.\n @param a The first proof.\n @param b The second proof.\n @return  True if both proof pointers point to the same internal proof object."]
-	pub fn cvc5_proof_is_equal(a: Cvc5Proof, b: Cvc5Proof) -> bool;
+    #[doc = " Compare two proofs for referential equality.\n @param a The first proof.\n @param b The second proof.\n @return  True if both proof pointers point to the same internal proof object."]
+    pub fn cvc5_proof_is_equal(a: Cvc5Proof, b: Cvc5Proof) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Compare two proofs for referential disequality.\n @param a The first proof.\n @param b The second proof.\n @return  True if both proof pointers point to different internal proof\n          objects."]
-	pub fn cvc5_proof_is_disequal(a: Cvc5Proof, b: Cvc5Proof) -> bool;
+    #[doc = " Compare two proofs for referential disequality.\n @param a The first proof.\n @param b The second proof.\n @return  True if both proof pointers point to different internal proof\n          objects."]
+    pub fn cvc5_proof_is_disequal(a: Cvc5Proof, b: Cvc5Proof) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Compute the hash value of a proof.\n @param proof The proof.\n @return The hash value of the proof."]
-	pub fn cvc5_proof_hash(proof: Cvc5Proof) -> usize;
+    #[doc = " Compute the hash value of a proof.\n @param proof The proof.\n @return The hash value of the proof."]
+    pub fn cvc5_proof_hash(proof: Cvc5Proof) -> usize;
 }
 unsafe extern "C" {
-	#[doc = " Make copy of proof, increases reference counter of `proof`.\n\n @param proof The proof to copy.\n @return The same proof with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
-	pub fn cvc5_proof_copy(proof: Cvc5Proof) -> Cvc5Proof;
+    #[doc = " Make copy of proof, increases reference counter of `proof`.\n\n @param proof The proof to copy.\n @return The same proof with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    pub fn cvc5_proof_copy(proof: Cvc5Proof) -> Cvc5Proof;
 }
 unsafe extern "C" {
-	#[doc = " Release copy of proof, decrements reference counter of `proof`.\n\n @param proof The proof to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
-	pub fn cvc5_proof_release(proof: Cvc5Proof);
+    #[doc = " Release copy of proof, decrements reference counter of `proof`.\n\n @param proof The proof to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    pub fn cvc5_proof_release(proof: Cvc5Proof);
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given statistic is intended for internal use only.\n @param stat The statistic.\n @return True if this is an internal statistic."]
-	pub fn cvc5_stat_is_internal(stat: Cvc5Stat) -> bool;
+    #[doc = " Determine if a given statistic is intended for internal use only.\n @param stat The statistic.\n @return True if this is an internal statistic."]
+    pub fn cvc5_stat_is_internal(stat: Cvc5Stat) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given statistics statistic holds the default value.\n @param stat The statistic.\n @return True if this is a defaulted statistic."]
-	pub fn cvc5_stat_is_default(stat: Cvc5Stat) -> bool;
+    #[doc = " Determine if a given statistics statistic holds the default value.\n @param stat The statistic.\n @return True if this is a defaulted statistic."]
+    pub fn cvc5_stat_is_default(stat: Cvc5Stat) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given statistic holds an integer value.\n @param stat The statistic.\n @return True if this value is an integer."]
-	pub fn cvc5_stat_is_int(stat: Cvc5Stat) -> bool;
+    #[doc = " Determine if a given statistic holds an integer value.\n @param stat The statistic.\n @return True if this value is an integer."]
+    pub fn cvc5_stat_is_int(stat: Cvc5Stat) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the value of an integer statistic.\n @param stat The statistic.\n @return The integer value."]
-	pub fn cvc5_stat_get_int(stat: Cvc5Stat) -> i64;
+    #[doc = " Get the value of an integer statistic.\n @param stat The statistic.\n @return The integer value."]
+    pub fn cvc5_stat_get_int(stat: Cvc5Stat) -> i64;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given statistic holds a double value.\n @param stat The statistic.\n @return True if this value is a double."]
-	pub fn cvc5_stat_is_double(stat: Cvc5Stat) -> bool;
+    #[doc = " Determine if a given statistic holds a double value.\n @param stat The statistic.\n @return True if this value is a double."]
+    pub fn cvc5_stat_is_double(stat: Cvc5Stat) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the value of a double statistic.\n @param stat The statistic.\n @return The double value."]
-	pub fn cvc5_stat_get_double(stat: Cvc5Stat) -> f64;
+    #[doc = " Get the value of a double statistic.\n @param stat The statistic.\n @return The double value."]
+    pub fn cvc5_stat_get_double(stat: Cvc5Stat) -> f64;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given statistic holds a string value.\n @param stat The statistic.\n @return True if this value is a string."]
-	pub fn cvc5_stat_is_string(stat: Cvc5Stat) -> bool;
+    #[doc = " Determine if a given statistic holds a string value.\n @param stat The statistic.\n @return True if this value is a string."]
+    pub fn cvc5_stat_is_string(stat: Cvc5Stat) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get value of a string statistic.\n @param stat The statistic.\n @return The string value.\n @note The returned char pointer is only valid until the next call\n       to this function."]
-	pub fn cvc5_stat_get_string(stat: Cvc5Stat) -> *const ::std::os::raw::c_char;
+    #[doc = " Get value of a string statistic.\n @param stat The statistic.\n @return The string value.\n @note The returned char pointer is only valid until the next call\n       to this function."]
+    pub fn cvc5_stat_get_string(stat: Cvc5Stat) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Determine if a given statistic holds a histogram.\n @param stat The statistic.\n @return True if this value is a histogram."]
-	pub fn cvc5_stat_is_histogram(stat: Cvc5Stat) -> bool;
+    #[doc = " Determine if a given statistic holds a histogram.\n @param stat The statistic.\n @return True if this value is a histogram."]
+    pub fn cvc5_stat_is_histogram(stat: Cvc5Stat) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the value of a histogram statistic.\n @param stat   The statistic.\n @param keys   The resulting arrays with the keys of the statistic, map to the\n               values given in the resulting `values` array..\n @param values The resulting arrays with the values of the statistic.\n @param size   The size of the resulting keys/values arrays."]
-	pub fn cvc5_stat_get_histogram(
-		stat: Cvc5Stat,
-		keys: *mut *mut *const ::std::os::raw::c_char,
-		values: *mut *mut u64,
-		size: *mut usize,
-	);
+    #[doc = " Get the value of a histogram statistic.\n @param stat   The statistic.\n @param keys   The resulting arrays with the keys of the statistic, map to the\n               values given in the resulting `values` array..\n @param values The resulting arrays with the values of the statistic.\n @param size   The size of the resulting keys/values arrays."]
+    pub fn cvc5_stat_get_histogram(
+        stat: Cvc5Stat,
+        keys: *mut *mut *const ::std::os::raw::c_char,
+        values: *mut *mut u64,
+        size: *mut usize,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given statistic.\n @param stat The statistic.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_stat_to_string(stat: Cvc5Stat) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given statistic.\n @param stat The statistic.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_stat_to_string(stat: Cvc5Stat) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Initialize iteration over the statistics values.\n By default, only entries that are public and have been set\n are visible while the others are skipped.\n @param stat The statistics.\n @param internal If set to true, internal statistics are shown as well.\n @param dflt     If set to true, defaulted statistics are shown as well."]
-	pub fn cvc5_stats_iter_init(stat: Cvc5Statistics, internal: bool, dflt: bool);
+    #[doc = " Initialize iteration over the statistics values.\n By default, only entries that are public and have been set\n are visible while the others are skipped.\n @param stat The statistics.\n @param internal If set to true, internal statistics are shown as well.\n @param dflt     If set to true, defaulted statistics are shown as well."]
+    pub fn cvc5_stats_iter_init(stat: Cvc5Statistics, internal: bool, dflt: bool);
 }
 unsafe extern "C" {
-	#[doc = " Determine if statistics iterator has more statitics to query.\n @note Requires that iterator was initialized with `cvc5_stats_iter_init()`.\n @param stat The statistics.\n @return True if the iterator has more statistics to query."]
-	pub fn cvc5_stats_iter_has_next(stat: Cvc5Statistics) -> bool;
+    #[doc = " Determine if statistics iterator has more statitics to query.\n @note Requires that iterator was initialized with `cvc5_stats_iter_init()`.\n @param stat The statistics.\n @return True if the iterator has more statistics to query."]
+    pub fn cvc5_stats_iter_has_next(stat: Cvc5Statistics) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get next statistic and increment iterator.\n @note Requires that iterator was initialized with `cvc5_stats_iter_init()`\n       and that `cvc5_stats_iter_has_next()`.\n @param stat The statistics.\n @param name The output parameter for the name of the returned statistic.\n             May be NULL to ignore.\n @note       The returned char* pointer are only valid until the next call to\n             this function.\n @return The next statistic."]
-	pub fn cvc5_stats_iter_next(
-		stat: Cvc5Statistics,
-		name: *mut *const ::std::os::raw::c_char,
-	) -> Cvc5Stat;
+    #[doc = " Get next statistic and increment iterator.\n @note Requires that iterator was initialized with `cvc5_stats_iter_init()`\n       and that `cvc5_stats_iter_has_next()`.\n @param stat The statistics.\n @param name The output parameter for the name of the returned statistic.\n             May be NULL to ignore.\n @note       The returned char* pointer are only valid until the next call to\n             this function.\n @return The next statistic."]
+    pub fn cvc5_stats_iter_next(
+        stat: Cvc5Statistics,
+        name: *mut *const ::std::os::raw::c_char,
+    ) -> Cvc5Stat;
 }
 unsafe extern "C" {
-	#[doc = " Retrieve the statistic with the given name.\n @note Requires that a statistic with the given name actually exists.\n @param stat The statistics.\n @param name The name of the statistic.\n @return The statistic with the given name."]
-	pub fn cvc5_stats_get(stat: Cvc5Statistics, name: *const ::std::os::raw::c_char) -> Cvc5Stat;
+    #[doc = " Retrieve the statistic with the given name.\n @note Requires that a statistic with the given name actually exists.\n @param stat The statistics.\n @param name The name of the statistic.\n @return The statistic with the given name."]
+    pub fn cvc5_stats_get(stat: Cvc5Statistics, name: *const ::std::os::raw::c_char) -> Cvc5Stat;
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of a given statistics object.\n @param stat The statistics.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_stats_to_string(stat: Cvc5Statistics) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of a given statistics object.\n @param stat The statistics.\n @return The string representation.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_stats_to_string(stat: Cvc5Statistics) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Construct a new instance of a cvc5 solver.\n @param tm The associated term manager instance.\n @return The cvc5 solver instance."]
-	pub fn cvc5_new(tm: *mut Cvc5TermManager) -> *mut Cvc5;
+    #[doc = " Construct a new instance of a cvc5 solver.\n @param tm The associated term manager instance.\n @return The cvc5 solver instance."]
+    pub fn cvc5_new(tm: *mut Cvc5TermManager) -> *mut Cvc5;
 }
 unsafe extern "C" {
-	#[doc = " Delete a cvc5 solver instance.\n @param cvc5 The solver instance."]
-	pub fn cvc5_delete(cvc5: *mut Cvc5);
+    #[doc = " Delete a cvc5 solver instance.\n @param cvc5 The solver instance."]
+    pub fn cvc5_delete(cvc5: *mut Cvc5);
 }
 unsafe extern "C" {
-	#[doc = " Get the associated term manager of a cvc5 solver instance.\n @param cvc5 The solver instance.\n @return The term manager."]
-	pub fn cvc5_get_tm(cvc5: *mut Cvc5) -> *mut Cvc5TermManager;
+    #[doc = " Get the associated term manager of a cvc5 solver instance.\n @param cvc5 The solver instance.\n @return The term manager."]
+    pub fn cvc5_get_tm(cvc5: *mut Cvc5) -> *mut Cvc5TermManager;
 }
 unsafe extern "C" {
-	#[doc = " Create datatype sort.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-datatype <symbol> <datatype_decl>)\n \\endverbatim\n\n @param cvc5   The solver instance.\n @param symbol The name of the datatype sort.\n @param size The number of constructor declarations of the datatype sort.\n @param ctors The constructor declarations.\n @return The datatype sort."]
-	pub fn cvc5_declare_dt(
-		cvc5: *mut Cvc5,
-		symbol: *const ::std::os::raw::c_char,
-		size: usize,
-		ctors: *const Cvc5DatatypeConstructorDecl,
-	) -> Cvc5Sort;
+    #[doc = " Create datatype sort.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-datatype <symbol> <datatype_decl>)\n \\endverbatim\n\n @param cvc5   The solver instance.\n @param symbol The name of the datatype sort.\n @param size The number of constructor declarations of the datatype sort.\n @param ctors The constructor declarations.\n @return The datatype sort."]
+    pub fn cvc5_declare_dt(
+        cvc5: *mut Cvc5,
+        symbol: *const ::std::os::raw::c_char,
+        size: usize,
+        ctors: *const Cvc5DatatypeConstructorDecl,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Declare n-ary function symbol.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-fun <symbol> ( <sort>* ) <sort>)\n \\endverbatim\n\n @param cvc5   The solver instance.\n @param symbol The name of the function.\n @param size   The number of domain sorts of the function.\n @param sorts  The domain sorts of the function.\n @param sort   The codomain sort of the function.\n @param fresh  If true, then this method always returns a new Term. Otherwise,\n               this method will always return the same Term for each call with\n               the given sorts and symbol where fresh is false.\n @return The function."]
-	pub fn cvc5_declare_fun(
-		cvc5: *mut Cvc5,
-		symbol: *const ::std::os::raw::c_char,
-		size: usize,
-		sorts: *const Cvc5Sort,
-		sort: Cvc5Sort,
-		fresh: bool,
-	) -> Cvc5Term;
+    #[doc = " Declare n-ary function symbol.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-fun <symbol> ( <sort>* ) <sort>)\n \\endverbatim\n\n @param cvc5   The solver instance.\n @param symbol The name of the function.\n @param size   The number of domain sorts of the function.\n @param sorts  The domain sorts of the function.\n @param sort   The codomain sort of the function.\n @param fresh  If true, then this method always returns a new Term. Otherwise,\n               this method will always return the same Term for each call with\n               the given sorts and symbol where fresh is false.\n @return The function."]
+    pub fn cvc5_declare_fun(
+        cvc5: *mut Cvc5,
+        symbol: *const ::std::os::raw::c_char,
+        size: usize,
+        sorts: *const Cvc5Sort,
+        sort: Cvc5Sort,
+        fresh: bool,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Declare uninterpreted sort.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-sort <symbol> <numeral>)\n \\endverbatim\n\n @note This corresponds to\n       `cvc5_mk_uninterpreted_sort()` if arity = 0, and to\n       `cvc5_mk_uninterpreted_sort_constructor_sort()` if arity > 0.\n\n @param cvc5   The solver instance.\n @param symbol The name of the sort.\n @param arity  The arity of the sort.\n @param fresh  If true, then this method always returns a new Sort.\n @return The sort."]
-	pub fn cvc5_declare_sort(
-		cvc5: *mut Cvc5,
-		symbol: *const ::std::os::raw::c_char,
-		arity: u32,
-		fresh: bool,
-	) -> Cvc5Sort;
+    #[doc = " Declare uninterpreted sort.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-sort <symbol> <numeral>)\n \\endverbatim\n\n @note This corresponds to\n       `cvc5_mk_uninterpreted_sort()` if arity = 0, and to\n       `cvc5_mk_uninterpreted_sort_constructor_sort()` if arity > 0.\n\n @param cvc5   The solver instance.\n @param symbol The name of the sort.\n @param arity  The arity of the sort.\n @param fresh  If true, then this method always returns a new Sort.\n @return The sort."]
+    pub fn cvc5_declare_sort(
+        cvc5: *mut Cvc5,
+        symbol: *const ::std::os::raw::c_char,
+        arity: u32,
+        fresh: bool,
+    ) -> Cvc5Sort;
 }
 unsafe extern "C" {
-	#[doc = " Define n-ary function.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (define-fun <function_def>)\n \\endverbatim\n\n @param cvc5   The cvc5 solver instance.\n @param symbol The name of the function.\n @param size   The number of parameters of the function.\n @param vars   The parameters.\n @param sort   The sort of the return value of this function.\n @param term   The function body.\n @param global Determines whether this definition is global (i.e., persists\n               when popping the context).\n @return The function."]
-	pub fn cvc5_define_fun(
-		cvc5: *mut Cvc5,
-		symbol: *const ::std::os::raw::c_char,
-		size: usize,
-		vars: *const Cvc5Term,
-		sort: Cvc5Sort,
-		term: Cvc5Term,
-		global: bool,
-	) -> Cvc5Term;
+    #[doc = " Define n-ary function.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (define-fun <function_def>)\n \\endverbatim\n\n @param cvc5   The cvc5 solver instance.\n @param symbol The name of the function.\n @param size   The number of parameters of the function.\n @param vars   The parameters.\n @param sort   The sort of the return value of this function.\n @param term   The function body.\n @param global Determines whether this definition is global (i.e., persists\n               when popping the context).\n @return The function."]
+    pub fn cvc5_define_fun(
+        cvc5: *mut Cvc5,
+        symbol: *const ::std::os::raw::c_char,
+        size: usize,
+        vars: *const Cvc5Term,
+        sort: Cvc5Sort,
+        term: Cvc5Term,
+        global: bool,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Define recursive function.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (define-fun-rec <function_def>)\n \\endverbatim\n\n @param cvc5   The cvc5 solver instance.\n @param symbol The name of the function.\n @param size   The number of parameters of the function.\n @param vars   The parameters to this function.\n @param sort   The sort of the return value of this function.\n @param term   The function body.\n @param global Determines whether this definition is global (i.e., persists\n               when popping the context).\n @return The function."]
-	pub fn cvc5_define_fun_rec(
-		cvc5: *mut Cvc5,
-		symbol: *const ::std::os::raw::c_char,
-		size: usize,
-		vars: *const Cvc5Term,
-		sort: Cvc5Sort,
-		term: Cvc5Term,
-		global: bool,
-	) -> Cvc5Term;
+    #[doc = " Define recursive function.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (define-fun-rec <function_def>)\n \\endverbatim\n\n @param cvc5   The cvc5 solver instance.\n @param symbol The name of the function.\n @param size   The number of parameters of the function.\n @param vars   The parameters to this function.\n @param sort   The sort of the return value of this function.\n @param term   The function body.\n @param global Determines whether this definition is global (i.e., persists\n               when popping the context).\n @return The function."]
+    pub fn cvc5_define_fun_rec(
+        cvc5: *mut Cvc5,
+        symbol: *const ::std::os::raw::c_char,
+        size: usize,
+        vars: *const Cvc5Term,
+        sort: Cvc5Sort,
+        term: Cvc5Term,
+        global: bool,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Define recursive function.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (define-fun-rec <function_def>)\n \\endverbatim\n\n Create parameter `fun` with mkConst().\n\n @param cvc5   The cvc5 solver instance.\n @param fun    The sorted function.\n @param size   The number of parameters of the function.\n @param vars   The parameters to this function.\n @param term   The function body.\n @param global Determines whether this definition is global (i.e., persists\n               when popping the context).\n @return The function."]
-	pub fn cvc5_define_fun_rec_from_const(
-		cvc5: *mut Cvc5,
-		fun: Cvc5Term,
-		size: usize,
-		vars: *const Cvc5Term,
-		term: Cvc5Term,
-		global: bool,
-	) -> Cvc5Term;
+    #[doc = " Define recursive function.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (define-fun-rec <function_def>)\n \\endverbatim\n\n Create parameter `fun` with mkConst().\n\n @param cvc5   The cvc5 solver instance.\n @param fun    The sorted function.\n @param size   The number of parameters of the function.\n @param vars   The parameters to this function.\n @param term   The function body.\n @param global Determines whether this definition is global (i.e., persists\n               when popping the context).\n @return The function."]
+    pub fn cvc5_define_fun_rec_from_const(
+        cvc5: *mut Cvc5,
+        fun: Cvc5Term,
+        size: usize,
+        vars: *const Cvc5Term,
+        term: Cvc5Term,
+        global: bool,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Define recursive functions.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (define-funs-rec\n         ( <function_decl>_1 ... <function_decl>_n )\n         ( <term>_1 ... <term>_n )\n     )\n \\endverbatim\n\n Create elements of parameter `funs` with `cvc5_mk_const()`.\n\n @param cvc5   The cvc5 solver instance.\n @param nfuns  The number of sorted functions.\n @param funs   The sorted functions.\n @param nvars  The numbers of parameters for each function.\n @param vars   The list of parameters to the functions.\n @param terms  The list of function bodies of the functions.\n @param global Determines whether this definition is global (i.e., persists\n               when popping the context)."]
-	pub fn cvc5_define_funs_rec(
-		cvc5: *mut Cvc5,
-		nfuns: usize,
-		funs: *const Cvc5Term,
-		nvars: *mut usize,
-		vars: *mut *const Cvc5Term,
-		terms: *const Cvc5Term,
-		global: bool,
-	);
+    #[doc = " Define recursive functions.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (define-funs-rec\n         ( <function_decl>_1 ... <function_decl>_n )\n         ( <term>_1 ... <term>_n )\n     )\n \\endverbatim\n\n Create elements of parameter `funs` with `cvc5_mk_const()`.\n\n @param cvc5   The cvc5 solver instance.\n @param nfuns  The number of sorted functions.\n @param funs   The sorted functions.\n @param nvars  The numbers of parameters for each function.\n @param vars   The list of parameters to the functions.\n @param terms  The list of function bodies of the functions.\n @param global Determines whether this definition is global (i.e., persists\n               when popping the context)."]
+    pub fn cvc5_define_funs_rec(
+        cvc5: *mut Cvc5,
+        nfuns: usize,
+        funs: *const Cvc5Term,
+        nvars: *mut usize,
+        vars: *mut *const Cvc5Term,
+        terms: *const Cvc5Term,
+        global: bool,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Simplify a formula without doing \"much\" work.\n\n Does not involve the SAT Engine in the simplification, but uses the\n current definitions, and assertions.  It also involves theory\n normalization.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5       The solver instance.\n @param term       The formula to simplify.\n @param apply_subs True to apply substitutions for solved variables.\n @return The simplified formula."]
-	pub fn cvc5_simplify(cvc5: *mut Cvc5, term: Cvc5Term, apply_subs: bool) -> Cvc5Term;
+    #[doc = " Simplify a formula without doing \"much\" work.\n\n Does not involve the SAT Engine in the simplification, but uses the\n current definitions, and assertions.  It also involves theory\n normalization.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5       The solver instance.\n @param term       The formula to simplify.\n @param apply_subs True to apply substitutions for solved variables.\n @return The simplified formula."]
+    pub fn cvc5_simplify(cvc5: *mut Cvc5, term: Cvc5Term, apply_subs: bool) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Assert a formula.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (assert <term>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param term The formula to assert."]
-	pub fn cvc5_assert_formula(cvc5: *mut Cvc5, term: Cvc5Term);
+    #[doc = " Assert a formula.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (assert <term>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param term The formula to assert."]
+    pub fn cvc5_assert_formula(cvc5: *mut Cvc5, term: Cvc5Term);
 }
 unsafe extern "C" {
-	#[doc = " Check satisfiability.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (check-sat)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @return The result of the satisfiability check."]
-	pub fn cvc5_check_sat(cvc5: *mut Cvc5) -> Cvc5Result;
+    #[doc = " Check satisfiability.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (check-sat)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @return The result of the satisfiability check."]
+    pub fn cvc5_check_sat(cvc5: *mut Cvc5) -> Cvc5Result;
 }
 unsafe extern "C" {
-	#[doc = " Check satisfiability assuming the given formulas.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (check-sat-assuming ( <prop_literal>+ ))\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param size The number of assumptions.\n @param assumptions The formulas to assume.\n @return The result of the satisfiability check."]
-	pub fn cvc5_check_sat_assuming(
-		cvc5: *mut Cvc5,
-		size: usize,
-		assumptions: *const Cvc5Term,
-	) -> Cvc5Result;
+    #[doc = " Check satisfiability assuming the given formulas.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (check-sat-assuming ( <prop_literal>+ ))\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param size The number of assumptions.\n @param assumptions The formulas to assume.\n @return The result of the satisfiability check."]
+    pub fn cvc5_check_sat_assuming(
+        cvc5: *mut Cvc5,
+        size: usize,
+        assumptions: *const Cvc5Term,
+    ) -> Cvc5Result;
 }
 unsafe extern "C" {
-	#[doc = " Get the list of asserted formulas.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-assertions)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param size The size of the resulting assertions array.\n @return The list of asserted formulas.\n @note The returned Cvc5Term array pointer is only valid until the next call\n       to this function."]
-	pub fn cvc5_get_assertions(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
+    #[doc = " Get the list of asserted formulas.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-assertions)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param size The size of the resulting assertions array.\n @return The list of asserted formulas.\n @note The returned Cvc5Term array pointer is only valid until the next call\n       to this function."]
+    pub fn cvc5_get_assertions(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get info from the solver.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-info <info_flag>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param flag The info flag.\n @return The info.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_get_info(
-		cvc5: *mut Cvc5,
-		flag: *const ::std::os::raw::c_char,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get info from the solver.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-info <info_flag>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param flag The info flag.\n @return The info.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_get_info(
+        cvc5: *mut Cvc5,
+        flag: *const ::std::os::raw::c_char,
+    ) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Get the value of a given option.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-option <keyword>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param option The option for which the value is queried.\n @return A string representation of the option value.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_get_option(
-		cvc5: *mut Cvc5,
-		option: *const ::std::os::raw::c_char,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the value of a given option.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-option <keyword>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param option The option for which the value is queried.\n @return A string representation of the option value.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_get_option(
+        cvc5: *mut Cvc5,
+        option: *const ::std::os::raw::c_char,
+    ) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Get all option names that can be used with `cvc5_set_option()`,\n `cvc5_get_option()` and `cvc5_get_option_info()`.\n @param cvc5 The solver instance.\n @param size The size of the resulting option names array.\n @return All option names.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_get_option_names(
-		cvc5: *mut Cvc5,
-		size: *mut usize,
-	) -> *mut *const ::std::os::raw::c_char;
+    #[doc = " Get all option names that can be used with `cvc5_set_option()`,\n `cvc5_get_option()` and `cvc5_get_option_info()`.\n @param cvc5 The solver instance.\n @param size The size of the resulting option names array.\n @return All option names.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_get_option_names(
+        cvc5: *mut Cvc5,
+        size: *mut usize,
+    ) -> *mut *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Get some information about a given option.\n See struct Cvc5OptionInfo for more details on which information is available.\n @param cvc5   The solver instance.\n @param option The option for which the info is queried.\n @param info   The output parameter for the queried info.\n @note The returned Cvc5OptionInfo data is only valid until the next call\n       to this function."]
-	pub fn cvc5_get_option_info(
-		cvc5: *mut Cvc5,
-		option: *const ::std::os::raw::c_char,
-		info: *mut Cvc5OptionInfo,
-	);
+    #[doc = " Get some information about a given option.\n See struct Cvc5OptionInfo for more details on which information is available.\n @param cvc5   The solver instance.\n @param option The option for which the info is queried.\n @param info   The output parameter for the queried info.\n @note The returned Cvc5OptionInfo data is only valid until the next call\n       to this function."]
+    pub fn cvc5_get_option_info(
+        cvc5: *mut Cvc5,
+        option: *const ::std::os::raw::c_char,
+        info: *mut Cvc5OptionInfo,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Get the set of unsat (\"failed\") assumptions.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-unsat-assumptions)\n\n Requires to enable option\n :ref:`produce-unsat-assumptions <lbl-option-produce-unsat-assumptions>`.\n \\endverbatim\n\n @note The returned Cvc5Term array pointer is only valid until the next call\n       to this function.\n\n @param cvc5 The solver instance.\n @param size The number of the resulting unsat assumptions.\n @return The set of unsat assumptions."]
-	pub fn cvc5_get_unsat_assumptions(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
+    #[doc = " Get the set of unsat (\"failed\") assumptions.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-unsat-assumptions)\n\n Requires to enable option\n :ref:`produce-unsat-assumptions <lbl-option-produce-unsat-assumptions>`.\n \\endverbatim\n\n @note The returned Cvc5Term array pointer is only valid until the next call\n       to this function.\n\n @param cvc5 The solver instance.\n @param size The number of the resulting unsat assumptions.\n @return The set of unsat assumptions."]
+    pub fn cvc5_get_unsat_assumptions(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the unsatisfiable core.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-unsat-core)\n\n Requires to enable option\n :ref:`produce-unsat-cores <lbl-option-produce-unsat-cores>`.\n\n .. note::\n   In contrast to SMT-LIB, cvc5's API does not distinguish between named\n   and unnamed assertions when producing an unsatisfiable core.\n   Additionally, the API allows this option to be called after a check with\n   assumptions. A subset of those assumptions may be included in the\n   unsatisfiable core returned by this function.\n \\endverbatim\n\n @note The returned Cvc5Term array pointer is only valid until the next call\n       to this function.\n\n @param cvc5 The solver instance.\n @param size The size of the resulting unsat core.\n @return A set of terms representing the unsatisfiable core."]
-	pub fn cvc5_get_unsat_core(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
+    #[doc = " Get the unsatisfiable core.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-unsat-core)\n\n Requires to enable option\n :ref:`produce-unsat-cores <lbl-option-produce-unsat-cores>`.\n\n .. note::\n   In contrast to SMT-LIB, cvc5's API does not distinguish between named\n   and unnamed assertions when producing an unsatisfiable core.\n   Additionally, the API allows this option to be called after a check with\n   assumptions. A subset of those assumptions may be included in the\n   unsatisfiable core returned by this function.\n \\endverbatim\n\n @note The returned Cvc5Term array pointer is only valid until the next call\n       to this function.\n\n @param cvc5 The solver instance.\n @param size The size of the resulting unsat core.\n @return A set of terms representing the unsatisfiable core."]
+    pub fn cvc5_get_unsat_core(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the lemmas used to derive unsatisfiability.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-unsat-core-lemmas)\n\n Requires the SAT proof unsat core mode, so to enable option\n :ref:`unsat-cores-mode=sat-proof <lbl-option-unsat-cores-mode>`.\n\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @note The returned Cvc5Term array pointer is only valid until the next call\n       to this function.\n\n @param cvc5 The solver instance.\n @param size The size of the resulting unsat core.\n @return A set of terms representing the lemmas used to derive\n         unsatisfiability."]
-	pub fn cvc5_get_unsat_core_lemmas(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
+    #[doc = " Get the lemmas used to derive unsatisfiability.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-unsat-core-lemmas)\n\n Requires the SAT proof unsat core mode, so to enable option\n :ref:`unsat-cores-mode=sat-proof <lbl-option-unsat-cores-mode>`.\n\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @note The returned Cvc5Term array pointer is only valid until the next call\n       to this function.\n\n @param cvc5 The solver instance.\n @param size The size of the resulting unsat core.\n @return A set of terms representing the lemmas used to derive\n         unsatisfiability."]
+    pub fn cvc5_get_unsat_core_lemmas(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get a difficulty estimate for an asserted formula. This function is\n intended to be called immediately after any response to a checkSat.\n\n @warning This function is experimental and may change in future versions.\n\n @note The resulting mapping from `inputs` (which is a subset of the inputs)\n to real `values` is an estimate of how difficult each assertion was to solve.\n Unmentioned assertions can be assumed to have zero difficulty.\n\n @param cvc5   The solver instance.\n @param size   The resulting size of `inputs` and `values`.\n @param inputs The resulting inputs that are mapped to the resulting `values`.\n @param values The resulting real values.\n\n @note The resulting `inputs` and `values` array pointers are only valid\n       until the next call to this function."]
-	pub fn cvc5_get_difficulty(
-		cvc5: *mut Cvc5,
-		size: *mut usize,
-		inputs: *mut *mut Cvc5Term,
-		values: *mut *mut Cvc5Term,
-	);
+    #[doc = " Get a difficulty estimate for an asserted formula. This function is\n intended to be called immediately after any response to a checkSat.\n\n @warning This function is experimental and may change in future versions.\n\n @note The resulting mapping from `inputs` (which is a subset of the inputs)\n to real `values` is an estimate of how difficult each assertion was to solve.\n Unmentioned assertions can be assumed to have zero difficulty.\n\n @param cvc5   The solver instance.\n @param size   The resulting size of `inputs` and `values`.\n @param inputs The resulting inputs that are mapped to the resulting `values`.\n @param values The resulting real values.\n\n @note The resulting `inputs` and `values` array pointers are only valid\n       until the next call to this function."]
+    pub fn cvc5_get_difficulty(
+        cvc5: *mut Cvc5,
+        size: *mut usize,
+        inputs: *mut *mut Cvc5Term,
+        values: *mut *mut Cvc5Term,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Get a timeout core.\n\n \\verbatim embed:rst:leading-asterisk\n This function computes a subset of the current assertions that cause a\n timeout. It may make multiple checks for satisfiability internally, each\n limited by the timeout value given by\n :ref:`timeout-core-timeout <lbl-option-timeout-core-timeout>`.\n\n If the result is unknown and the reason is timeout, then the list of\n formulas correspond to a subset of the current assertions that cause a\n timeout in the specified time :ref:`timeout-core-timeout\n <lbl-option-timeout-core-timeout>`. If the result is unsat, then the list of\n formulas correspond to an unsat core for the current assertions. Otherwise,\n the result is sat, indicating that the current assertions are satisfiable,\n and the returned set of assertions is empty.\n \\endverbatim\n\n @note This command  does not require being preceeded by a call to\n       `cvc5_check_sat()`.\n\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-timeout-core)\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5   The solver instance.\n @param result The resulting result.\n @param size   The resulting size of the timeout core.\n\n @return The list of assertions determined to be the timeout core. The\n         resulting result is stored in `result`.\n\n @note The resulting `result` and term array pointer are only valid\n       until the next call to this function."]
-	pub fn cvc5_get_timeout_core(
-		cvc5: *mut Cvc5,
-		result: *mut Cvc5Result,
-		size: *mut usize,
-	) -> *const Cvc5Term;
+    #[doc = " Get a timeout core.\n\n \\verbatim embed:rst:leading-asterisk\n This function computes a subset of the current assertions that cause a\n timeout. It may make multiple checks for satisfiability internally, each\n limited by the timeout value given by\n :ref:`timeout-core-timeout <lbl-option-timeout-core-timeout>`.\n\n If the result is unknown and the reason is timeout, then the list of\n formulas correspond to a subset of the current assertions that cause a\n timeout in the specified time :ref:`timeout-core-timeout\n <lbl-option-timeout-core-timeout>`. If the result is unsat, then the list of\n formulas correspond to an unsat core for the current assertions. Otherwise,\n the result is sat, indicating that the current assertions are satisfiable,\n and the returned set of assertions is empty.\n \\endverbatim\n\n @note This command  does not require being preceeded by a call to\n       `cvc5_check_sat()`.\n\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-timeout-core)\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5   The solver instance.\n @param result The resulting result.\n @param size   The resulting size of the timeout core.\n\n @return The list of assertions determined to be the timeout core. The\n         resulting result is stored in `result`.\n\n @note The resulting `result` and term array pointer are only valid\n       until the next call to this function."]
+    pub fn cvc5_get_timeout_core(
+        cvc5: *mut Cvc5,
+        result: *mut Cvc5Result,
+        size: *mut usize,
+    ) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get a timeout core of the given assumptions.\n\n This function computes a subset of the given assumptions that cause a\n timeout when added to the current assertions.\n\n \\verbatim embed:rst:leading-asterisk\n If the result is unknown and the reason is timeout, then the set of\n assumptions corresponds to a subset of the given assumptions that cause a\n timeout when added to the current assertions in the specified time\n :ref:`timeout-core-timeout <lbl-option-timeout-core-timeout>`. If the result\n is unsat, then the set of assumptions together with the current assertions\n correspond to an unsat core for the current assertions. Otherwise, the\n result is sat, indicating that the given assumptions plus the current\n assertions are satisfiable, and the returned set of assumptions is empty.\n \\endverbatim\n\n @note This command does not require being preceeded by a call to\n       `cvc5_check_sat()`.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-timeout-core (<assert>*))\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5        The solver instance.\n @param size        The number of assumptions.\n @param assumptions The (non-empty) set of formulas to assume.\n @param result      The resulting result.\n @param rsize       The resulting size of the timeout core.\n\n @return The list of assumptions determined to be the timeout core. The\n         resulting result is stored in `result`.\n\n @note The resulting `result` and term array pointer are only valid\n       until the next call to this function."]
-	pub fn cvc5_get_timeout_core_assuming(
-		cvc5: *mut Cvc5,
-		size: usize,
-		assumptions: *const Cvc5Term,
-		result: *mut Cvc5Result,
-		rsize: *mut usize,
-	) -> *const Cvc5Term;
+    #[doc = " Get a timeout core of the given assumptions.\n\n This function computes a subset of the given assumptions that cause a\n timeout when added to the current assertions.\n\n \\verbatim embed:rst:leading-asterisk\n If the result is unknown and the reason is timeout, then the set of\n assumptions corresponds to a subset of the given assumptions that cause a\n timeout when added to the current assertions in the specified time\n :ref:`timeout-core-timeout <lbl-option-timeout-core-timeout>`. If the result\n is unsat, then the set of assumptions together with the current assertions\n correspond to an unsat core for the current assertions. Otherwise, the\n result is sat, indicating that the given assumptions plus the current\n assertions are satisfiable, and the returned set of assumptions is empty.\n \\endverbatim\n\n @note This command does not require being preceeded by a call to\n       `cvc5_check_sat()`.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-timeout-core (<assert>*))\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5        The solver instance.\n @param size        The number of assumptions.\n @param assumptions The (non-empty) set of formulas to assume.\n @param result      The resulting result.\n @param rsize       The resulting size of the timeout core.\n\n @return The list of assumptions determined to be the timeout core. The\n         resulting result is stored in `result`.\n\n @note The resulting `result` and term array pointer are only valid\n       until the next call to this function."]
+    pub fn cvc5_get_timeout_core_assuming(
+        cvc5: *mut Cvc5,
+        size: usize,
+        assumptions: *const Cvc5Term,
+        result: *mut Cvc5Result,
+        rsize: *mut usize,
+    ) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get a proof associated with the most recent call to checkSat.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-proof :c)\n\n Requires to enable option\n :ref:`produce-proofs <lbl-option-produce-proofs>`.\n The string representation depends on the value of option\n :ref:`produce-proofs <lbl-option-proof-format-mode>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param c    The component of the proof to return\n @param size The size of the resulting array of proofs.\n @return An array of proofs.\n\n @note The returned Cvc5Proof array pointer is only valid until the next call\n       to this function."]
-	pub fn cvc5_get_proof(
-		cvc5: *mut Cvc5,
-		c: Cvc5ProofComponent,
-		size: *mut usize,
-	) -> *const Cvc5Proof;
+    #[doc = " Get a proof associated with the most recent call to checkSat.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-proof :c)\n\n Requires to enable option\n :ref:`produce-proofs <lbl-option-produce-proofs>`.\n The string representation depends on the value of option\n :ref:`produce-proofs <lbl-option-proof-format-mode>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param c    The component of the proof to return\n @param size The size of the resulting array of proofs.\n @return An array of proofs.\n\n @note The returned Cvc5Proof array pointer is only valid until the next call\n       to this function."]
+    pub fn cvc5_get_proof(
+        cvc5: *mut Cvc5,
+        c: Cvc5ProofComponent,
+        size: *mut usize,
+    ) -> *const Cvc5Proof;
 }
 unsafe extern "C" {
-	#[doc = " Get a list of learned literals that are entailed by the current set of\n assertions.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param type The type of learned literalsjto return\n @param size The size of the resulting list of literals.\n @return A list of literals that were learned at top-level.\n\n @note The resulting Cvc5Term array pointer is only valid until the next call\n       to this function."]
-	pub fn cvc5_get_learned_literals(
-		cvc5: *mut Cvc5,
-		type_: Cvc5LearnedLitType,
-		size: *mut usize,
-	) -> *const Cvc5Term;
+    #[doc = " Get a list of learned literals that are entailed by the current set of\n assertions.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param type The type of learned literalsjto return\n @param size The size of the resulting list of literals.\n @return A list of literals that were learned at top-level.\n\n @note The resulting Cvc5Term array pointer is only valid until the next call\n       to this function."]
+    pub fn cvc5_get_learned_literals(
+        cvc5: *mut Cvc5,
+        type_: Cvc5LearnedLitType,
+        size: *mut usize,
+    ) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the value of the given term in the current model.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-value ( <term> ))\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param term The term for which the value is queried.\n @return The value of the given term."]
-	pub fn cvc5_get_value(cvc5: *mut Cvc5, term: Cvc5Term) -> Cvc5Term;
+    #[doc = " Get the value of the given term in the current model.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-value ( <term> ))\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param term The term for which the value is queried.\n @return The value of the given term."]
+    pub fn cvc5_get_value(cvc5: *mut Cvc5, term: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the values of the given terms in the current model.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-value ( <term>* ))\n \\endverbatim\n\n @param cvc5  The solver instance.\n @param size  The number of terms for which the value is queried.\n @param terms The terms.\n @param rsize The resulting size of the timeout core.\n @return The values of the given terms."]
-	pub fn cvc5_get_values(
-		cvc5: *mut Cvc5,
-		size: usize,
-		terms: *const Cvc5Term,
-		rsize: *mut usize,
-	) -> *const Cvc5Term;
+    #[doc = " Get the values of the given terms in the current model.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-value ( <term>* ))\n \\endverbatim\n\n @param cvc5  The solver instance.\n @param size  The number of terms for which the value is queried.\n @param terms The terms.\n @param rsize The resulting size of the timeout core.\n @return The values of the given terms."]
+    pub fn cvc5_get_values(
+        cvc5: *mut Cvc5,
+        size: usize,
+        terms: *const Cvc5Term,
+        rsize: *mut usize,
+    ) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the domain elements of uninterpreted sort s in the current model. The\n current model interprets s as the finite sort whose domain elements are\n given in the return value of this function.\n\n @param cvc5 The solver instance.\n @param sort The uninterpreted sort in question.\n @param size The size of the resulting domain elements array.\n @return The domain elements of s in the current model."]
-	pub fn cvc5_get_model_domain_elements(
-		cvc5: *mut Cvc5,
-		sort: Cvc5Sort,
-		size: *mut usize,
-	) -> *const Cvc5Term;
+    #[doc = " Get the domain elements of uninterpreted sort s in the current model. The\n current model interprets s as the finite sort whose domain elements are\n given in the return value of this function.\n\n @param cvc5 The solver instance.\n @param sort The uninterpreted sort in question.\n @param size The size of the resulting domain elements array.\n @return The domain elements of s in the current model."]
+    pub fn cvc5_get_model_domain_elements(
+        cvc5: *mut Cvc5,
+        sort: Cvc5Sort,
+        size: *mut usize,
+    ) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Determine if the model value of the given free constant was essential for\n showing satisfiability of the last `cvc5_check_sat()` query based on the\n current model.\n\n For any free constant `v`, this will only return false if\n \\verbatim embed:rst:inline :ref:`model-cores\n <lbl-option-model-cores>`\\endverbatim\n has been set to true.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param v The term in question.\n @return True if `v` was essential and is thus a model core symbol."]
-	pub fn cvc5_is_model_core_symbol(cvc5: *mut Cvc5, v: Cvc5Term) -> bool;
+    #[doc = " Determine if the model value of the given free constant was essential for\n showing satisfiability of the last `cvc5_check_sat()` query based on the\n current model.\n\n For any free constant `v`, this will only return false if\n \\verbatim embed:rst:inline :ref:`model-cores\n <lbl-option-model-cores>`\\endverbatim\n has been set to true.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param v The term in question.\n @return True if `v` was essential and is thus a model core symbol."]
+    pub fn cvc5_is_model_core_symbol(cvc5: *mut Cvc5, v: Cvc5Term) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the model\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-model)\n\n Requires to enable option\n :ref:`produce-models <lbl-option-produce-models>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param nsorts The number of uninterpreted sorts that should be printed in\n              the model.\n @param sorts The list of uninterpreted sorts.\n @param nconsts The size of the list of free constants that should be printed\n                in the model.\n @param consts The list of free constants that should be printed in the\n             model. A subset of these may be printed based on\n             isModelCoreSymbol().\n @return A string representing the model.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_get_model(
-		cvc5: *mut Cvc5,
-		nsorts: usize,
-		sorts: *const Cvc5Sort,
-		nconsts: usize,
-		consts: *const Cvc5Term,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the model\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-model)\n\n Requires to enable option\n :ref:`produce-models <lbl-option-produce-models>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param nsorts The number of uninterpreted sorts that should be printed in\n              the model.\n @param sorts The list of uninterpreted sorts.\n @param nconsts The size of the list of free constants that should be printed\n                in the model.\n @param consts The list of free constants that should be printed in the\n             model. A subset of these may be printed based on\n             isModelCoreSymbol().\n @return A string representing the model.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_get_model(
+        cvc5: *mut Cvc5,
+        nsorts: usize,
+        sorts: *const Cvc5Sort,
+        nconsts: usize,
+        consts: *const Cvc5Term,
+    ) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Do quantifier elimination.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-qe <q>)\n \\endverbatim\n\n @note Quantifier Elimination is is only complete for logics such as LRA,\n       LIA and BV.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param q A quantified formula of the form\n          @f$Q\\bar{x}_1... Q\\bar{x}_n. P( x_1...x_i, y_1...y_j)@f$\n          where\n          @f$Q\\bar{x}@f$ is a set of quantified variables of the form\n          @f$Q x_1...x_k@f$ and\n          @f$P( x_1...x_i, y_1...y_j )@f$ is a quantifier-free formula\n @return A formula @f$\\phi@f$  such that, given the current set of formulas\n         @f$A@f$ asserted to this solver:\n         - @f$(A \\wedge q)@f$ and @f$(A \\wedge \\phi)@f$ are equivalent\n         - @f$\\phi@f$ is quantifier-free formula containing only free\n           variables in @f$y_1...y_n@f$."]
-	pub fn cvc5_get_quantifier_elimination(cvc5: *mut Cvc5, q: Cvc5Term) -> Cvc5Term;
+    #[doc = " Do quantifier elimination.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-qe <q>)\n \\endverbatim\n\n @note Quantifier Elimination is is only complete for logics such as LRA,\n       LIA and BV.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param q A quantified formula of the form\n          @f$Q\\bar{x}_1... Q\\bar{x}_n. P( x_1...x_i, y_1...y_j)@f$\n          where\n          @f$Q\\bar{x}@f$ is a set of quantified variables of the form\n          @f$Q x_1...x_k@f$ and\n          @f$P( x_1...x_i, y_1...y_j )@f$ is a quantifier-free formula\n @return A formula @f$\\phi@f$  such that, given the current set of formulas\n         @f$A@f$ asserted to this solver:\n         - @f$(A \\wedge q)@f$ and @f$(A \\wedge \\phi)@f$ are equivalent\n         - @f$\\phi@f$ is quantifier-free formula containing only free\n           variables in @f$y_1...y_n@f$."]
+    pub fn cvc5_get_quantifier_elimination(cvc5: *mut Cvc5, q: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Do partial quantifier elimination, which can be used for incrementally\n computing the result of a quantifier elimination.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-qe-disjunct <q>)\n \\endverbatim\n\n @note Quantifier Elimination is is only complete for logics such as LRA,\n LIA and BV.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param q A quantified formula of the form\n          @f$Q\\bar{x}_1... Q\\bar{x}_n. P( x_1...x_i, y_1...y_j)@f$\n          where\n          @f$Q\\bar{x}@f$ is a set of quantified variables of the form\n          @f$Q x_1...x_k@f$ and\n          @f$P( x_1...x_i, y_1...y_j )@f$ is a quantifier-free formula\n @return A formula @f$\\phi@f$ such that, given the current set of formulas\n         @f$A@f$ asserted to this solver:\n         - @f$(A \\wedge q \\implies A \\wedge \\phi)@f$ if @f$Q@f$ is\n           @f$\\forall@f$, and @f$(A \\wedge \\phi \\implies A \\wedge q)@f$ if\n           @f$Q@f$ is @f$\\exists@f$\n         - @f$\\phi@f$ is quantifier-free formula containing only free\n           variables in @f$y_1...y_n@f$\n         - If @f$Q@f$ is @f$\\exists@f$, let @f$(A \\wedge Q_n)@f$ be the\n           formula\n           @f$(A \\wedge \\neg (\\phi \\wedge Q_1) \\wedge ... \\wedge\n           \\neg (\\phi \\wedge Q_n))@f$\n           where for each @f$i = 1...n@f$,\n           formula @f$(\\phi \\wedge Q_i)@f$ is the result of calling\n           cvc5_get_quantifier_elimination_disjunct() for @f$q@f$ with the\n           set of assertions @f$(A \\wedge Q_{i-1})@f$.\n           Similarly, if @f$Q@f$ is @f$\\forall@f$, then let\n           @f$(A \\wedge Q_n)@f$ be\n           @f$(A \\wedge (\\phi \\wedge Q_1) \\wedge ... \\wedge (\\phi \\wedge\n           Q_n))@f$\n           where @f$(\\phi \\wedge Q_i)@f$ is the same as above.\n           In either case, we have that @f$(\\phi \\wedge Q_j)@f$ will\n           eventually be true or false, for some finite j."]
-	pub fn cvc5_get_quantifier_elimination_disjunct(cvc5: *mut Cvc5, q: Cvc5Term) -> Cvc5Term;
+    #[doc = " Do partial quantifier elimination, which can be used for incrementally\n computing the result of a quantifier elimination.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-qe-disjunct <q>)\n \\endverbatim\n\n @note Quantifier Elimination is is only complete for logics such as LRA,\n LIA and BV.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param q A quantified formula of the form\n          @f$Q\\bar{x}_1... Q\\bar{x}_n. P( x_1...x_i, y_1...y_j)@f$\n          where\n          @f$Q\\bar{x}@f$ is a set of quantified variables of the form\n          @f$Q x_1...x_k@f$ and\n          @f$P( x_1...x_i, y_1...y_j )@f$ is a quantifier-free formula\n @return A formula @f$\\phi@f$ such that, given the current set of formulas\n         @f$A@f$ asserted to this solver:\n         - @f$(A \\wedge q \\implies A \\wedge \\phi)@f$ if @f$Q@f$ is\n           @f$\\forall@f$, and @f$(A \\wedge \\phi \\implies A \\wedge q)@f$ if\n           @f$Q@f$ is @f$\\exists@f$\n         - @f$\\phi@f$ is quantifier-free formula containing only free\n           variables in @f$y_1...y_n@f$\n         - If @f$Q@f$ is @f$\\exists@f$, let @f$(A \\wedge Q_n)@f$ be the\n           formula\n           @f$(A \\wedge \\neg (\\phi \\wedge Q_1) \\wedge ... \\wedge\n           \\neg (\\phi \\wedge Q_n))@f$\n           where for each @f$i = 1...n@f$,\n           formula @f$(\\phi \\wedge Q_i)@f$ is the result of calling\n           cvc5_get_quantifier_elimination_disjunct() for @f$q@f$ with the\n           set of assertions @f$(A \\wedge Q_{i-1})@f$.\n           Similarly, if @f$Q@f$ is @f$\\forall@f$, then let\n           @f$(A \\wedge Q_n)@f$ be\n           @f$(A \\wedge (\\phi \\wedge Q_1) \\wedge ... \\wedge (\\phi \\wedge\n           Q_n))@f$\n           where @f$(\\phi \\wedge Q_i)@f$ is the same as above.\n           In either case, we have that @f$(\\phi \\wedge Q_j)@f$ will\n           eventually be true or false, for some finite j."]
+    pub fn cvc5_get_quantifier_elimination_disjunct(cvc5: *mut Cvc5, q: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " When using separation logic, this sets the location sort and the\n datatype sort to the given ones. This function should be invoked exactly\n once, before any separation logic constraints are provided.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param loc The location sort of the heap.\n @param data The data sort of the heap."]
-	pub fn cvc5_declare_sep_heap(cvc5: *mut Cvc5, loc: Cvc5Sort, data: Cvc5Sort);
+    #[doc = " When using separation logic, this sets the location sort and the\n datatype sort to the given ones. This function should be invoked exactly\n once, before any separation logic constraints are provided.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param loc The location sort of the heap.\n @param data The data sort of the heap."]
+    pub fn cvc5_declare_sep_heap(cvc5: *mut Cvc5, loc: Cvc5Sort, data: Cvc5Sort);
 }
 unsafe extern "C" {
-	#[doc = " When using separation logic, obtain the term for the heap.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @return The term for the heap."]
-	pub fn cvc5_get_value_sep_heap(cvc5: *mut Cvc5) -> Cvc5Term;
+    #[doc = " When using separation logic, obtain the term for the heap.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @return The term for the heap."]
+    pub fn cvc5_get_value_sep_heap(cvc5: *mut Cvc5) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " When using separation logic, obtain the term for nil.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @return The term for nil."]
-	pub fn cvc5_get_value_sep_nil(cvc5: *mut Cvc5) -> Cvc5Term;
+    #[doc = " When using separation logic, obtain the term for nil.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @return The term for nil."]
+    pub fn cvc5_get_value_sep_nil(cvc5: *mut Cvc5) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Declare a symbolic pool of terms with the given initial value.\n\n For details on how pools are used to specify instructions for quantifier\n instantiation, see documentation for the #CVC5_KIND_INST_POOL kind.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-pool <symbol> <sort> ( <term>* ))\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param symbol The name of the pool.\n @param sort The sort of the elements of the pool.\n @param size The number of initial values of the pool.\n @param init_value The initial value of the pool.\n @return The pool symbol."]
-	pub fn cvc5_declare_pool(
-		cvc5: *mut Cvc5,
-		symbol: *const ::std::os::raw::c_char,
-		sort: Cvc5Sort,
-		size: usize,
-		init_value: *const Cvc5Term,
-	) -> Cvc5Term;
+    #[doc = " Declare a symbolic pool of terms with the given initial value.\n\n For details on how pools are used to specify instructions for quantifier\n instantiation, see documentation for the #CVC5_KIND_INST_POOL kind.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-pool <symbol> <sort> ( <term>* ))\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param symbol The name of the pool.\n @param sort The sort of the elements of the pool.\n @param size The number of initial values of the pool.\n @param init_value The initial value of the pool.\n @return The pool symbol."]
+    pub fn cvc5_declare_pool(
+        cvc5: *mut Cvc5,
+        symbol: *const ::std::os::raw::c_char,
+        sort: Cvc5Sort,
+        size: usize,
+        init_value: *const Cvc5Term,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Declare an oracle function with reference to an implementation.\n\n Oracle functions have a different semantics with respect to ordinary\n declared functions. In particular, for an input to be satisfiable,\n its oracle functions are implicitly universally quantified.\n\n This function is used in part for implementing this command:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-oracle-fun <sym> (<sort>*) <sort> <sym>)\n \\endverbatim\n\n In particular, the above command is implemented by constructing a\n function over terms that wraps a call to binary sym via a text interface.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5   The solver instance.\n @param symbol The name of the oracle\n @param size   The number of domain sorts of the oracle function.\n @param sorts  The domain sorts.\n @param sort   The sort of the return value of this function.\n @param state  The state data for the oracle function, may be NULL.\n @param fun    The function that implements the oracle function, taking a\n               an array of term arguments and its size and a void pointer\n               to optionally capture any state data the function may need.\n @return The oracle function."]
-	pub fn cvc5_declare_oracle_fun(
-		cvc5: *mut Cvc5,
-		symbol: *const ::std::os::raw::c_char,
-		size: usize,
-		sorts: *const Cvc5Sort,
-		sort: Cvc5Sort,
-		state: *mut ::std::os::raw::c_void,
-		fun: ::std::option::Option<
-			unsafe extern "C" fn(
-				arg1: usize,
-				arg2: *const Cvc5Term,
-				arg3: *mut ::std::os::raw::c_void,
-			) -> Cvc5Term,
-		>,
-	) -> Cvc5Term;
+    #[doc = " Declare an oracle function with reference to an implementation.\n\n Oracle functions have a different semantics with respect to ordinary\n declared functions. In particular, for an input to be satisfiable,\n its oracle functions are implicitly universally quantified.\n\n This function is used in part for implementing this command:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-oracle-fun <sym> (<sort>*) <sort> <sym>)\n \\endverbatim\n\n In particular, the above command is implemented by constructing a\n function over terms that wraps a call to binary sym via a text interface.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5   The solver instance.\n @param symbol The name of the oracle\n @param size   The number of domain sorts of the oracle function.\n @param sorts  The domain sorts.\n @param sort   The sort of the return value of this function.\n @param state  The state data for the oracle function, may be NULL.\n @param fun    The function that implements the oracle function, taking a\n               an array of term arguments and its size and a void pointer\n               to optionally capture any state data the function may need.\n @return The oracle function."]
+    pub fn cvc5_declare_oracle_fun(
+        cvc5: *mut Cvc5,
+        symbol: *const ::std::os::raw::c_char,
+        size: usize,
+        sorts: *const Cvc5Sort,
+        sort: Cvc5Sort,
+        state: *mut ::std::os::raw::c_void,
+        fun: ::std::option::Option<
+            unsafe extern "C" fn(
+                arg1: usize,
+                arg2: *const Cvc5Term,
+                arg3: *mut ::std::os::raw::c_void,
+            ) -> Cvc5Term,
+        >,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Add plugin to this solver. Its callbacks will be called throughout the\n lifetime of this solver.\n @warning This function is experimental and may change in future versions.\n @param cvc5   The solver instance.\n @param plugin The plugin to add to this solver."]
-	pub fn cvc5_add_plugin(cvc5: *mut Cvc5, plugin: *mut Cvc5Plugin);
+    #[doc = " Add plugin to this solver. Its callbacks will be called throughout the\n lifetime of this solver.\n @warning This function is experimental and may change in future versions.\n @param cvc5   The solver instance.\n @param plugin The plugin to add to this solver."]
+    pub fn cvc5_add_plugin(cvc5: *mut Cvc5, plugin: *mut Cvc5Plugin);
 }
 unsafe extern "C" {
-	#[doc = " Get an interpolant.\n\n Given that @f$A \\rightarrow B@f$ is valid,\n this function determines a term @f$I@f$\n over the shared variables of @f$A@f$ and @f$B@f$,\n such that @f$A \\rightarrow I@f$ and\n @f$I \\rightarrow B@f$ are valid, if such a term exits. @f$A@f$ is the\n current set of assertions and @f$B@f$ is the conjecture, given as `conj`.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-interpolant <symbol> <conj>)\n\n .. note:: In SMT-LIB, `<symbol>` assigns a symbol to the interpolant.\n\n .. note:: Requires option\n          :ref:`produce-interpolants <lbl-option-produce-interpolants>` to\n          be set to a mode different from `none`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param conj The conjecture term.\n @return The interpolant, if an interpolant exists, else the null term."]
-	pub fn cvc5_get_interpolant(cvc5: *mut Cvc5, conj: Cvc5Term) -> Cvc5Term;
+    #[doc = " Get an interpolant.\n\n Given that @f$A \\rightarrow B@f$ is valid,\n this function determines a term @f$I@f$\n over the shared variables of @f$A@f$ and @f$B@f$,\n such that @f$A \\rightarrow I@f$ and\n @f$I \\rightarrow B@f$ are valid, if such a term exits. @f$A@f$ is the\n current set of assertions and @f$B@f$ is the conjecture, given as `conj`.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-interpolant <symbol> <conj>)\n\n .. note:: In SMT-LIB, `<symbol>` assigns a symbol to the interpolant.\n\n .. note:: Requires option\n          :ref:`produce-interpolants <lbl-option-produce-interpolants>` to\n          be set to a mode different from `none`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param conj The conjecture term.\n @return The interpolant, if an interpolant exists, else the null term."]
+    pub fn cvc5_get_interpolant(cvc5: *mut Cvc5, conj: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get an interpolant\n\n Given that @f$A \\rightarrow B@f$ is valid,\n this function determines a term @f$I@f$\n over the shared variables of @f$A@f$ and @f$B@f$,\n with respect to a given grammar, such that\n @f$A \\rightarrow I@f$ and @f$I \\rightarrow B@f$ are valid, if such a term\n exits. @f$A@f$ is the current set of assertions and @f$B@f$ is the\n conjecture, given as `conj`.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-interpolant <symbol> <conj> <grammar>)\n\n .. note:: In SMT-LIB, `<symbol>` assigns a symbol to the interpolant.\n\n .. note:: Requires option\n          :ref:`produce-interpolants <lbl-option-produce-interpolants>` to\n          be set to a mode different from `none`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param conj The conjecture term.\n @param grammar The grammar for the interpolant I.\n @return The interpolant, if an interpolant exists, else the null term."]
-	pub fn cvc5_get_interpolant_with_grammar(
-		cvc5: *mut Cvc5,
-		conj: Cvc5Term,
-		grammar: Cvc5Grammar,
-	) -> Cvc5Term;
+    #[doc = " Get an interpolant\n\n Given that @f$A \\rightarrow B@f$ is valid,\n this function determines a term @f$I@f$\n over the shared variables of @f$A@f$ and @f$B@f$,\n with respect to a given grammar, such that\n @f$A \\rightarrow I@f$ and @f$I \\rightarrow B@f$ are valid, if such a term\n exits. @f$A@f$ is the current set of assertions and @f$B@f$ is the\n conjecture, given as `conj`.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-interpolant <symbol> <conj> <grammar>)\n\n .. note:: In SMT-LIB, `<symbol>` assigns a symbol to the interpolant.\n\n .. note:: Requires option\n          :ref:`produce-interpolants <lbl-option-produce-interpolants>` to\n          be set to a mode different from `none`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param conj The conjecture term.\n @param grammar The grammar for the interpolant I.\n @return The interpolant, if an interpolant exists, else the null term."]
+    pub fn cvc5_get_interpolant_with_grammar(
+        cvc5: *mut Cvc5,
+        conj: Cvc5Term,
+        grammar: Cvc5Grammar,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the next interpolant. Can only be called immediately after a successful\n call to get-interpolant or get-interpolant-next. Is guaranteed to produce a\n syntactically different interpolant wrt the last returned interpolant if\n successful.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-interpolant-next)\n\n Requires to enable incremental mode, and option\n :ref:`produce-interpolants <lbl-option-produce-interpolants>` to be set to\n a mode different from `none`. \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @return A Term @f$I@f$ such that @f$A \\rightarrow I@f$ and\n         @f$I \\rightarrow B@f$ are valid, where @f$A@f$ is the\n         current set of assertions and @f$B@f$ is given in the input by\n         `conj`, or the null term if such a term cannot be found."]
-	pub fn cvc5_get_interpolant_next(cvc5: *mut Cvc5) -> Cvc5Term;
+    #[doc = " Get the next interpolant. Can only be called immediately after a successful\n call to get-interpolant or get-interpolant-next. Is guaranteed to produce a\n syntactically different interpolant wrt the last returned interpolant if\n successful.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-interpolant-next)\n\n Requires to enable incremental mode, and option\n :ref:`produce-interpolants <lbl-option-produce-interpolants>` to be set to\n a mode different from `none`. \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @return A Term @f$I@f$ such that @f$A \\rightarrow I@f$ and\n         @f$I \\rightarrow B@f$ are valid, where @f$A@f$ is the\n         current set of assertions and @f$B@f$ is given in the input by\n         `conj`, or the null term if such a term cannot be found."]
+    pub fn cvc5_get_interpolant_next(cvc5: *mut Cvc5) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get an abduct.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-abduct <conj>)\n\n Requires to enable option\n :ref:`produce-abducts <lbl-option-produce-abducts>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param conj The conjecture term.\n @return A term @f$C@f$ such that @f$(A \\wedge C)@f$ is satisfiable,\n         and @f$(A \\wedge \\neg B \\wedge C)@f$ is unsatisfiable, where\n         @f$A@f$ is the current set of assertions and @f$B@f$ is\n         given in the input by ``conj``, or the null term if such a term\n         cannot be found."]
-	pub fn cvc5_get_abduct(cvc5: *mut Cvc5, conj: Cvc5Term) -> Cvc5Term;
+    #[doc = " Get an abduct.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-abduct <conj>)\n\n Requires to enable option\n :ref:`produce-abducts <lbl-option-produce-abducts>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param conj The conjecture term.\n @return A term @f$C@f$ such that @f$(A \\wedge C)@f$ is satisfiable,\n         and @f$(A \\wedge \\neg B \\wedge C)@f$ is unsatisfiable, where\n         @f$A@f$ is the current set of assertions and @f$B@f$ is\n         given in the input by ``conj``, or the null term if such a term\n         cannot be found."]
+    pub fn cvc5_get_abduct(cvc5: *mut Cvc5, conj: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get an abduct.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-abduct <conj> <grammar>)\n\n Requires to enable option\n :ref:`produce-abducts <lbl-option-produce-abducts>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param conj The conjecture term.\n @param grammar The grammar for the abduct @f$C@f$\n @return A term C such that @f$(A \\wedge C)@f$ is satisfiable, and\n        @f$(A \\wedge \\neg B \\wedge C)@f$ is unsatisfiable, where @f$A@f$ is\n        the current set of assertions and @f$B@f$ is given in the input by\n        `conj`, or the null term if such a term cannot be found."]
-	pub fn cvc5_get_abduct_with_grammar(
-		cvc5: *mut Cvc5,
-		conj: Cvc5Term,
-		grammar: Cvc5Grammar,
-	) -> Cvc5Term;
+    #[doc = " Get an abduct.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-abduct <conj> <grammar>)\n\n Requires to enable option\n :ref:`produce-abducts <lbl-option-produce-abducts>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param conj The conjecture term.\n @param grammar The grammar for the abduct @f$C@f$\n @return A term C such that @f$(A \\wedge C)@f$ is satisfiable, and\n        @f$(A \\wedge \\neg B \\wedge C)@f$ is unsatisfiable, where @f$A@f$ is\n        the current set of assertions and @f$B@f$ is given in the input by\n        `conj`, or the null term if such a term cannot be found."]
+    pub fn cvc5_get_abduct_with_grammar(
+        cvc5: *mut Cvc5,
+        conj: Cvc5Term,
+        grammar: Cvc5Grammar,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the next abduct. Can only be called immediately after a successful\n call to get-abduct or get-abduct-next. Is guaranteed to produce a\n syntactically different abduct wrt the last returned abduct if successful.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-abduct-next)\n\n Requires to enable incremental mode, and option\n :ref:`produce-abducts <lbl-option-produce-abducts>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @return A term C such that @f$(A \\wedge C)@f$ is satisfiable, and\n        @f$(A \\wedge \\neg B \\wedge C)@f$ is unsatisfiable, where @f$A@f$ is\n        the current set of assertions and @f$B@f$ is given in the input by\n        the last call to getAbduct(), or the null term if such a term\n        cannot be found."]
-	pub fn cvc5_get_abduct_next(cvc5: *mut Cvc5) -> Cvc5Term;
+    #[doc = " Get the next abduct. Can only be called immediately after a successful\n call to get-abduct or get-abduct-next. Is guaranteed to produce a\n syntactically different abduct wrt the last returned abduct if successful.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (get-abduct-next)\n\n Requires to enable incremental mode, and option\n :ref:`produce-abducts <lbl-option-produce-abducts>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @return A term C such that @f$(A \\wedge C)@f$ is satisfiable, and\n        @f$(A \\wedge \\neg B \\wedge C)@f$ is unsatisfiable, where @f$A@f$ is\n        the current set of assertions and @f$B@f$ is given in the input by\n        the last call to getAbduct(), or the null term if such a term\n        cannot be found."]
+    pub fn cvc5_get_abduct_next(cvc5: *mut Cvc5) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Block the current model. Can be called only if immediately preceded by a\n SAT or INVALID query.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (block-model)\n\n Requires enabling option\n :ref:`produce-models <lbl-option-produce-models>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param mode The mode to use for blocking."]
-	pub fn cvc5_block_model(cvc5: *mut Cvc5, mode: Cvc5BlockModelsMode);
+    #[doc = " Block the current model. Can be called only if immediately preceded by a\n SAT or INVALID query.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (block-model)\n\n Requires enabling option\n :ref:`produce-models <lbl-option-produce-models>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @param mode The mode to use for blocking."]
+    pub fn cvc5_block_model(cvc5: *mut Cvc5, mode: Cvc5BlockModelsMode);
 }
 unsafe extern "C" {
-	#[doc = " Block the current model values of (at least) the values in terms. Can be\n called only if immediately preceded by a SAT query.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (block-model-values ( <terms>+ ))\n\n Requires enabling option\n :ref:`produce-models <lbl-option-produce-models>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n @param cvc5 The solver instance.\n @param size The number of values to block.\n @param terms The values to block."]
-	pub fn cvc5_block_model_values(cvc5: *mut Cvc5, size: usize, terms: *const Cvc5Term);
+    #[doc = " Block the current model values of (at least) the values in terms. Can be\n called only if immediately preceded by a SAT query.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (block-model-values ( <terms>+ ))\n\n Requires enabling option\n :ref:`produce-models <lbl-option-produce-models>`.\n \\endverbatim\n\n @warning This function is experimental and may change in future versions.\n @param cvc5 The solver instance.\n @param size The number of values to block.\n @param terms The values to block."]
+    pub fn cvc5_block_model_values(cvc5: *mut Cvc5, size: usize, terms: *const Cvc5Term);
 }
 unsafe extern "C" {
-	#[doc = " @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @return A string that contains information about all instantiations made\n         by the quantifiers module.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_get_instantiations(cvc5: *mut Cvc5) -> *const ::std::os::raw::c_char;
+    #[doc = " @warning This function is experimental and may change in future versions.\n\n @param cvc5 The solver instance.\n @return A string that contains information about all instantiations made\n         by the quantifiers module.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_get_instantiations(cvc5: *mut Cvc5) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Push (a) level(s) to the assertion stack.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (push <numeral>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param nscopes The number of levels to push."]
-	pub fn cvc5_push(cvc5: *mut Cvc5, nscopes: u32);
+    #[doc = " Push (a) level(s) to the assertion stack.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (push <numeral>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param nscopes The number of levels to push."]
+    pub fn cvc5_push(cvc5: *mut Cvc5, nscopes: u32);
 }
 unsafe extern "C" {
-	#[doc = " Pop (a) level(s) from the assertion stack.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (pop <numeral>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param nscopes The number of levels to pop."]
-	pub fn cvc5_pop(cvc5: *mut Cvc5, nscopes: u32);
+    #[doc = " Pop (a) level(s) from the assertion stack.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (pop <numeral>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param nscopes The number of levels to pop."]
+    pub fn cvc5_pop(cvc5: *mut Cvc5, nscopes: u32);
 }
 unsafe extern "C" {
-	#[doc = " Remove all assertions.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (reset-assertions)\n \\endverbatim\n\n @param cvc5 The solver instance."]
-	pub fn cvc5_reset_assertions(cvc5: *mut Cvc5);
+    #[doc = " Remove all assertions.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (reset-assertions)\n \\endverbatim\n\n @param cvc5 The solver instance."]
+    pub fn cvc5_reset_assertions(cvc5: *mut Cvc5);
 }
 unsafe extern "C" {
-	#[doc = " Set info.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (set-info <attribute>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param keyword The info flag.\n @param value The value of the info flag."]
-	pub fn cvc5_set_info(
-		cvc5: *mut Cvc5,
-		keyword: *const ::std::os::raw::c_char,
-		value: *const ::std::os::raw::c_char,
-	);
+    #[doc = " Set info.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (set-info <attribute>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param keyword The info flag.\n @param value The value of the info flag."]
+    pub fn cvc5_set_info(
+        cvc5: *mut Cvc5,
+        keyword: *const ::std::os::raw::c_char,
+        value: *const ::std::os::raw::c_char,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Set logic.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (set-logic <symbol>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param logic The logic to set."]
-	pub fn cvc5_set_logic(cvc5: *mut Cvc5, logic: *const ::std::os::raw::c_char);
+    #[doc = " Set logic.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (set-logic <symbol>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param logic The logic to set."]
+    pub fn cvc5_set_logic(cvc5: *mut Cvc5, logic: *const ::std::os::raw::c_char);
 }
 unsafe extern "C" {
-	#[doc = " Determine if `cvc5_set_logic()` has been called.\n\n @return True if `setLogic()` has already been called for the given solver\n         instance."]
-	pub fn cvc5_is_logic_set(cvc5: *mut Cvc5) -> bool;
+    #[doc = " Determine if `cvc5_set_logic()` has been called.\n\n @return True if `setLogic()` has already been called for the given solver\n         instance."]
+    pub fn cvc5_is_logic_set(cvc5: *mut Cvc5) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Get the logic set the solver.\n @note Asserts `cvc5_is_logic_set()1.\n @return The logic used by the solver.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_get_logic(cvc5: *mut Cvc5) -> *const ::std::os::raw::c_char;
+    #[doc = " Get the logic set the solver.\n @note Asserts `cvc5_is_logic_set()1.\n @return The logic used by the solver.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_get_logic(cvc5: *mut Cvc5) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Set option.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (set-option :<option> <value>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param option The option name.\n @param value The option value."]
-	pub fn cvc5_set_option(
-		cvc5: *mut Cvc5,
-		option: *const ::std::os::raw::c_char,
-		value: *const ::std::os::raw::c_char,
-	);
+    #[doc = " Set option.\n\n SMT-LIB:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (set-option :<option> <value>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param option The option name.\n @param value The option value."]
+    pub fn cvc5_set_option(
+        cvc5: *mut Cvc5,
+        option: *const ::std::os::raw::c_char,
+        value: *const ::std::os::raw::c_char,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Append \\p symbol to the current list of universal variables.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-var <symbol> <sort>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param sort The sort of the universal variable.\n @param symbol The name of the universal variable.\n @return The universal variable."]
-	pub fn cvc5_declare_sygus_var(
-		cvc5: *mut Cvc5,
-		symbol: *const ::std::os::raw::c_char,
-		sort: Cvc5Sort,
-	) -> Cvc5Term;
+    #[doc = " Append \\p symbol to the current list of universal variables.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (declare-var <symbol> <sort>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param sort The sort of the universal variable.\n @param symbol The name of the universal variable.\n @return The universal variable."]
+    pub fn cvc5_declare_sygus_var(
+        cvc5: *mut Cvc5,
+        symbol: *const ::std::os::raw::c_char,
+        sort: Cvc5Sort,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Create a Sygus grammar. The first non-terminal is treated as the starting\n non-terminal, so the order of non-terminals matters.\n\n @param cvc5        The solver instance.\n @param nbound_vars The number of bound variabls.\n @param bound_vars  The parameters to corresponding synth-fun/synth-inv.\n @param nsymbols    The number of symbols.\n @param symbols     The pre-declaration of the non-terminal symbols.\n @return The grammar."]
-	pub fn cvc5_mk_grammar(
-		cvc5: *mut Cvc5,
-		nbound_vars: usize,
-		bound_vars: *const Cvc5Term,
-		nsymbols: usize,
-		symbols: *const Cvc5Term,
-	) -> Cvc5Grammar;
+    #[doc = " Create a Sygus grammar. The first non-terminal is treated as the starting\n non-terminal, so the order of non-terminals matters.\n\n @param cvc5        The solver instance.\n @param nbound_vars The number of bound variabls.\n @param bound_vars  The parameters to corresponding synth-fun/synth-inv.\n @param nsymbols    The number of symbols.\n @param symbols     The pre-declaration of the non-terminal symbols.\n @return The grammar."]
+    pub fn cvc5_mk_grammar(
+        cvc5: *mut Cvc5,
+        nbound_vars: usize,
+        bound_vars: *const Cvc5Term,
+        nsymbols: usize,
+        symbols: *const Cvc5Term,
+    ) -> Cvc5Grammar;
 }
 unsafe extern "C" {
-	#[doc = " Synthesize n-ary function.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (synth-fun <symbol> ( <boundVars>* ) <sort>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param symbol The name of the function.\n @param size The number of parameters.\n @param bound_vars The parameters to this function.\n @param sort The sort of the return value of this function.\n @return The function."]
-	pub fn cvc5_synth_fun(
-		cvc5: *mut Cvc5,
-		symbol: *const ::std::os::raw::c_char,
-		size: usize,
-		bound_vars: *const Cvc5Term,
-		sort: Cvc5Sort,
-	) -> Cvc5Term;
+    #[doc = " Synthesize n-ary function.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (synth-fun <symbol> ( <boundVars>* ) <sort>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param symbol The name of the function.\n @param size The number of parameters.\n @param bound_vars The parameters to this function.\n @param sort The sort of the return value of this function.\n @return The function."]
+    pub fn cvc5_synth_fun(
+        cvc5: *mut Cvc5,
+        symbol: *const ::std::os::raw::c_char,
+        size: usize,
+        bound_vars: *const Cvc5Term,
+        sort: Cvc5Sort,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Synthesize n-ary function following specified syntactic constraints.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (synth-fun <symbol> ( <boundVars>* ) <sort> <grammar>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param symbol The name of the function.\n @param size The number of parameters.\n @param bound_vars The parameters to this function.\n @param sort The sort of the return value of this function.\n @param grammar The syntactic constraints.\n @return The function."]
-	pub fn cvc5_synth_fun_with_grammar(
-		cvc5: *mut Cvc5,
-		symbol: *const ::std::os::raw::c_char,
-		size: usize,
-		bound_vars: *const Cvc5Term,
-		sort: Cvc5Sort,
-		grammar: Cvc5Grammar,
-	) -> Cvc5Term;
+    #[doc = " Synthesize n-ary function following specified syntactic constraints.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (synth-fun <symbol> ( <boundVars>* ) <sort> <grammar>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param symbol The name of the function.\n @param size The number of parameters.\n @param bound_vars The parameters to this function.\n @param sort The sort of the return value of this function.\n @param grammar The syntactic constraints.\n @return The function."]
+    pub fn cvc5_synth_fun_with_grammar(
+        cvc5: *mut Cvc5,
+        symbol: *const ::std::os::raw::c_char,
+        size: usize,
+        bound_vars: *const Cvc5Term,
+        sort: Cvc5Sort,
+        grammar: Cvc5Grammar,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Add a forumla to the set of Sygus constraints.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (constraint <term>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param term The formula to add as a constraint."]
-	pub fn cvc5_add_sygus_constraint(cvc5: *mut Cvc5, term: Cvc5Term);
+    #[doc = " Add a forumla to the set of Sygus constraints.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (constraint <term>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param term The formula to add as a constraint."]
+    pub fn cvc5_add_sygus_constraint(cvc5: *mut Cvc5, term: Cvc5Term);
 }
 unsafe extern "C" {
-	#[doc = " Get the list of sygus constraints.\n\n @param cvc5 The solver instance.\n @param size The size of the resulting list of sygus constraints.\n @return The list of sygus constraints."]
-	pub fn cvc5_get_sygus_constraints(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
+    #[doc = " Get the list of sygus constraints.\n\n @param cvc5 The solver instance.\n @param size The size of the resulting list of sygus constraints.\n @return The list of sygus constraints."]
+    pub fn cvc5_get_sygus_constraints(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Add a forumla to the set of Sygus assumptions.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (assume <term>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param term The formula to add as an assumption."]
-	pub fn cvc5_add_sygus_assume(cvc5: *mut Cvc5, term: Cvc5Term);
+    #[doc = " Add a forumla to the set of Sygus assumptions.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (assume <term>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param term The formula to add as an assumption."]
+    pub fn cvc5_add_sygus_assume(cvc5: *mut Cvc5, term: Cvc5Term);
 }
 unsafe extern "C" {
-	#[doc = " Get the list of sygus assumptions.\n\n @param cvc5 The solver instance.\n @param size The size of the resulting list of sygus assumptions.\n @return The list of sygus assumptions."]
-	pub fn cvc5_get_sygus_assumptions(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
+    #[doc = " Get the list of sygus assumptions.\n\n @param cvc5 The solver instance.\n @param size The size of the resulting list of sygus assumptions.\n @return The list of sygus assumptions."]
+    pub fn cvc5_get_sygus_assumptions(cvc5: *mut Cvc5, size: *mut usize) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Add a set of Sygus constraints to the current state that correspond to an\n invariant synthesis problem.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (inv-constraint <inv> <pre> <trans> <post>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param inv The function-to-synthesize.\n @param pre The pre-condition.\n @param trans The transition relation.\n @param post The post-condition."]
-	pub fn cvc5_add_sygus_inv_constraint(
-		cvc5: *mut Cvc5,
-		inv: Cvc5Term,
-		pre: Cvc5Term,
-		trans: Cvc5Term,
-		post: Cvc5Term,
-	);
+    #[doc = " Add a set of Sygus constraints to the current state that correspond to an\n invariant synthesis problem.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (inv-constraint <inv> <pre> <trans> <post>)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @param inv The function-to-synthesize.\n @param pre The pre-condition.\n @param trans The transition relation.\n @param post The post-condition."]
+    pub fn cvc5_add_sygus_inv_constraint(
+        cvc5: *mut Cvc5,
+        inv: Cvc5Term,
+        pre: Cvc5Term,
+        trans: Cvc5Term,
+        post: Cvc5Term,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Try to find a solution for the synthesis conjecture corresponding to the\n current list of functions-to-synthesize, universal variables and\n constraints.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (check-synth)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @return The result of the check, which is \"solution\" if the check found a\n         solution in which case solutions are available via\n         getSynthSolutions, \"no solution\" if it was determined there is no\n         solution, or \"unknown\" otherwise."]
-	pub fn cvc5_check_synth(cvc5: *mut Cvc5) -> Cvc5SynthResult;
+    #[doc = " Try to find a solution for the synthesis conjecture corresponding to the\n current list of functions-to-synthesize, universal variables and\n constraints.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (check-synth)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @return The result of the check, which is \"solution\" if the check found a\n         solution in which case solutions are available via\n         getSynthSolutions, \"no solution\" if it was determined there is no\n         solution, or \"unknown\" otherwise."]
+    pub fn cvc5_check_synth(cvc5: *mut Cvc5) -> Cvc5SynthResult;
 }
 unsafe extern "C" {
-	#[doc = " Try to find a next solution for the synthesis conjecture corresponding to\n the current list of functions-to-synthesize, universal variables and\n constraints. Must be called immediately after a successful call to\n check-synth or check-synth-next.\n\n @note Requires incremental mode.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (check-synth-next)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @return The result of the check, which is \"solution\" if the check found a\n         solution in which case solutions are available via\n         getSynthSolutions, \"no solution\" if it was determined there is no\n         solution, or \"unknown\" otherwise."]
-	pub fn cvc5_check_synth_next(cvc5: *mut Cvc5) -> Cvc5SynthResult;
+    #[doc = " Try to find a next solution for the synthesis conjecture corresponding to\n the current list of functions-to-synthesize, universal variables and\n constraints. Must be called immediately after a successful call to\n check-synth or check-synth-next.\n\n @note Requires incremental mode.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (check-synth-next)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @return The result of the check, which is \"solution\" if the check found a\n         solution in which case solutions are available via\n         getSynthSolutions, \"no solution\" if it was determined there is no\n         solution, or \"unknown\" otherwise."]
+    pub fn cvc5_check_synth_next(cvc5: *mut Cvc5) -> Cvc5SynthResult;
 }
 unsafe extern "C" {
-	#[doc = " Get the synthesis solution of the given term. This function should be\n called immediately after the solver answers unsat for sygus input.\n @param cvc5 The solver instance.\n @param term The term for which the synthesis solution is queried.\n @return The synthesis solution of the given term."]
-	pub fn cvc5_get_synth_solution(cvc5: *mut Cvc5, term: Cvc5Term) -> Cvc5Term;
+    #[doc = " Get the synthesis solution of the given term. This function should be\n called immediately after the solver answers unsat for sygus input.\n @param cvc5 The solver instance.\n @param term The term for which the synthesis solution is queried.\n @return The synthesis solution of the given term."]
+    pub fn cvc5_get_synth_solution(cvc5: *mut Cvc5, term: Cvc5Term) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get the synthesis solutions of the given terms. This function should be\n called immediately after the solver answers unsat for sygus input.\n @param cvc5  The solver instance.\n @param size  The size of the terms array.\n @param terms The terms for which the synthesis solutions is queried.\n @return The synthesis solutions of the given terms."]
-	pub fn cvc5_get_synth_solutions(
-		cvc5: *mut Cvc5,
-		size: usize,
-		terms: *const Cvc5Term,
-	) -> *const Cvc5Term;
+    #[doc = " Get the synthesis solutions of the given terms. This function should be\n called immediately after the solver answers unsat for sygus input.\n @param cvc5  The solver instance.\n @param size  The size of the terms array.\n @param terms The terms for which the synthesis solutions is queried.\n @return The synthesis solutions of the given terms."]
+    pub fn cvc5_get_synth_solutions(
+        cvc5: *mut Cvc5,
+        size: usize,
+        terms: *const Cvc5Term,
+    ) -> *const Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Find a target term of interest using sygus enumeration, with no provided\n grammar.\n\n The solver will infer which grammar to use in this call, which by default\n will be the grammars specified by the function(s)-to-synthesize in the\n current context.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (find-synth :target)\n \\endverbatim\n\n @param cvc5   The solver instance.\n @param target The identifier specifying what kind of term to find\n @return The result of the find, which is the null term if this call failed.\n\n @warning This function is experimental and may change in future versions."]
-	pub fn cvc5_find_synth(cvc5: *mut Cvc5, target: Cvc5FindSynthTarget) -> Cvc5Term;
+    #[doc = " Find a target term of interest using sygus enumeration, with no provided\n grammar.\n\n The solver will infer which grammar to use in this call, which by default\n will be the grammars specified by the function(s)-to-synthesize in the\n current context.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (find-synth :target)\n \\endverbatim\n\n @param cvc5   The solver instance.\n @param target The identifier specifying what kind of term to find\n @return The result of the find, which is the null term if this call failed.\n\n @warning This function is experimental and may change in future versions."]
+    pub fn cvc5_find_synth(cvc5: *mut Cvc5, target: Cvc5FindSynthTarget) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Find a target term of interest using sygus enumeration with a provided\n grammar.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (find-synth :target G)\n \\endverbatim\n\n @param cvc5    The solver instance.\n @param target  The identifier specifying what kind of term to find\n @param grammar The grammar for the term\n @return The result of the find, which is the null term if this call failed.\n\n @warning This function is experimental and may change in future versions."]
-	pub fn cvc5_find_synth_with_grammar(
-		cvc5: *mut Cvc5,
-		target: Cvc5FindSynthTarget,
-		grammar: Cvc5Grammar,
-	) -> Cvc5Term;
+    #[doc = " Find a target term of interest using sygus enumeration with a provided\n grammar.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (find-synth :target G)\n \\endverbatim\n\n @param cvc5    The solver instance.\n @param target  The identifier specifying what kind of term to find\n @param grammar The grammar for the term\n @return The result of the find, which is the null term if this call failed.\n\n @warning This function is experimental and may change in future versions."]
+    pub fn cvc5_find_synth_with_grammar(
+        cvc5: *mut Cvc5,
+        target: Cvc5FindSynthTarget,
+        grammar: Cvc5Grammar,
+    ) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Try to find a next target term of interest using sygus enumeration. Must\n be called immediately after a successful call to find-synth or\n find-synth-next.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (find-synth-next)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @return The result of the find, which is the null term if this call failed.\n\n @warning This function is experimental and may change in future versions."]
-	pub fn cvc5_find_synth_next(cvc5: *mut Cvc5) -> Cvc5Term;
+    #[doc = " Try to find a next target term of interest using sygus enumeration. Must\n be called immediately after a successful call to find-synth or\n find-synth-next.\n\n SyGuS v2:\n\n \\verbatim embed:rst:leading-asterisk\n .. code:: smtlib\n\n     (find-synth-next)\n \\endverbatim\n\n @param cvc5 The solver instance.\n @return The result of the find, which is the null term if this call failed.\n\n @warning This function is experimental and may change in future versions."]
+    pub fn cvc5_find_synth_next(cvc5: *mut Cvc5) -> Cvc5Term;
 }
 unsafe extern "C" {
-	#[doc = " Get a snapshot of the current state of the statistic values of this\n solver. The returned object is completely decoupled from the solver and\n will not change when the solver is used again.\n @param cvc5 The solver instance.\n @return A snapshot of the current state of the statistic values."]
-	pub fn cvc5_get_statistics(cvc5: *mut Cvc5) -> Cvc5Statistics;
+    #[doc = " Get a snapshot of the current state of the statistic values of this\n solver. The returned object is completely decoupled from the solver and\n will not change when the solver is used again.\n @param cvc5 The solver instance.\n @return A snapshot of the current state of the statistic values."]
+    pub fn cvc5_get_statistics(cvc5: *mut Cvc5) -> Cvc5Statistics;
 }
 unsafe extern "C" {
-	#[doc = " Print the statistics to the given file descriptor, suitable for usage in\n signal handlers.\n @param cvc5 The solver instance.\n @param fd The file descriptor."]
-	pub fn cvc5_print_stats_safe(cvc5: *mut Cvc5, fd: ::std::os::raw::c_int);
+    #[doc = " Print the statistics to the given file descriptor, suitable for usage in\n signal handlers.\n @param cvc5 The solver instance.\n @param fd The file descriptor."]
+    pub fn cvc5_print_stats_safe(cvc5: *mut Cvc5, fd: ::std::os::raw::c_int);
 }
 unsafe extern "C" {
-	#[doc = " Determines if the output stream for the given tag is enabled. Tags can be\n enabled with the `output` option (and `-o <tag>` on the command line).\n\n @note Requires that a valid tag is given.\n\n @param cvc5 The solver instance.\n @param tag  The output tag.\n @return True if the given tag is enabled."]
-	pub fn cvc5_is_output_on(cvc5: *mut Cvc5, tag: *const ::std::os::raw::c_char) -> bool;
+    #[doc = " Determines if the output stream for the given tag is enabled. Tags can be\n enabled with the `output` option (and `-o <tag>` on the command line).\n\n @note Requires that a valid tag is given.\n\n @param cvc5 The solver instance.\n @param tag  The output tag.\n @return True if the given tag is enabled."]
+    pub fn cvc5_is_output_on(cvc5: *mut Cvc5, tag: *const ::std::os::raw::c_char) -> bool;
 }
 unsafe extern "C" {
-	#[doc = " Configure a file to write the output for a given tag.\n\n Tags can be enabled with the `output` option (and `-o <tag>` on the command\n line). Requires that the given tag is valid.\n\n @note Close file `filename` before reading via `cvc5_close_output()`.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5     The solver instance.\n @param tag      The output tag.\n @param filename The file to write the output to. Use `<stdout>` to configure\n                 to write to stdout."]
-	pub fn cvc5_get_output(
-		cvc5: *mut Cvc5,
-		tag: *const ::std::os::raw::c_char,
-		filename: *const ::std::os::raw::c_char,
-	);
+    #[doc = " Configure a file to write the output for a given tag.\n\n Tags can be enabled with the `output` option (and `-o <tag>` on the command\n line). Requires that the given tag is valid.\n\n @note Close file `filename` before reading via `cvc5_close_output()`.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5     The solver instance.\n @param tag      The output tag.\n @param filename The file to write the output to. Use `<stdout>` to configure\n                 to write to stdout."]
+    pub fn cvc5_get_output(
+        cvc5: *mut Cvc5,
+        tag: *const ::std::os::raw::c_char,
+        filename: *const ::std::os::raw::c_char,
+    );
 }
 unsafe extern "C" {
-	#[doc = " Close output file configured for an output tag via `cvc5_get_output()`.\n\n @note This is required before reading the file.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5     The solver instance.\n @param filename The file to close."]
-	pub fn cvc5_close_output(cvc5: *mut Cvc5, filename: *const ::std::os::raw::c_char);
+    #[doc = " Close output file configured for an output tag via `cvc5_get_output()`.\n\n @note This is required before reading the file.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5     The solver instance.\n @param filename The file to close."]
+    pub fn cvc5_close_output(cvc5: *mut Cvc5, filename: *const ::std::os::raw::c_char);
 }
 unsafe extern "C" {
-	#[doc = " Get a string representation of the version of this solver.\n @param cvc5 The solver instance.\n @return The version string.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_get_version(cvc5: *mut Cvc5) -> *const ::std::os::raw::c_char;
+    #[doc = " Get a string representation of the version of this solver.\n @param cvc5 The solver instance.\n @return The version string.\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_get_version(cvc5: *mut Cvc5) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-	#[doc = " Prints a proof as a string in a selected proof format mode.\n Other aspects of printing are taken from the solver options.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5       The solver instance.\n @param proof      A proof, usually obtained from Solver::getProof().\n @param format     The proof format used to print the proof.  Must be\n                   `modes::ProofFormat::NONE` if the proof is from a component\n                   other than `modes::ProofComponent::FULL`.\n @param size       The number of assertions to names mappings given.\n @param assertions The list of assertions that are mapped to\n                   `assertions_names`. May be NULL if `assertions_size` is 0.\n @param names      The names of the `assertions` (1:1 mapping). May by NULL\n                   if `assertions` is NULL.\n\n @return The string representation of the proof in the given format.\n\n @note The returned char* pointer is only valid until the next call to this\n       function."]
-	pub fn cvc5_proof_to_string(
-		cvc5: *mut Cvc5,
-		proof: Cvc5Proof,
-		format: Cvc5ProofFormat,
-		size: usize,
-		assertions: *const Cvc5Term,
-		names: *mut *const ::std::os::raw::c_char,
-	) -> *const ::std::os::raw::c_char;
+    #[doc = " Prints a proof as a string in a selected proof format mode.\n Other aspects of printing are taken from the solver options.\n\n @warning This function is experimental and may change in future versions.\n\n @param cvc5       The solver instance.\n @param proof      A proof, usually obtained from Solver::getProof().\n @param format     The proof format used to print the proof.  Must be\n                   `modes::ProofFormat::NONE` if the proof is from a component\n                   other than `modes::ProofComponent::FULL`.\n @param size       The number of assertions to names mappings given.\n @param assertions The list of assertions that are mapped to\n                   `assertions_names`. May be NULL if `assertions_size` is 0.\n @param names      The names of the `assertions` (1:1 mapping). May by NULL\n                   if `assertions` is NULL.\n\n @return The string representation of the proof in the given format.\n\n @note The returned char* pointer is only valid until the next call to this\n       function."]
+    pub fn cvc5_proof_to_string(
+        cvc5: *mut Cvc5,
+        proof: Cvc5Proof,
+        format: Cvc5ProofFormat,
+        size: usize,
+        assertions: *const Cvc5Term,
+        names: *mut *const ::std::os::raw::c_char,
+    ) -> *const ::std::os::raw::c_char;
 }
