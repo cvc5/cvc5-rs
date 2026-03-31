@@ -1,11 +1,11 @@
-//! # cvc5-rs
+//! # cvc5
 //!
 //! Safe, high-level Rust bindings for the [cvc5](https://cvc5.github.io/) SMT solver.
 //!
 //! # Example
 //!
 //! ```rust
-//! use cvc5_rs::{TermManager, Solver, Kind};
+//! use cvc5::{TermManager, Solver, Kind};
 //!
 //! let tm = TermManager::new();
 //! let mut solver = Solver::new(&tm);
