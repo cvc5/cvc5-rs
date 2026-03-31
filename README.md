@@ -71,7 +71,7 @@ CVC5_LIB_DIR=/path/to/libs CVC5_INCLUDE_DIR=/path/to/include cargo build
 ### Example: Linear Integer Arithmetic
 
 ```rust
-use cvc5_rs::{TermManager, Solver, Kind};
+use cvc5::{TermManager, Solver, Kind};
 
 let tm = TermManager::new();
 let mut solver = Solver::new( & tm);

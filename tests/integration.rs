@@ -1,4 +1,4 @@
-use cvc5_rs::{Kind, Solver, TermManager};
+use cvc5::{Kind, Solver, TermManager};
 
 /// Helper: create a TermManager + Solver pair with common setup.
 macro_rules! setup {
