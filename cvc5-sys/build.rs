@@ -322,7 +322,7 @@ fn link_prebuilt(lib_dir: &Path) {
     }
 
     // Link bundled dependencies if present
-    for lib in &["cadical", "picpoly", "picpolyxx", "gmp"] {
+    for lib in &["cadical", "gmp"] {
         if lib_dir.join(format!("lib{lib}.a")).exists() {
             link_with(lib);
         }
