@@ -4,9 +4,9 @@ use std::path::Path;
 use std::{env, path::PathBuf, process::Command};
 
 fn link_with(name: &str) {
-    #[cfg(feature = "vendored")]
+    #[cfg(feature = "static")]
     println!("cargo:rustc-link-lib=static={name}");
-    #[cfg(not(feature = "vendored"))]
+    #[cfg(not(feature = "static"))]
     println!("cargo:rustc-link-lib=dylib={name}");
 }
 
@@ -43,7 +43,7 @@ fn main() {
     let cvc5_dir = find_cvc5_dir();
     let expected = read_expected_cvc5_version();
     check_cvc5_version(&cvc5_dir, &expected);
-    #[cfg(feature = "vendored")]
+    #[cfg(feature = "static")]
     ensure_cvc5_built(&cvc5_dir);
 
     let include_dir = cvc5_dir.join("include");
@@ -248,7 +248,7 @@ fn check_cvc5_version(cvc5_dir: &Path, expected: &str) {
 }
 
 #[cfg(unix)]
-#[cfg(feature = "vendored")]
+#[cfg(feature = "static")]
 fn ensure_cvc5_built(cvc5_dir: &PathBuf) {
     if cvc5_dir.join("build/src/libcvc5.a").exists() {
         return;
