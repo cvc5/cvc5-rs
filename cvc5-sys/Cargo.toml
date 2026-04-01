@@ -21,6 +21,7 @@ vendored = []
 [build-dependencies]
 bindgen = { version = "0.72", default-features = false, features = ["runtime"] }
 toml = "0.8"
+convert_case = "^0.11"
 
 [package.metadata.docs.rs]
 features = ["parser", "vendored"]

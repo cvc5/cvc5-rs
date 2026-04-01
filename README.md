@@ -79,7 +79,7 @@ let int_sort = tm.integer_sort();
 let x = tm.mk_const(int_sort, "x");
 let zero = tm.mk_integer(0);
 
-let gt = tm.mk_term(Kind::CVC5_KIND_GT, & [x.clone(), zero]);
+let gt = tm.mk_term(Kind::Gt, & [x.clone(), zero]);
 solver.assert_formula(gt);
 
 let result = solver.check_sat();
@@ -113,8 +113,8 @@ println!("x = {x_val}");
 
 The following enums from `cvc5-sys` are re-exported for convenience:
 
-- `Kind` — term kinds (e.g., `AND`, `OR`, `GT`, `PLUS`, …)
-- `SortKind` — sort kinds (e.g., `BOOLEAN_SORT`, `INTEGER_SORT`, …)
+- `Kind` — term kinds (e.g., `And`, `Or`, `Gt`, `Plus`, …)
+- `SortKind` — sort kinds (e.g., `BooleanSort`, `IntegerSort`, …)
 - `RoundingMode` — floating-point rounding modes
 - `ProofRule`, `ProofRewriteRule` — proof rules
 - `SkolemId` — Skolem function identifiers
