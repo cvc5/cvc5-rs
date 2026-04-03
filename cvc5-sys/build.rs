@@ -3,6 +3,11 @@ use convert_case::{Case, Casing as _};
 use std::path::Path;
 use std::{env, path::PathBuf, process::Command};
 
+#[cfg(feature = "static")]
+const LIB_EXTENSION: &str = "a";
+#[cfg(not(feature = "static"))]
+const LIB_EXTENSION: &str = "so";
+
 fn link_with(name: &str) {
     #[cfg(feature = "static")]
     println!("cargo:rustc-link-lib=static={name}");
@@ -70,8 +75,15 @@ fn main() {
     let deps_lib = build_dir.join("deps/lib");
     if deps_lib.exists() {
         println!("cargo:rustc-link-search=native={}", deps_lib.display());
-        for lib in &["cadical", "picpoly", "picpolyxx", "gmp"] {
-            let path = deps_lib.join(format!("lib{lib}.a"));
+        for lib in &["cadical", "gmp"] {
+            let path = deps_lib.join(format!("lib{lib}.{LIB_EXTENSION}"));
+            if path.exists() {
+                link_with(lib);
+            }
+        }
+        #[cfg(feature = "static")]
+        for lib in &["picpoly", "picpolyxx"] {
+            let path = deps_lib.join(format!("lib{lib}.{LIB_EXTENSION}"));
             if path.exists() {
                 link_with(lib);
             }
@@ -289,6 +301,7 @@ fn ensure_cvc5_built(cvc5_dir: &PathBuf) {
 }
 
 #[cfg(not(unix))]
+#[cfg(feature = "static")]
 fn ensure_cvc5_built(cvc5_dir: &PathBuf) {
     assert!(
         cvc5_dir.join("build/src/libcvc5.a").exists(),
@@ -371,7 +384,14 @@ fn link_prebuilt(lib_dir: &Path) {
 
     // Link bundled dependencies if present
     for lib in &["cadical", "gmp"] {
-        if lib_dir.join(format!("lib{lib}.a")).exists() {
+        if lib_dir.join(format!("lib{lib}.{LIB_EXTENSION}")).exists() {
+            link_with(lib);
+        }
+    }
+    #[cfg(feature = "static")]
+    for lib in &["picpoly", "picpolyxx"] {
+        let path = lib_dir.join(format!("lib{lib}.{LIB_EXTENSION}"));
+        if path.exists() {
             link_with(lib);
         }
     }
