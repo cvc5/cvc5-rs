@@ -32,7 +32,7 @@
 //!     let x = cvc5_mk_const(tm, int_sort, c"x".as_ptr());
 //!     let zero = cvc5_mk_integer_int64(tm, 0);
 //!
-//!     let gt = cvc5_mk_term(tm, Cvc5Kind::CVC5_KIND_GT, 2, [x, zero].as_ptr());
+//!     let gt = cvc5_mk_term(tm, Cvc5Kind::Gt, 2, [x, zero].as_ptr());
 //!     cvc5_assert_formula(slv, gt);
 //!
 //!     let result = cvc5_check_sat(slv);
