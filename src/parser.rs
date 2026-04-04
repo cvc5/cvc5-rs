@@ -27,14 +27,26 @@
 //! }
 //! ```
 
-use cvc5_sys::Cvc5InputLanguage as InputLanguage;
 use cvc5_sys::parser::*;
-use std::cell::RefCell;
+use cvc5_sys::{Cvc5InputLanguage as InputLanguage, Cvc5TermManager};
 use std::ffi::CString;
 use std::fmt;
 use std::rc::Rc;
 
 use crate::{Solver, Sort, Term, TermManager};
+
+struct RawSymbolManager(*mut Cvc5SymbolManager);
+impl RawSymbolManager {
+    fn new(tm: *mut Cvc5TermManager) -> Self {
+        Self(unsafe { cvc5_symbol_manager_new(tm) })
+    }
+}
+
+impl Drop for RawSymbolManager {
+    fn drop(&mut self) {
+        unsafe { cvc5_symbol_manager_delete(self.0) };
+    }
+}
 
 // ---------------------------------------------------------------------------
 // SymbolManager
@@ -47,12 +59,9 @@ use crate::{Solver, Sort, Term, TermManager};
 ///
 /// A `SymbolManager` can be shared with an [`InputParser`] so that parsed
 /// commands update the same symbol table.
-///
-/// Uses interior mutability (`Rc<RefCell<…>>`) so the manager can be
-/// cheaply cloned and shared while still allowing mutation through `&self`.
 #[derive(Clone)]
 pub struct SymbolManager {
-    inner: Rc<RefCell<*mut Cvc5SymbolManager>>,
+    inner: Rc<RawSymbolManager>,
     tm: TermManager,
 }
 
@@ -61,13 +70,13 @@ impl SymbolManager {
     pub fn new(tm: impl std::borrow::Borrow<TermManager>) -> Self {
         let tm = tm.borrow().clone();
         Self {
-            inner: Rc::new(RefCell::new(unsafe { cvc5_symbol_manager_new(tm.ptr()) })),
+            inner: Rc::new(RawSymbolManager::new(tm.ptr())),
             tm,
         }
     }
 
     pub(crate) fn ptr(&self) -> *mut Cvc5SymbolManager {
-        *self.inner.borrow()
+        self.inner.0
     }
 
     /// Return the underlying term manager
@@ -131,14 +140,6 @@ impl SymbolManager {
                 (t, n)
             })
             .collect()
-    }
-}
-
-impl Drop for SymbolManager {
-    fn drop(&mut self) {
-        if Rc::strong_count(&self.inner) == 1 {
-            unsafe { cvc5_symbol_manager_delete(self.ptr()) }
-        }
     }
 }
 
