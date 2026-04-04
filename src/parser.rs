@@ -29,7 +29,6 @@
 
 use cvc5_sys::parser::*;
 use cvc5_sys::{Cvc5InputLanguage as InputLanguage, Cvc5TermManager};
-use std::cell::RefCell;
 use std::ffi::CString;
 use std::fmt;
 use std::rc::Rc;
@@ -60,12 +59,9 @@ impl Drop for RawSymbolManager {
 ///
 /// A `SymbolManager` can be shared with an [`InputParser`] so that parsed
 /// commands update the same symbol table.
-///
-/// Uses interior mutability (`Rc<RefCell<…>>`) so the manager can be
-/// cheaply cloned and shared while still allowing mutation through `&self`.
 #[derive(Clone)]
 pub struct SymbolManager {
-    inner: Rc<RefCell<RawSymbolManager>>,
+    inner: Rc<RawSymbolManager>,
     tm: TermManager,
 }
 
@@ -74,13 +70,13 @@ impl SymbolManager {
     pub fn new(tm: impl std::borrow::Borrow<TermManager>) -> Self {
         let tm = tm.borrow().clone();
         Self {
-            inner: Rc::new(RefCell::new(RawSymbolManager::new(tm.ptr()))),
+            inner: Rc::new(RawSymbolManager::new(tm.ptr())),
             tm,
         }
     }
 
     pub(crate) fn ptr(&self) -> *mut Cvc5SymbolManager {
-        self.inner.borrow().0
+        self.inner.0
     }
 
     /// Return the underlying term manager
