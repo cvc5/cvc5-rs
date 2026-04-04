@@ -5,31 +5,45 @@ use std::rc::Rc;
 
 use crate::{DatatypeConstructorDecl, DatatypeDecl, Op, Sort, Statistics, Term};
 
+struct RawTermManager(*mut Cvc5TermManager);
+
+impl RawTermManager {
+    fn new() -> Self {
+        Self(unsafe { cvc5_term_manager_new() })
+    }
+}
+
+impl Drop for RawTermManager {
+    fn drop(&mut self) {
+        unsafe { cvc5_term_manager_delete(self.0) };
+    }
+}
+
 /// Manages creation of sorts, terms, and operators.
 ///
 /// Uses interior mutability (`Rc<RefCell<…>>`) so the manager can be
 /// cheaply cloned and shared while still allowing mutation through `&self`.
 #[derive(Clone)]
 pub struct TermManager {
-    pub(crate) inner: Rc<RefCell<*mut Cvc5TermManager>>,
+    inner: Rc<RefCell<RawTermManager>>,
 }
 
 impl TermManager {
     /// Create a new term manager.
     pub fn new() -> Self {
         Self {
-            inner: Rc::new(RefCell::new(unsafe { cvc5_term_manager_new() })),
+            inner: Rc::new(RefCell::new(RawTermManager::new())),
         }
     }
 
     /// Raw pointer for read-only access.
     pub(crate) fn ptr(&self) -> *mut Cvc5TermManager {
-        *self.inner.borrow()
+        self.inner.borrow().0
     }
 
     /// Raw pointer for mutating access.
     pub(crate) fn ptr_mut(&self) -> *mut Cvc5TermManager {
-        *self.inner.borrow_mut()
+        self.inner.borrow_mut().0
     }
 
     // ── Sort creation ──────────────────────────────────────────────
@@ -516,13 +530,5 @@ impl TermManager {
 impl Default for TermManager {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-impl Drop for TermManager {
-    fn drop(&mut self) {
-        if Rc::strong_count(&self.inner) == 1 {
-            unsafe { cvc5_term_manager_delete(self.ptr()) }
-        }
     }
 }
