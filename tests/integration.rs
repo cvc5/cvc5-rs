@@ -1,4 +1,7 @@
-use cvc5::{Kind, Solver, TermManager};
+use cvc5::{
+    BlockModelsMode, Kind, LearnedLitType, ProofComponent, ProofFormat, RoundingMode, SkolemId,
+    Solver, SortKind, TermManager,
+};
 
 /// Helper: create a TermManager + Solver pair with common setup.
 macro_rules! setup {
@@ -418,7 +421,7 @@ fn proof_basic() {
     solver.assert_formula(not_a);
     assert!(solver.check_sat().is_unsat());
 
-    let proofs = solver.get_proof(cvc5_sys::Cvc5ProofComponent::Full);
+    let proofs = solver.get_proof(ProofComponent::Full);
     assert!(!proofs.is_empty());
 
     let p = &proofs[0];
@@ -836,15 +839,9 @@ fn sort_ord() {
 #[test]
 fn sort_kind() {
     let tm = TermManager::new();
-    assert_eq!(
-        tm.boolean_sort().kind(),
-        cvc5_sys::Cvc5SortKind::BooleanSort
-    );
-    assert_eq!(
-        tm.integer_sort().kind(),
-        cvc5_sys::Cvc5SortKind::IntegerSort
-    );
-    assert_eq!(tm.real_sort().kind(), cvc5_sys::Cvc5SortKind::RealSort);
+    assert_eq!(tm.boolean_sort().kind(), SortKind::BooleanSort);
+    assert_eq!(tm.integer_sort().kind(), SortKind::IntegerSort);
+    assert_eq!(tm.real_sort().kind(), SortKind::RealSort);
 }
 
 // ── Sort: substitute ───────────────────────────────────────────────
@@ -888,9 +885,9 @@ fn sort_record() {
 #[test]
 fn sort_abstract() {
     let tm = TermManager::new();
-    let abs = tm.mk_abstract_sort(cvc5_sys::Cvc5SortKind::BitvectorSort);
+    let abs = tm.mk_abstract_sort(SortKind::BitvectorSort);
     assert!(abs.is_abstract());
-    assert_eq!(abs.abstract_kind(), cvc5_sys::Cvc5SortKind::BitvectorSort);
+    assert_eq!(abs.abstract_kind(), SortKind::BitvectorSort);
 }
 
 // ── Sort: Clone trait ──────────────────────────────────────────────
@@ -1593,12 +1590,9 @@ fn term_fp_value() {
 #[test]
 fn term_rm_value() {
     let tm = TermManager::new();
-    let rne = tm.mk_rm(cvc5_sys::Cvc5RoundingMode::RoundNearestTiesToEven);
+    let rne = tm.mk_rm(RoundingMode::RoundNearestTiesToEven);
     assert!(rne.is_rm_value());
-    assert_eq!(
-        rne.rm_value(),
-        cvc5_sys::Cvc5RoundingMode::RoundNearestTiesToEven
-    );
+    assert_eq!(rne.rm_value(), RoundingMode::RoundNearestTiesToEven);
 }
 
 // ── Term: const array ──────────────────────────────────────────────
@@ -1818,7 +1812,7 @@ fn term_pi() {
 #[test]
 fn term_skolem() {
     let tm = TermManager::new();
-    let id = cvc5_sys::Cvc5SkolemId::Purify;
+    let id = SkolemId::Purify;
     let n = tm.get_num_idxs_for_skolem_id(id);
     assert!(n > 0);
 
@@ -2003,7 +1997,7 @@ fn tm_mk_bv_from_str_bases() {
 
 #[test]
 fn tm_all_rounding_modes() {
-    use cvc5_sys::Cvc5RoundingMode::*;
+    use RoundingMode::*;
     let tm = TermManager::new();
     for rm in [
         RoundNearestTiesToEven,
@@ -2241,7 +2235,7 @@ fn solver_block_model() {
     solver.assert_formula(tm.mk_term(Kind::Leq, &[x.clone(), ten]));
     assert!(solver.check_sat().is_sat());
     let v1 = solver.get_value(x.clone()).int32_value();
-    solver.block_model(cvc5_sys::Cvc5BlockModelsMode::Values);
+    solver.block_model(BlockModelsMode::Values);
     assert!(solver.check_sat().is_sat());
     let v2 = solver.get_value(x).int32_value();
     assert_ne!(v1, v2);
@@ -2345,11 +2339,11 @@ fn solver_proof_to_string() {
     solver.assert_formula(not_a.clone());
     assert!(solver.check_sat().is_unsat());
 
-    let proofs = solver.get_proof(cvc5_sys::Cvc5ProofComponent::Full);
+    let proofs = solver.get_proof(ProofComponent::Full);
     assert!(!proofs.is_empty());
     let s = solver.proof_to_string(
         proofs[0].copy(),
-        cvc5_sys::Cvc5ProofFormat::Default,
+        ProofFormat::Default,
         &[a, not_a],
         &["a", "not_a"],
     );
@@ -2371,7 +2365,7 @@ fn solver_get_learned_literals() {
     let zero = tm.mk_integer(0);
     solver.assert_formula(tm.mk_term(Kind::Gt, &[x, zero]));
     assert!(solver.check_sat().is_sat());
-    let lits = solver.get_learned_literals(cvc5_sys::Cvc5LearnedLitType::Input);
+    let lits = solver.get_learned_literals(LearnedLitType::Input);
     // returned vec may be empty but should not panic; verify it's a valid vec
     for lit in &lits {
         assert!(lit.sort().is_boolean());
