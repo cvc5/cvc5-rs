@@ -27,7 +27,7 @@
 //! }
 //! ```
 
-use cvc5_sys::Cvc5InputLanguage as InputLanguage;
+use cvc5_sys::InputLanguage;
 use cvc5_sys::parser::*;
 use std::cell::RefCell;
 use std::ffi::CString;
@@ -52,7 +52,7 @@ use crate::{Solver, Sort, Term, TermManager};
 /// cheaply cloned and shared while still allowing mutation through `&self`.
 #[derive(Clone)]
 pub struct SymbolManager {
-    inner: Rc<RefCell<*mut Cvc5SymbolManager>>,
+    inner: Rc<RefCell<*mut cvc5_sys::parser::SymbolManager>>,
     tm: TermManager,
 }
 
@@ -61,12 +61,12 @@ impl SymbolManager {
     pub fn new(tm: impl std::borrow::Borrow<TermManager>) -> Self {
         let tm = tm.borrow().clone();
         Self {
-            inner: Rc::new(RefCell::new(unsafe { cvc5_symbol_manager_new(tm.ptr()) })),
+            inner: Rc::new(RefCell::new(unsafe { symbol_manager_new(tm.ptr()) })),
             tm,
         }
     }
 
-    pub(crate) fn ptr(&self) -> *mut Cvc5SymbolManager {
+    pub(crate) fn ptr(&self) -> *mut cvc5_sys::parser::SymbolManager {
         *self.inner.borrow()
     }
 
@@ -77,7 +77,7 @@ impl SymbolManager {
 
     /// Return whether the logic has been set.
     pub fn is_logic_set(&self) -> bool {
-        unsafe { cvc5_sm_is_logic_set(self.ptr()) }
+        unsafe { sm_is_logic_set(self.ptr()) }
     }
 
     /// Get the logic string (e.g. `"QF_LIA"`).
@@ -87,7 +87,7 @@ impl SymbolManager {
     /// The underlying C API asserts that the logic has been set.
     pub fn get_logic(&self) -> &str {
         unsafe {
-            let s = cvc5_sm_get_logic(self.ptr());
+            let s = sm_get_logic(self.ptr());
             std::ffi::CStr::from_ptr(s).to_str().unwrap_or("")
         }
     }
@@ -97,7 +97,7 @@ impl SymbolManager {
     /// These are the sorts printed as part of a `get-model` response.
     pub fn get_declared_sorts(&self) -> Vec<Sort> {
         let mut size = 0usize;
-        let ptr = unsafe { cvc5_sm_get_declared_sorts(self.ptr(), &mut size) };
+        let ptr = unsafe { sm_get_declared_sorts(self.ptr(), &mut size) };
         (0..size)
             .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
             .collect()
@@ -108,7 +108,7 @@ impl SymbolManager {
     /// These are the terms printed in a `get-model` response.
     pub fn get_declared_terms(&self) -> Vec<Term> {
         let mut size = 0usize;
-        let ptr = unsafe { cvc5_sm_get_declared_terms(self.ptr(), &mut size) };
+        let ptr = unsafe { sm_get_declared_terms(self.ptr(), &mut size) };
         (0..size)
             .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
             .collect()
@@ -119,9 +119,9 @@ impl SymbolManager {
     /// Returns a list of `(term, name)` pairs.
     pub fn get_named_terms(&self) -> Vec<(Term, String)> {
         let mut size = 0usize;
-        let mut terms: *mut cvc5_sys::Cvc5Term = std::ptr::null_mut();
+        let mut terms: *mut cvc5_sys::Term = std::ptr::null_mut();
         let mut names: *mut *const std::os::raw::c_char = std::ptr::null_mut();
-        unsafe { cvc5_sm_get_named_terms(self.ptr(), &mut size, &mut terms, &mut names) };
+        unsafe { sm_get_named_terms(self.ptr(), &mut size, &mut terms, &mut names) };
         (0..size)
             .map(|i| unsafe {
                 let t = Term::from_raw(*terms.add(i));
@@ -137,7 +137,7 @@ impl SymbolManager {
 impl Drop for SymbolManager {
     fn drop(&mut self) {
         if Rc::strong_count(&self.inner) == 1 {
-            unsafe { cvc5_symbol_manager_delete(self.ptr()) }
+            unsafe { symbol_manager_delete(self.ptr()) }
         }
     }
 }
@@ -151,11 +151,11 @@ impl Drop for SymbolManager {
 /// Commands are produced by [`InputParser::next_command`] and can be executed
 /// on a solver and symbol manager via [`Command::invoke`].
 pub struct Command {
-    pub(crate) inner: Cvc5Command,
+    pub(crate) inner: cvc5_sys::parser::Command,
 }
 
 impl Command {
-    pub(crate) fn from_raw(raw: Cvc5Command) -> Self {
+    pub(crate) fn from_raw(raw: cvc5_sys::parser::Command) -> Self {
         Self { inner: raw }
     }
 
@@ -170,7 +170,7 @@ impl Command {
     /// model output, etc.).
     pub fn invoke(&self, solver: &mut Solver, sm: &mut SymbolManager) -> String {
         unsafe {
-            std::ffi::CStr::from_ptr(cvc5_cmd_invoke(self.inner, solver.inner, sm.ptr()))
+            std::ffi::CStr::from_ptr(cmd_invoke(self.inner, solver.inner, sm.ptr()))
                 .to_string_lossy()
                 .into_owned()
         }
@@ -179,7 +179,7 @@ impl Command {
     /// Get the name of this command (e.g. `"assert"`, `"check-sat"`).
     pub fn name(&self) -> &str {
         unsafe {
-            let s = cvc5_cmd_get_name(self.inner);
+            let s = cmd_get_name(self.inner);
             std::ffi::CStr::from_ptr(s).to_str().unwrap_or("")
         }
     }
@@ -187,7 +187,7 @@ impl Command {
 
 impl fmt::Display for Command {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s = unsafe { cvc5_cmd_to_string(self.inner) };
+        let s = unsafe { cmd_to_string(self.inner) };
         let cs = unsafe { std::ffi::CStr::from_ptr(s) };
         write!(f, "{}", cs.to_string_lossy())
     }
@@ -215,7 +215,7 @@ impl fmt::Debug for Command {
 /// [`next_term`](InputParser::next_term) in a loop until
 /// [`done`](InputParser::done) returns `true`.
 pub struct InputParser {
-    inner: *mut Cvc5InputParser,
+    inner: *mut cvc5_sys::parser::InputParser,
     /// This field is public for reclaiming the ownership of the solver
     pub solver: Solver,
     sm: SymbolManager,
@@ -236,7 +236,7 @@ impl InputParser {
             .unwrap_or_else(|| SymbolManager::new(&solver.tm));
         let sm_ptr = sm.ptr();
         Self {
-            inner: unsafe { cvc5_parser_new(solver.inner, sm_ptr) },
+            inner: unsafe { parser_new(solver.inner, sm_ptr) },
             solver,
             sm,
         }
@@ -258,11 +258,11 @@ impl InputParser {
     /// Configure a file as the input source.
     ///
     /// - `lang` — the input language (e.g.
-    ///   [`SmtLib26`](cvc5_sys::Cvc5InputLanguage::SmtLib26)).
+    ///   [`SmtLib26`](cvc5_sys::InputLanguage::SmtLib26)).
     /// - `filename` — path to the file.
     pub fn set_file_input(&mut self, lang: InputLanguage, filename: &str) {
         let f = CString::new(filename).unwrap();
-        unsafe { cvc5_parser_set_file_input(self.inner, lang, f.as_ptr()) }
+        unsafe { parser_set_file_input(self.inner, lang, f.as_ptr()) }
     }
 
     /// Configure a concrete string as the input source.
@@ -273,7 +273,7 @@ impl InputParser {
     pub fn set_str_input(&mut self, lang: InputLanguage, input: &str, name: &str) {
         let i = CString::new(input).unwrap();
         let n = CString::new(name).unwrap();
-        unsafe { cvc5_parser_set_str_input(self.inner, lang, i.as_ptr(), n.as_ptr()) }
+        unsafe { parser_set_str_input(self.inner, lang, i.as_ptr(), n.as_ptr()) }
     }
 
     /// Configure incremental string input mode.
@@ -285,7 +285,7 @@ impl InputParser {
     /// - `name` — a name used in error messages.
     pub fn set_inc_str_input(&mut self, lang: InputLanguage, name: &str) {
         let n = CString::new(name).unwrap();
-        unsafe { cvc5_parser_set_inc_str_input(self.inner, lang, n.as_ptr()) }
+        unsafe { parser_set_inc_str_input(self.inner, lang, n.as_ptr()) }
     }
 
     /// Append a string to the incremental input stream.
@@ -293,7 +293,7 @@ impl InputParser {
     /// Must be called after [`set_inc_str_input`](InputParser::set_inc_str_input).
     pub fn append_inc_str_input(&mut self, input: &str) {
         let i = CString::new(input).unwrap();
-        unsafe { cvc5_parser_append_inc_str_input(self.inner, i.as_ptr()) }
+        unsafe { parser_append_inc_str_input(self.inner, i.as_ptr()) }
     }
 
     /// Parse and return the next command.
@@ -307,7 +307,7 @@ impl InputParser {
     /// initialize the logic to `"ALL"`.
     pub fn next_command(&mut self) -> Result<Option<Command>, String> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
-        let cmd = unsafe { cvc5_parser_next_command(self.inner, &mut error_msg) };
+        let cmd = unsafe { parser_next_command(self.inner, &mut error_msg) };
         if !error_msg.is_null() {
             let msg = unsafe { std::ffi::CStr::from_ptr(error_msg) }
                 .to_string_lossy()
@@ -331,7 +331,7 @@ impl InputParser {
     /// The logic must be set before calling this method.
     pub fn next_term(&mut self) -> Result<Option<Term>, String> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
-        let term = unsafe { cvc5_parser_next_term(self.inner, &mut error_msg) };
+        let term = unsafe { parser_next_term(self.inner, &mut error_msg) };
         if !error_msg.is_null() {
             let msg = unsafe { std::ffi::CStr::from_ptr(error_msg) }
                 .to_string_lossy()
@@ -347,12 +347,12 @@ impl InputParser {
 
     /// Return `true` if the parser has finished reading all input.
     pub fn done(&self) -> bool {
-        unsafe { cvc5_parser_done(self.inner) }
+        unsafe { parser_done(self.inner) }
     }
 }
 
 impl Drop for InputParser {
     fn drop(&mut self) {
-        unsafe { cvc5_parser_delete(self.inner) }
+        unsafe { parser_delete(self.inner) }
     }
 }

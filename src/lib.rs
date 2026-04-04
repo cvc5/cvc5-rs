@@ -41,20 +41,20 @@ mod synth_result;
 mod term;
 mod term_manager;
 
-pub use cvc5_sys::Cvc5BlockModelsMode as BlockModelsMode;
-pub use cvc5_sys::Cvc5FindSynthTarget as FindSynthTarget;
-pub use cvc5_sys::Cvc5Kind as Kind;
-pub use cvc5_sys::Cvc5LearnedLitType as LearnedLitType;
-pub use cvc5_sys::Cvc5OptionInfo;
-pub use cvc5_sys::Cvc5Plugin;
-pub use cvc5_sys::Cvc5ProofComponent as ProofComponent;
-pub use cvc5_sys::Cvc5ProofFormat as ProofFormat;
-pub use cvc5_sys::Cvc5ProofRewriteRule as ProofRewriteRule;
-pub use cvc5_sys::Cvc5ProofRule as ProofRule;
-pub use cvc5_sys::Cvc5RoundingMode as RoundingMode;
-pub use cvc5_sys::Cvc5SkolemId as SkolemId;
-pub use cvc5_sys::Cvc5SortKind as SortKind;
-pub use cvc5_sys::Cvc5UnknownExplanation as UnknownExplanation;
+pub use cvc5_sys::BlockModelsMode;
+pub use cvc5_sys::FindSynthTarget;
+pub use cvc5_sys::Kind;
+pub use cvc5_sys::LearnedLitType;
+pub use cvc5_sys::OptionInfo;
+pub use cvc5_sys::Plugin;
+pub use cvc5_sys::ProofComponent;
+pub use cvc5_sys::ProofFormat;
+pub use cvc5_sys::ProofRewriteRule;
+pub use cvc5_sys::ProofRule;
+pub use cvc5_sys::RoundingMode;
+pub use cvc5_sys::SkolemId;
+pub use cvc5_sys::SortKind;
+pub use cvc5_sys::UnknownExplanation;
 
 pub use datatype::{
     Datatype, DatatypeConstructor, DatatypeConstructorDecl, DatatypeDecl, DatatypeSelector,
@@ -71,7 +71,7 @@ pub use term::Term;
 pub use term_manager::TermManager;
 
 #[cfg(feature = "parser")]
-pub use cvc5_sys::Cvc5InputLanguage as InputLanguage;
+pub use cvc5_sys::InputLanguage;
 #[cfg(feature = "parser")]
 pub use parser::{Command, InputParser, SymbolManager};
 
@@ -79,7 +79,7 @@ pub use parser::{Command, InputParser, SymbolManager};
 #[cfg(feature = "parser")]
 pub fn input_language_to_string(lang: InputLanguage) -> String {
     unsafe {
-        std::ffi::CStr::from_ptr(cvc5_sys::cvc5_modes_input_language_to_string(lang))
+        std::ffi::CStr::from_ptr(cvc5_sys::modes_input_language_to_string(lang))
             .to_string_lossy()
             .into_owned()
     }
@@ -104,49 +104,49 @@ macro_rules! enum_to_string_fn {
 
 enum_to_string_fn!(
     /// Get a string representation of a [`Kind`].
-    kind_to_string, Kind, cvc5_sys::cvc5_kind_to_string
+    kind_to_string, Kind, cvc5_sys::kind_to_string
 );
 enum_to_string_fn!(
     /// Get a string representation of a [`SortKind`].
-    sort_kind_to_string, SortKind, cvc5_sys::cvc5_sort_kind_to_string
+    sort_kind_to_string, SortKind, cvc5_sys::sort_kind_to_string
 );
 enum_to_string_fn!(
     /// Get a string representation of a [`ProofRule`].
-    proof_rule_to_string, ProofRule, cvc5_sys::cvc5_proof_rule_to_string
+    proof_rule_to_string, ProofRule, cvc5_sys::proof_rule_to_string
 );
 enum_to_string_fn!(
     /// Get a string representation of a [`ProofRewriteRule`].
-    proof_rewrite_rule_to_string, ProofRewriteRule, cvc5_sys::cvc5_proof_rewrite_rule_to_string
+    proof_rewrite_rule_to_string, ProofRewriteRule, cvc5_sys::proof_rewrite_rule_to_string
 );
 enum_to_string_fn!(
     /// Get a string representation of a [`RoundingMode`].
-    rounding_mode_to_string, RoundingMode, cvc5_sys::cvc5_rm_to_string
+    rounding_mode_to_string, RoundingMode, cvc5_sys::rm_to_string
 );
 enum_to_string_fn!(
     /// Get a string representation of a [`SkolemId`].
-    skolem_id_to_string, SkolemId, cvc5_sys::cvc5_skolem_id_to_string
+    skolem_id_to_string, SkolemId, cvc5_sys::skolem_id_to_string
 );
 enum_to_string_fn!(
     /// Get a string representation of an [`UnknownExplanation`].
-    unknown_explanation_to_string, UnknownExplanation, cvc5_sys::cvc5_unknown_explanation_to_string
+    unknown_explanation_to_string, UnknownExplanation, cvc5_sys::unknown_explanation_to_string
 );
 enum_to_string_fn!(
     /// Get a string representation of a [`BlockModelsMode`].
-    block_models_mode_to_string, BlockModelsMode, cvc5_sys::cvc5_modes_block_models_mode_to_string
+    block_models_mode_to_string, BlockModelsMode, cvc5_sys::modes_block_models_mode_to_string
 );
 enum_to_string_fn!(
     /// Get a string representation of a [`LearnedLitType`].
-    learned_lit_type_to_string, LearnedLitType, cvc5_sys::cvc5_modes_learned_lit_type_to_string
+    learned_lit_type_to_string, LearnedLitType, cvc5_sys::modes_learned_lit_type_to_string
 );
 enum_to_string_fn!(
     /// Get a string representation of a [`ProofComponent`].
-    proof_component_to_string, ProofComponent, cvc5_sys::cvc5_modes_proof_component_to_string
+    proof_component_to_string, ProofComponent, cvc5_sys::modes_proof_component_to_string
 );
 enum_to_string_fn!(
     /// Get a string representation of a [`ProofFormat`].
-    proof_format_to_string, ProofFormat, cvc5_sys::cvc5_modes_proof_format_to_string
+    proof_format_to_string, ProofFormat, cvc5_sys::modes_proof_format_to_string
 );
 enum_to_string_fn!(
     /// Get a string representation of a [`FindSynthTarget`].
-    find_synth_target_to_string, FindSynthTarget, cvc5_sys::cvc5_modes_find_synth_target_to_string
+    find_synth_target_to_string, FindSynthTarget, cvc5_sys::modes_find_synth_target_to_string
 );
