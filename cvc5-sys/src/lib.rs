@@ -22,24 +22,24 @@
 //! use cvc5_sys::*;
 //!
 //! unsafe {
-//!     let tm = cvc5_term_manager_new();
-//!     let slv = cvc5_new(tm);
+//!     let tm = term_manager_new();
+//!     let slv = new(tm);
 //!
-//!     cvc5_set_logic(slv, c"QF_LIA".as_ptr());
-//!     cvc5_set_option(slv, c"produce-models".as_ptr(), c"true".as_ptr());
+//!     set_logic(slv, c"QF_LIA".as_ptr());
+//!     set_option(slv, c"produce-models".as_ptr(), c"true".as_ptr());
 //!
-//!     let int_sort = cvc5_get_integer_sort(tm);
-//!     let x = cvc5_mk_const(tm, int_sort, c"x".as_ptr());
-//!     let zero = cvc5_mk_integer_int64(tm, 0);
+//!     let int_sort = get_integer_sort(tm);
+//!     let x = mk_const(tm, int_sort, c"x".as_ptr());
+//!     let zero = mk_integer_int64(tm, 0);
 //!
-//!     let gt = cvc5_mk_term(tm, Cvc5Kind::CVC5_KIND_GT, 2, [x, zero].as_ptr());
-//!     cvc5_assert_formula(slv, gt);
+//!     let gt = mk_term(tm, Kind::Gt, 2, [x, zero].as_ptr());
+//!     assert_formula(slv, gt);
 //!
-//!     let result = cvc5_check_sat(slv);
-//!     assert!(cvc5_result_is_sat(result));
+//!     let result = check_sat(slv);
+//!     assert!(result_is_sat(result));
 //!
-//!     cvc5_delete(slv);
-//!     cvc5_term_manager_delete(tm);
+//!     delete(slv);
+//!     term_manager_delete(tm);
 //! }
 //! ```
 

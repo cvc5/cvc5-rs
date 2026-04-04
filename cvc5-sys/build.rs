@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::{env, path::PathBuf, process::Command};
 
-use bindgen::callbacks::ParseCallbacks;
+use bindgen::callbacks::{ItemKind, ParseCallbacks};
 use convert_case::{Case, Casing as _};
 
 fn main() {
@@ -82,6 +82,22 @@ fn main() {
 #[derive(Debug)]
 struct RenamingCallback;
 impl ParseCallbacks for RenamingCallback {
+    fn item_name(&self, item_info: bindgen::callbacks::ItemInfo<'_>) -> Option<String> {
+        let prefix = match item_info.kind {
+            ItemKind::Type => "Cvc5",
+            ItemKind::Var => "CVC5_",
+            ItemKind::Function => "cvc5_",
+            _ => {
+                return None;
+            }
+        };
+        let name = item_info.name.strip_prefix(prefix)?;
+        if name.is_empty() {
+            // Special case for the solver
+            return Some("Solver".to_string());
+        };
+        Some(name.to_string())
+    }
     fn enum_variant_name(
         &self,
         enum_name: Option<&str>,
@@ -173,6 +189,7 @@ fn generate_bindings(include_dir: &Path, build_include_dir: &Path) {
                 .clang_arg(format!("-I{}", include_dir.display()))
                 .clang_arg(format!("-I{}", build_include_dir.display()))
                 .clang_arg("-DCVC5_STATIC_DEFINE")
+                .parse_callbacks(Box::new(RenamingCallback))
                 .allowlist_function("cvc5_parser_.*")
                 .allowlist_function("cvc5_cmd_.*")
                 .allowlist_function("cvc5_symbol_manager_.*")
