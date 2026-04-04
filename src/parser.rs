@@ -258,7 +258,7 @@ impl InputParser {
     /// Configure a file as the input source.
     ///
     /// - `lang` — the input language (e.g.
-    ///   [`SmtLib26`](sys::cvc5_sys::InputLanguage::SmtLib26)).
+    ///   [`SmtLib26`](cvc5_sys::InputLanguage::SmtLib26)).
     /// - `filename` — path to the file.
     pub fn set_file_input(&mut self, lang: InputLanguage, filename: &str) {
         let f = CString::new(filename).unwrap();
