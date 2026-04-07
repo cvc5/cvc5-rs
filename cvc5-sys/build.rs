@@ -4,6 +4,13 @@ use std::{env, path::PathBuf, process::Command};
 use bindgen::callbacks::{ItemKind, ParseCallbacks};
 use convert_case::{Case, Casing as _};
 
+fn link_with(name: &str) {
+    #[cfg(feature = "vendored")]
+    println!("cargo:rustc-link-lib=static={name}");
+    #[cfg(not(feature = "vendored"))]
+    println!("cargo:rustc-link-lib=dylib={name}");
+}
+
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=CVC5_LIB_DIR");
@@ -37,6 +44,7 @@ fn main() {
     let cvc5_dir = find_cvc5_dir();
     let expected = read_expected_cvc5_version();
     check_cvc5_version(&cvc5_dir, &expected);
+    #[cfg(feature = "vendored")]
     ensure_cvc5_built(&cvc5_dir);
 
     let include_dir = cvc5_dir.join("include");
@@ -48,7 +56,7 @@ fn main() {
         "cargo:rustc-link-search=native={}",
         build_dir.join("src").display()
     );
-    println!("cargo:rustc-link-lib=static=cvc5");
+    link_with("cvc5");
 
     // Link parser library
     if cfg!(feature = "parser") {
@@ -56,7 +64,7 @@ fn main() {
             "cargo:rustc-link-search=native={}",
             build_dir.join("src/parser").display()
         );
-        println!("cargo:rustc-link-lib=static=cvc5parser");
+        link_with("cvc5parser");
     }
 
     // Link dependencies
@@ -66,7 +74,7 @@ fn main() {
         for lib in &["cadical", "picpoly", "picpolyxx", "gmp"] {
             let path = deps_lib.join(format!("lib{lib}.a"));
             if path.exists() {
-                println!("cargo:rustc-link-lib=static={lib}");
+                link_with(lib);
             }
         }
     }
@@ -258,6 +266,7 @@ fn check_cvc5_version(cvc5_dir: &Path, expected: &str) {
 }
 
 #[cfg(unix)]
+#[cfg(feature = "vendored")]
 fn ensure_cvc5_built(cvc5_dir: &PathBuf) {
     if cvc5_dir.join("build/src/libcvc5.a").exists() {
         return;
@@ -372,16 +381,16 @@ fn link_prebuilt(lib_dir: &Path) {
 
     // Link
     println!("cargo:rustc-link-search=native={}", lib_dir.display());
-    println!("cargo:rustc-link-lib=static=cvc5");
+    link_with("cvc5");
 
     if cfg!(feature = "parser") {
-        println!("cargo:rustc-link-lib=static=cvc5parser");
+        link_with("cvc5parser");
     }
 
     // Link bundled dependencies if present
     for lib in &["cadical", "picpoly", "picpolyxx", "gmp"] {
         if lib_dir.join(format!("lib{lib}.a")).exists() {
-            println!("cargo:rustc-link-lib=static={lib}");
+            link_with(lib);
         }
     }
 
