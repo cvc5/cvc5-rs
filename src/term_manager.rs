@@ -19,12 +19,6 @@ impl Drop for RawTermManager {
 }
 
 /// Manages creation of sorts, terms, and operators.
-///
-/// Uses interior mutability (`Rc<RefCell<…>>`) so the manager can be
-/// cheaply cloned and shared while still allowing mutation through `&self`.
-///
-/// All objects created by a `TermManager` carry a lifetime tied to the
-/// manager, ensuring they cannot outlive it.
 #[derive(Clone)]
 pub struct TermManager {
     inner: Rc<RawTermManager>,
