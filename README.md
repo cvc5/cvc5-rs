@@ -23,8 +23,10 @@ algebraic datatypes, and more.
 
 ## Prerequisites
 
-- Rust 2024 edition (1.85+)
-- cvc5 1.3.1 source (included as a git submodule in `cvc5-sys/cvc5`; built automatically by `cvc5-sys` if needed)
+- cvc5 1.3.1 (included as a git submodule in `cvc5-sys/cvc5`; built automatically by `cvc5-sys` if needed)
+
+If building from source using the `static` feature, install
+
 - A C/C++ compiler, CMake ≥ 3.16, and libclang (for bindgen)
 - Git (for automatic source download when installed from crates.io)
 
@@ -55,12 +57,12 @@ so that `cvc5-sys` can build against it:
 CVC5_DIR = { value = "cvc5", relative = true }
 ```
 
-Enable the `vendored` feature to statically-link against cvc5.
+Enable the `static` feature to statically-link against cvc5.
 
 ### Linking Against a Prebuilt cvc5
 
 If you already have cvc5 built, you can skip the automatic build by setting `CVC5_LIB_DIR` to the
-directory containing the static (if `vendored`) or dynamic libraries (`libcvc5.a`, etc.):
+directory containing the static (if `static`) or dynamic libraries (`libcvc5.a`, etc.):
 
 ```bash
 CVC5_LIB_DIR=/path/to/cvc5/build/lib cargo build
