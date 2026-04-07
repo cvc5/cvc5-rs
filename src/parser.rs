@@ -59,9 +59,6 @@ impl Drop for RawSymbolManager {
 ///
 /// A `SymbolManager` can be shared with an [`InputParser`] so that parsed
 /// commands update the same symbol table.
-///
-/// Uses interior mutability (`Rc<RefCell<…>>`) so the manager can be
-/// cheaply cloned and shared while still allowing mutation through `&self`.
 #[derive(Clone)]
 pub struct SymbolManager {
     inner: Rc<RawSymbolManager>,
