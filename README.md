@@ -55,10 +55,12 @@ so that `cvc5-sys` can build against it:
 CVC5_DIR = { value = "cvc5", relative = true }
 ```
 
+Enable the `vendored` feature to statically-link against cvc5.
+
 ### Linking Against a Prebuilt cvc5
 
 If you already have cvc5 built, you can skip the automatic build by setting `CVC5_LIB_DIR` to the
-directory containing the static libraries (`libcvc5.a`, etc.):
+directory containing the static (if `vendored`) or dynamic libraries (`libcvc5.a`, etc.):
 
 ```bash
 CVC5_LIB_DIR=/path/to/cvc5/build/lib cargo build
