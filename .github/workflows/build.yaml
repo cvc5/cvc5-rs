@@ -50,7 +50,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Run cargo check
-        run: cargo check
+        run: cargo check --all-features
 
   test:
     name: Test Suite

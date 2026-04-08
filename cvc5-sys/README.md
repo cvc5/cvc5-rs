@@ -7,9 +7,10 @@ For a safe, idiomatic Rust API, see the higher-level [`cvc5-rs`](https://github.
 
 ## Prerequisites
 
-This crate wraps cvc5 1.3.1 (the expected version is declared in `Cargo.toml` under
-`[package.metadata.cvc5]`). If cvc5 has not been compiled yet, the build script runs
-`configure.sh --static --auto-download` and `make` automatically. You need:
+When the `static` feature is enabled, this crate wraps cvc5 1.3.1 (the expected
+version is declared in `Cargo.toml` under `[package.metadata.cvc5]`). If cvc5
+has not been compiled yet, the build script runs `configure.sh --static
+--auto-download` and `make` automatically. You need:
 
 - A C/C++ compiler (GCC or Clang)
 - CMake ≥ 3.16
@@ -48,7 +49,7 @@ CVC5_DIR = { value = "cvc5", relative = true }
 ## Linking Against a Prebuilt cvc5
 
 If you already have cvc5 built, you can skip the automatic build by setting `CVC5_LIB_DIR` to the
-directory containing the static libraries (`libcvc5.a`, etc.):
+directory containing the static (if `static`) or dynamic libraries (`libcvc5.a`, etc.):
 
 ```bash
 CVC5_LIB_DIR=/path/to/cvc5/build/lib cargo build
