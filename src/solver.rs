@@ -125,8 +125,7 @@ impl OptionInfo {
         self.0.category
     }
     pub fn name(&self) -> impl AsRef<str> {
-        let s = unsafe { std::ffi::CStr::from_ptr(self.0.name).to_string_lossy() };
-        s
+        unsafe { std::ffi::CStr::from_ptr(self.0.name).to_string_lossy() }
     }
     pub fn is_set_by_user(&self) -> bool {
         self.0.is_set_by_user
