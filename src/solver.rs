@@ -1,11 +1,56 @@
 use cvc5_sys::*;
 use std::ffi::CString;
+use std::fmt;
 use std::marker::PhantomData;
 
 use crate::{
     DatatypeConstructorDecl, Grammar, Proof, Result, Sort, Statistics, SynthResult, Term,
     TermManager,
 };
+
+#[derive(Copy, Clone)]
+#[repr(transparent)]
+pub struct OptionInfo(cvc5_sys::OptionInfo);
+
+impl OptionInfo {
+    pub fn kind(&self) -> OptionInfoKind {
+        self.0.kind
+    }
+    pub fn category(&self) -> OptionCategory {
+        self.0.category
+    }
+    pub fn name(&self) -> impl AsRef<str> {
+        let s = unsafe { std::ffi::CStr::from_ptr(self.0.name).to_string_lossy() };
+        s
+    }
+    pub fn is_set_by_user(&self) -> bool {
+        self.0.is_set_by_user
+    }
+    pub fn aliases(&self) -> Vec<String> {
+        (0..self.0.num_aliases)
+            .map(|i| {
+                let p = unsafe { *self.0.aliases.add(i) };
+                unsafe { std::ffi::CStr::from_ptr(p).to_string_lossy() }.into_owned()
+            })
+            .collect()
+    }
+    pub fn no_supports(&self) -> Vec<String> {
+        (0..self.0.num_no_supports)
+            .map(|i| {
+                let p = unsafe { *self.0.no_supports.add(i) };
+                unsafe { std::ffi::CStr::from_ptr(p).to_string_lossy() }.into_owned()
+            })
+            .collect()
+    }
+}
+
+impl fmt::Display for OptionInfo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s =
+            unsafe { std::ffi::CStr::from_ptr(option_info_to_string(&self.0)).to_string_lossy() };
+        write!(f, "{}", s)
+    }
+}
 
 /// A cvc5 solver instance.
 ///
@@ -734,20 +779,11 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Get detailed information about a solver option.
-    pub fn get_option_info(&self, option: &str) -> cvc5_sys::OptionInfo {
+    pub fn get_option_info(&self, option: &str) -> OptionInfo {
         let c = CString::new(option).unwrap();
         let mut info: cvc5_sys::OptionInfo = unsafe { std::mem::zeroed() };
         unsafe { get_option_info(self.inner, c.as_ptr(), &mut info) };
-        info
-    }
-
-    /// Convert option info to a human-readable string.
-    pub fn option_info_to_string(info: &cvc5_sys::OptionInfo) -> String {
-        unsafe {
-            std::ffi::CStr::from_ptr(option_info_to_string(info))
-                .to_string_lossy()
-                .into_owned()
-        }
+        OptionInfo(info)
     }
 
     // ── Plugin ─────────────────────────────────────────────────────
