@@ -41,20 +41,12 @@ mod synth_result;
 mod term;
 mod term_manager;
 
-pub use cvc5_sys::BlockModelsMode;
-pub use cvc5_sys::FindSynthTarget;
-pub use cvc5_sys::Kind;
-pub use cvc5_sys::LearnedLitType;
-pub use cvc5_sys::OptionInfo;
-pub use cvc5_sys::Plugin;
-pub use cvc5_sys::ProofComponent;
-pub use cvc5_sys::ProofFormat;
-pub use cvc5_sys::ProofRewriteRule;
-pub use cvc5_sys::ProofRule;
-pub use cvc5_sys::RoundingMode;
-pub use cvc5_sys::SkolemId;
-pub use cvc5_sys::SortKind;
-pub use cvc5_sys::UnknownExplanation;
+// Reexport enums
+pub use cvc5_sys::{
+    BlockModelsMode, FindSynthTarget, InputLanguage, Kind, LearnedLitType, OptionCategory,
+    OptionInfo, OptionInfoKind, Plugin, ProofComponent, ProofFormat, ProofRewriteRule, ProofRule,
+    RoundingMode, SkolemId, SortKind, UnknownExplanation,
+};
 
 pub use datatype::{
     Datatype, DatatypeConstructor, DatatypeConstructorDecl, DatatypeDecl, DatatypeSelector,
