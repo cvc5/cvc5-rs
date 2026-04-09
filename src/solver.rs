@@ -8,13 +8,118 @@ use crate::{
     TermManager,
 };
 
+const ERROR_NOT_UTF8: &str = "Not UTF-8";
+
+#[derive(Clone)]
+pub enum OptionInfoKind<'a> {
+    Void,
+    Bool {
+        default: bool,
+        current: bool,
+    },
+    String {
+        default: &'a str,
+        current: &'a str,
+    },
+    Int64 {
+        default: i64,
+        current: i64,
+        min: Option<i64>,
+        max: Option<i64>,
+    },
+    UInt64 {
+        default: u64,
+        current: u64,
+        min: Option<u64>,
+        max: Option<u64>,
+    },
+    Double {
+        default: f64,
+        current: f64,
+        min: Option<f64>,
+        max: Option<f64>,
+    },
+    Mode {
+        default: &'a str,
+        current: &'a str,
+        modes: Vec<&'a str>,
+    },
+}
+
 #[derive(Copy, Clone)]
 #[repr(transparent)]
 pub struct OptionInfo(cvc5_sys::OptionInfo);
 
 impl OptionInfo {
-    pub fn kind(&self) -> OptionInfoKind {
-        self.0.kind
+    pub fn kind(&self) -> OptionInfoKind<'_> {
+        use cvc5_sys::OptionInfoKind as K;
+        match self.0.kind {
+            K::Void => OptionInfoKind::Void,
+            K::Bool => OptionInfoKind::Bool {
+                default: self.0.info_bool.dflt,
+                current: self.0.info_bool.cur,
+            },
+            K::Str => OptionInfoKind::String {
+                default: unsafe { std::ffi::CStr::from_ptr(self.0.info_str.dflt).to_str() }
+                    .expect(ERROR_NOT_UTF8),
+                current: unsafe { std::ffi::CStr::from_ptr(self.0.info_str.cur).to_str() }
+                    .expect(ERROR_NOT_UTF8),
+            },
+            K::Int64 => OptionInfoKind::Int64 {
+                default: self.0.info_int.dflt,
+                current: self.0.info_int.cur,
+                min: if self.0.info_int.has_min {
+                    Some(self.0.info_int.min)
+                } else {
+                    None
+                },
+                max: if self.0.info_int.has_max {
+                    Some(self.0.info_int.max)
+                } else {
+                    None
+                },
+            },
+            K::Uint64 => OptionInfoKind::UInt64 {
+                default: self.0.info_uint.dflt,
+                current: self.0.info_uint.cur,
+                min: if self.0.info_uint.has_min {
+                    Some(self.0.info_uint.min)
+                } else {
+                    None
+                },
+                max: if self.0.info_uint.has_max {
+                    Some(self.0.info_uint.max)
+                } else {
+                    None
+                },
+            },
+            K::Double => OptionInfoKind::Double {
+                default: self.0.info_double.dflt,
+                current: self.0.info_double.cur,
+                min: if self.0.info_double.has_min {
+                    Some(self.0.info_double.min)
+                } else {
+                    None
+                },
+                max: if self.0.info_double.has_max {
+                    Some(self.0.info_double.max)
+                } else {
+                    None
+                },
+            },
+            K::Modes => OptionInfoKind::Mode {
+                default: unsafe { std::ffi::CStr::from_ptr(self.0.info_mode.dflt).to_str() }
+                    .expect(ERROR_NOT_UTF8),
+                current: unsafe { std::ffi::CStr::from_ptr(self.0.info_mode.cur).to_str() }
+                    .expect(ERROR_NOT_UTF8),
+                modes: (0..self.0.info_mode.num_modes)
+                    .map(|i| {
+                        let p = unsafe { *self.0.info_mode.modes.add(i) };
+                        unsafe { std::ffi::CStr::from_ptr(p).to_str() }.expect(ERROR_NOT_UTF8)
+                    })
+                    .collect(),
+            },
+        }
     }
     pub fn category(&self) -> OptionCategory {
         self.0.category
@@ -26,19 +131,19 @@ impl OptionInfo {
     pub fn is_set_by_user(&self) -> bool {
         self.0.is_set_by_user
     }
-    pub fn aliases(&self) -> Vec<String> {
+    pub fn aliases(&self) -> Vec<impl AsRef<str>> {
         (0..self.0.num_aliases)
             .map(|i| {
                 let p = unsafe { *self.0.aliases.add(i) };
-                unsafe { std::ffi::CStr::from_ptr(p).to_string_lossy() }.into_owned()
+                unsafe { std::ffi::CStr::from_ptr(p).to_string_lossy() }
             })
             .collect()
     }
-    pub fn no_supports(&self) -> Vec<String> {
+    pub fn no_supports(&self) -> Vec<impl AsRef<str>> {
         (0..self.0.num_no_supports)
             .map(|i| {
                 let p = unsafe { *self.0.no_supports.add(i) };
-                unsafe { std::ffi::CStr::from_ptr(p).to_string_lossy() }.into_owned()
+                unsafe { std::ffi::CStr::from_ptr(p).to_string_lossy() }
             })
             .collect()
     }

@@ -43,9 +43,9 @@ mod term_manager;
 
 // Reexport enums
 pub use cvc5_sys::{
-    BlockModelsMode, FindSynthTarget, InputLanguage, Kind, LearnedLitType, OptionCategory,
-    OptionInfoKind, Plugin, ProofComponent, ProofFormat, ProofRewriteRule, ProofRule,
-    RoundingMode, SkolemId, SortKind, UnknownExplanation,
+    BlockModelsMode, FindSynthTarget, InputLanguage, Kind, LearnedLitType, OptionCategory, Plugin,
+    ProofComponent, ProofFormat, ProofRewriteRule, ProofRule, RoundingMode, SkolemId, SortKind,
+    UnknownExplanation,
 };
 
 pub use datatype::{
@@ -55,7 +55,7 @@ pub use grammar::Grammar;
 pub use op::Op;
 pub use proof::Proof;
 pub use result::Result;
-pub use solver::{OptionInfo, Solver};
+pub use solver::{OptionInfo, OptionInfoKind, Solver};
 pub use sort::Sort;
 pub use statistics::{Stat, Statistics};
 pub use synth_result::SynthResult;
