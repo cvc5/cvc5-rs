@@ -47,74 +47,76 @@ pub enum OptionInfoKind<'a> {
 }
 
 #[derive(Copy, Clone)]
-#[repr(transparent)]
-pub struct OptionInfo(cvc5_sys::OptionInfo);
+pub struct OptionInfo<'a> {
+    inner: cvc5_sys::OptionInfo,
+    _phantom: PhantomData<&'a ()>,
+}
 
-impl OptionInfo {
+impl OptionInfo<'_> {
     pub fn kind(&self) -> OptionInfoKind<'_> {
         use cvc5_sys::OptionInfoKind as K;
-        match self.0.kind {
+        match self.inner.kind {
             K::Void => OptionInfoKind::Void,
             K::Bool => OptionInfoKind::Bool {
-                default: self.0.info_bool.dflt,
-                current: self.0.info_bool.cur,
+                default: self.inner.info_bool.dflt,
+                current: self.inner.info_bool.cur,
             },
             K::Str => OptionInfoKind::String {
-                default: unsafe { std::ffi::CStr::from_ptr(self.0.info_str.dflt).to_str() }
+                default: unsafe { std::ffi::CStr::from_ptr(self.inner.info_str.dflt).to_str() }
                     .expect(ERROR_NOT_UTF8),
-                current: unsafe { std::ffi::CStr::from_ptr(self.0.info_str.cur).to_str() }
+                current: unsafe { std::ffi::CStr::from_ptr(self.inner.info_str.cur).to_str() }
                     .expect(ERROR_NOT_UTF8),
             },
             K::Int64 => OptionInfoKind::Int64 {
-                default: self.0.info_int.dflt,
-                current: self.0.info_int.cur,
-                min: if self.0.info_int.has_min {
-                    Some(self.0.info_int.min)
+                default: self.inner.info_int.dflt,
+                current: self.inner.info_int.cur,
+                min: if self.inner.info_int.has_min {
+                    Some(self.inner.info_int.min)
                 } else {
                     None
                 },
-                max: if self.0.info_int.has_max {
-                    Some(self.0.info_int.max)
+                max: if self.inner.info_int.has_max {
+                    Some(self.inner.info_int.max)
                 } else {
                     None
                 },
             },
             K::Uint64 => OptionInfoKind::UInt64 {
-                default: self.0.info_uint.dflt,
-                current: self.0.info_uint.cur,
-                min: if self.0.info_uint.has_min {
-                    Some(self.0.info_uint.min)
+                default: self.inner.info_uint.dflt,
+                current: self.inner.info_uint.cur,
+                min: if self.inner.info_uint.has_min {
+                    Some(self.inner.info_uint.min)
                 } else {
                     None
                 },
-                max: if self.0.info_uint.has_max {
-                    Some(self.0.info_uint.max)
+                max: if self.inner.info_uint.has_max {
+                    Some(self.inner.info_uint.max)
                 } else {
                     None
                 },
             },
             K::Double => OptionInfoKind::Double {
-                default: self.0.info_double.dflt,
-                current: self.0.info_double.cur,
-                min: if self.0.info_double.has_min {
-                    Some(self.0.info_double.min)
+                default: self.inner.info_double.dflt,
+                current: self.inner.info_double.cur,
+                min: if self.inner.info_double.has_min {
+                    Some(self.inner.info_double.min)
                 } else {
                     None
                 },
-                max: if self.0.info_double.has_max {
-                    Some(self.0.info_double.max)
+                max: if self.inner.info_double.has_max {
+                    Some(self.inner.info_double.max)
                 } else {
                     None
                 },
             },
             K::Modes => OptionInfoKind::Mode {
-                default: unsafe { std::ffi::CStr::from_ptr(self.0.info_mode.dflt).to_str() }
+                default: unsafe { std::ffi::CStr::from_ptr(self.inner.info_mode.dflt).to_str() }
                     .expect(ERROR_NOT_UTF8),
-                current: unsafe { std::ffi::CStr::from_ptr(self.0.info_mode.cur).to_str() }
+                current: unsafe { std::ffi::CStr::from_ptr(self.inner.info_mode.cur).to_str() }
                     .expect(ERROR_NOT_UTF8),
-                modes: (0..self.0.info_mode.num_modes)
+                modes: (0..self.inner.info_mode.num_modes)
                     .map(|i| {
-                        let p = unsafe { *self.0.info_mode.modes.add(i) };
+                        let p = unsafe { *self.inner.info_mode.modes.add(i) };
                         unsafe { std::ffi::CStr::from_ptr(p).to_str() }.expect(ERROR_NOT_UTF8)
                     })
                     .collect(),
@@ -122,36 +124,37 @@ impl OptionInfo {
         }
     }
     pub fn category(&self) -> OptionCategory {
-        self.0.category
+        self.inner.category
     }
     pub fn name(&self) -> impl AsRef<str> {
-        unsafe { std::ffi::CStr::from_ptr(self.0.name).to_string_lossy() }
+        unsafe { std::ffi::CStr::from_ptr(self.inner.name).to_string_lossy() }
     }
     pub fn is_set_by_user(&self) -> bool {
-        self.0.is_set_by_user
+        self.inner.is_set_by_user
     }
     pub fn aliases(&self) -> Vec<impl AsRef<str>> {
-        (0..self.0.num_aliases)
+        (0..self.inner.num_aliases)
             .map(|i| {
-                let p = unsafe { *self.0.aliases.add(i) };
+                let p = unsafe { *self.inner.aliases.add(i) };
                 unsafe { std::ffi::CStr::from_ptr(p).to_string_lossy() }
             })
             .collect()
     }
     pub fn no_supports(&self) -> Vec<impl AsRef<str>> {
-        (0..self.0.num_no_supports)
+        (0..self.inner.num_no_supports)
             .map(|i| {
-                let p = unsafe { *self.0.no_supports.add(i) };
+                let p = unsafe { *self.inner.no_supports.add(i) };
                 unsafe { std::ffi::CStr::from_ptr(p).to_string_lossy() }
             })
             .collect()
     }
 }
 
-impl fmt::Display for OptionInfo {
+impl fmt::Display for OptionInfo<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s =
-            unsafe { std::ffi::CStr::from_ptr(option_info_to_string(&self.0)).to_string_lossy() };
+        let s = unsafe {
+            std::ffi::CStr::from_ptr(option_info_to_string(&self.inner)).to_string_lossy()
+        };
         write!(f, "{}", s)
     }
 }
@@ -882,12 +885,17 @@ impl<'tm> Solver<'tm> {
         Statistics::from_raw(unsafe { get_statistics(self.inner) })
     }
 
-    /// Get detailed information about a solver option.
-    pub fn get_option_info(&self, option: &str) -> OptionInfo {
+    /**
+    Get detailed information about a solver option.
+     */
+    pub fn get_option_info(&mut self, option: &str) -> OptionInfo<'_> {
         let c = CString::new(option).unwrap();
         let mut info: cvc5_sys::OptionInfo = unsafe { std::mem::zeroed() };
         unsafe { get_option_info(self.inner, c.as_ptr(), &mut info) };
-        OptionInfo(info)
+        OptionInfo {
+            inner: info,
+            _phantom: PhantomData,
+        }
     }
 
     // ── Plugin ─────────────────────────────────────────────────────
