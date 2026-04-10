@@ -2043,10 +2043,12 @@ fn solver_get_option_names() {
 #[test]
 fn solver_option_info() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     let info = solver.get_option_info("produce-models");
-    let s = Solver::option_info_to_string(&info);
-    assert!(!s.is_empty());
+    assert_eq!(
+        info.to_string(),
+        "OptionInfo{ produce-models | bool | false | default false }"
+    );
 }
 
 // ── simplify ───────────────────────────────────────────────────────
