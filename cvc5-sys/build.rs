@@ -465,4 +465,27 @@ fn link_cxx_stdlib() {
     if let Some(cxx) = cxx {
         println!("cargo:rustc-link-lib={cxx}");
     }
+
+    // On RHEL/CentOS with GCC toolsets (e.g. gcc-toolset-10), newer C++ symbols
+    // live in libstdc++_nonshared.a rather than the base system libstdc++.so.
+    // If cvc5 was compiled with such a GCC, we must link this supplemental library.
+    #[cfg(feature = "static")]
+    if let Ok(output) = Command::new(cc::Build::new().cpp(true).get_compiler().path())
+        .arg("-print-search-dirs")
+        .output()
+    {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        for line in stdout.lines() {
+            if let Some(dirs) = line.strip_prefix("libraries: =") {
+                for dir in dirs.split(':') {
+                    let dir = Path::new(dir);
+                    if dir.join("libstdc++_nonshared.a").exists() {
+                        println!("cargo:rustc-link-search=native={}", dir.display());
+                        println!("cargo:rustc-link-lib=static=stdc++_nonshared");
+                        return;
+                    }
+                }
+            }
+        }
+    }
 }
