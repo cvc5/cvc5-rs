@@ -262,12 +262,16 @@ fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
     let cvc5_dir = find_cvc5_dir();
     let expected = read_expected_cvc5_version();
     check_cvc5_version(&cvc5_dir, &expected);
-    let include_dir = find_cvc5_include_dir();
+    let include_dir =
+        find_cvc5_include_dir().unwrap_or_else(|| cvc5_dir.join("build/install/include"));
     if cvc5_dir.join("build/install/lib/libcvc5.a").exists() {
-        return (include_dir, Some(cvc5_dir.join("build/install/lib")));
+        return (Some(include_dir), Some(cvc5_dir.join("build/install/lib")));
     }
     if cvc5_dir.join("build/install/lib64/libcvc5.a").exists() {
-        return (include_dir, Some(cvc5_dir.join("build/install/lib64")));
+        return (
+            Some(include_dir),
+            Some(cvc5_dir.join("build/install/lib64")),
+        );
     }
 
     eprintln!("cvc5 not yet built — running configure and make (this may take a while)...");
@@ -322,10 +326,7 @@ fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
             }
         }
     };
-    (
-        Some(include_dir.unwrap_or_else(|| cvc5_dir.join("build/install/include"))),
-        Some(lib_dir),
-    )
+    (Some(include_dir), Some(lib_dir))
 }
 
 #[cfg(not(unix))]
