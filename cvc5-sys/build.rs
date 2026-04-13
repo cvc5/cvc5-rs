@@ -293,14 +293,8 @@ fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
         .map(|n| n.get().to_string())
         .unwrap_or_else(|_| "4".to_string());
 
-    let mut targets: Vec<&str> = vec!["cvc5"];
-    if cfg!(feature = "parser") {
-        targets.push("cvc5parser");
-    }
-
     let status = Command::new("make")
         .arg(format!("-j{jobs}"))
-        .args(targets)
         .current_dir(cvc5_dir.join("build"))
         .status()
         .expect("Failed to run make");
