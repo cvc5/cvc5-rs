@@ -118,10 +118,10 @@ jobs:
       - name: Run tests (dynamic linking)
         run: cargo test --features parser
         env:
-          C_INCLUDE_PATH: -L${{ env.GITHUB_ACTION_PATH }}/cvc5-sys/cvc5/build-dynamic/install/include
-          CPLUS_INCLUDE_PATH: -L${{ env.GITHUB_ACTION_PATH }}/cvc5-sys/cvc5/build-dynamic/install/include
-          LDFLAGS: -L${{ env.GITHUB_ACTION_PATH }}/cvc5-sys/cvc5/build-dynamic/install/lib
-  
+          CVC5_LIB_DIR: ${{ env.GITHUB_ACTION_PATH }}/cvc5-sys/cvc5/build-dynamic/install/lib
+          DYLD_LIBRARY_PATH: ${{ env.GITHUB_ACTION_PATH }}/cvc5-sys/cvc5/build-dynamic/install/lib
+          LD_LIBRARY_PATH: ${{ env.GITHUB_ACTION_PATH }}/cvc5-sys/cvc5/build-dynamic/install/lib
+
   lints:
     name: Lints
     runs-on: ubuntu-latest
