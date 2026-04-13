@@ -1,8 +1,10 @@
-use std::{env, fs, path::PathBuf};
+use std::{env, path::PathBuf};
 
 use bindgen::callbacks::{ItemKind, ParseCallbacks};
 use convert_case::{Case, Casing as _};
 
+#[cfg(feature = "static")]
+use std::fs;
 #[cfg(feature = "static")]
 use std::path::Path;
 #[cfg(feature = "static")]
@@ -343,9 +345,39 @@ fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
     panic!("This rust binding for cvc5 is only supported on Unix systems!.");
 }
 
+/// Ask the C compiler to resolve `cvc5/c/cvc5.h` and return its include
+/// directory (the parent of `cvc5/`).
+#[cfg(not(feature = "static"))]
+fn discover_include_dir() -> Option<PathBuf> {
+    let compiler = cc::Build::new().cargo_warnings(false).get_compiler();
+    let output = std::process::Command::new(compiler.path())
+        .args(compiler.args())
+        .args(["-E", "-M", "-xc", "-"])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::null())
+        .spawn()
+        .and_then(|mut child| {
+            use std::io::Write;
+            child
+                .stdin
+                .take()
+                .unwrap()
+                .write_all(b"#include <cvc5/c/cvc5.h>\n")?;
+            child.wait_with_output()
+        })
+        .ok()?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let suffix = "/cvc5/c/cvc5.h";
+    stdout.split_whitespace().find_map(|token| {
+        let path = token.strip_suffix(suffix)?;
+        Some(PathBuf::from(path))
+    })
+}
+
 #[cfg(not(feature = "static"))]
 fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
-    (find_cvc5_include_dir(), None)
+    (find_cvc5_include_dir().or_else(discover_include_dir), None)
 }
 
 fn find_cvc5_include_dir() -> Option<PathBuf> {
