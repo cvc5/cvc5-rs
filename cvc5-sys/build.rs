@@ -1,4 +1,4 @@
-use std::{env, path::PathBuf};
+use std::{env, fs, path::PathBuf};
 
 use bindgen::callbacks::{ItemKind, ParseCallbacks};
 use convert_case::{Case, Casing as _};
@@ -326,6 +326,14 @@ fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
             }
         }
     };
+
+    // GMP work around; c.f. https://github.com/cvc5/cvc5/pull/12168
+    for file in glob::glob(&build_dir.join("deps/lib/libgmp.*").to_string_lossy()).unwrap() {
+        let file = file.unwrap();
+        let dest = lib_dir.join(file.file_name().unwrap());
+        fs::copy(file, dest).unwrap();
+    }
+
     (Some(include_dir), Some(lib_dir))
 }
 
