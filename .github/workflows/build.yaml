@@ -108,6 +108,7 @@ jobs:
             cd build-dynamic
             make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
             make install
+            cp libcadical.a libgmp* install/lib
           fi
 
       - uses: Swatinem/rust-cache@v2
