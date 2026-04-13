@@ -1,12 +1,12 @@
-use std::path::Path;
-use std::{env, path::PathBuf, process::Command};
+use std::{env, path::PathBuf};
 
 use bindgen::callbacks::{ItemKind, ParseCallbacks};
 use convert_case::{Case, Casing as _};
+
 #[cfg(feature = "static")]
-const LIB_EXTENSION: &str = "a";
-#[cfg(not(feature = "static"))]
-const LIB_EXTENSION: &str = "so";
+use std::path::Path;
+#[cfg(feature = "static")]
+use std::process::Command;
 
 fn link_with(name: &str) {
     #[cfg(feature = "static")]
@@ -39,62 +39,35 @@ fn main() {
         return;
     }
 
-    // If CVC5_LIB_DIR is set, link directly without building cvc5.
-    if let Ok(lib_dir) = env::var("CVC5_LIB_DIR") {
-        link_prebuilt(&PathBuf::from(lib_dir));
-        return;
-    }
+    // If CVC5_LIB_DIR is set, resolve the path according to the given path
+    let (include_dir, lib_dir) = if let Ok(lib_dir) = env::var("CVC5_LIB_DIR") {
+        resolve_paths_given_lib_dir(PathBuf::from(lib_dir))
+    } else {
+        ensure_cvc5_built_and_install()
+    };
+    lib_dir.iter().for_each(|lib_dir| {
+        println!("cargo:rustc-link-search=native={}", lib_dir.display());
+    });
 
-    let cvc5_dir = find_cvc5_dir();
-    let expected = read_expected_cvc5_version();
-    check_cvc5_version(&cvc5_dir, &expected);
-    #[cfg(feature = "static")]
-    ensure_cvc5_built(&cvc5_dir);
-
-    let include_dir = cvc5_dir.join("include");
-    let build_dir = cvc5_dir.join("build");
-    let build_include_dir = build_dir.join("include");
-
-    // Link against the static library
-    println!(
-        "cargo:rustc-link-search=native={}",
-        build_dir.join("src").display()
-    );
     link_with("cvc5");
-
     // Link parser library
     if cfg!(feature = "parser") {
-        println!(
-            "cargo:rustc-link-search=native={}",
-            build_dir.join("src/parser").display()
-        );
         link_with("cvc5parser");
     }
 
-    // Link dependencies
-    let deps_lib = build_dir.join("deps/lib");
-    if deps_lib.exists() {
-        println!("cargo:rustc-link-search=native={}", deps_lib.display());
-        for lib in &["cadical", "gmp"] {
-            let path = deps_lib.join(format!("lib{lib}.{LIB_EXTENSION}"));
-            if path.exists() {
-                link_with(lib);
-            }
-        }
-        #[cfg(feature = "static")]
-        for lib in &["picpoly", "picpolyxx"] {
-            let path = deps_lib.join(format!("lib{lib}.{LIB_EXTENSION}"));
-            if path.exists() {
-                link_with(lib);
-            }
-        }
+    for lib in &["cadical", "gmp"] {
+        link_with(lib);
+    }
+    #[cfg(feature = "static")]
+    for lib in &["picpoly", "picpolyxx"] {
+        link_with(lib);
     }
 
     // Link C++ stdlib
     link_cxx_stdlib();
 
     // Generate bindings
-    generate_bindings(&include_dir, &build_include_dir);
+    generate_bindings(include_dir);
 }
 
 /// Renames enums
@@ -155,19 +128,19 @@ impl ParseCallbacks for RenamingCallback {
     }
 }
 
-fn generate_bindings(include_dir: &Path, build_include_dir: &Path) {
+fn generate_bindings(include_dir: Option<PathBuf>) {
     // Generate bindings from the C API header
-    let header = include_dir.join("cvc5/c/cvc5.h");
-    assert!(
-        header.exists(),
-        "cvc5 C header not found at {}",
-        header.display()
-    );
+    let header = "cvc5/c/cvc5.h";
 
-    let bindings = bindgen::Builder::default()
-        .header(header.to_string_lossy())
-        .clang_arg(format!("-I{}", include_dir.display()))
-        .clang_arg(format!("-I{}", build_include_dir.display()))
+    let builder = bindgen::Builder::default();
+    let builder = match include_dir.as_ref() {
+        Some(include_dir) => builder
+            .header(include_dir.join(header).to_string_lossy())
+            .clang_arg(format!("-I{}", include_dir.display())),
+        None => builder.header(header),
+    };
+
+    let bindings = builder
         .parse_callbacks(Box::new(RenamingCallback))
         .clang_arg("-DCVC5_STATIC_DEFINE")
         .allowlist_function("cvc5_.*")
@@ -201,43 +174,47 @@ fn generate_bindings(include_dir: &Path, build_include_dir: &Path) {
 
     // Generate parser bindings if feature enabled
     if cfg!(feature = "parser") {
-        let parser_header = include_dir.join("cvc5/c/cvc5_parser.h");
-        if parser_header.exists() {
-            let parser_bindings = bindgen::Builder::default()
-                .header(parser_header.to_string_lossy())
-                .clang_arg(format!("-I{}", include_dir.display()))
-                .clang_arg(format!("-I{}", build_include_dir.display()))
-                .clang_arg("-DCVC5_STATIC_DEFINE")
-                .parse_callbacks(Box::new(RenamingCallback))
-                .allowlist_function("cvc5_parser_.*")
-                .allowlist_function("cvc5_cmd_.*")
-                .allowlist_function("cvc5_symbol_manager_.*")
-                .allowlist_function("cvc5_sm_.*")
-                .allowlist_type("Cvc5InputParser")
-                .allowlist_type("Cvc5SymbolManager")
-                .allowlist_type("Cvc5Command")
-                .allowlist_type("cvc5_cmd_t")
-                .blocklist_type("Cvc5")
-                .blocklist_type("Cvc5TermManager")
-                .blocklist_type("Cvc5Sort")
-                .blocklist_type("cvc5_sort_t")
-                .blocklist_type("Cvc5Term")
-                .blocklist_type("cvc5_term_t")
-                .blocklist_type("Cvc5InputLanguage")
-                .raw_line("use super::*;")
-                .generate_comments(true)
-                .derive_default(true)
-                .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-                .generate()
-                .expect("Unable to generate cvc5 parser bindings");
+        let parser_header = "cvc5/c/cvc5_parser.h";
+        let builder = bindgen::Builder::default();
+        let builder = match include_dir.as_ref() {
+            Some(include_dir) => builder
+                .header(include_dir.join(parser_header).to_string_lossy())
+                .clang_arg(format!("-I{}", include_dir.display())),
+            None => builder.header(parser_header),
+        };
 
-            parser_bindings
-                .write_to_file(out_path.join("parser_bindings.rs"))
-                .expect("Couldn't write parser bindings!");
-        }
+        let parser_bindings = builder
+            .clang_arg("-DCVC5_STATIC_DEFINE")
+            .parse_callbacks(Box::new(RenamingCallback))
+            .allowlist_function("cvc5_parser_.*")
+            .allowlist_function("cvc5_cmd_.*")
+            .allowlist_function("cvc5_symbol_manager_.*")
+            .allowlist_function("cvc5_sm_.*")
+            .allowlist_type("Cvc5InputParser")
+            .allowlist_type("Cvc5SymbolManager")
+            .allowlist_type("Cvc5Command")
+            .allowlist_type("cvc5_cmd_t")
+            .blocklist_type("Cvc5")
+            .blocklist_type("Cvc5TermManager")
+            .blocklist_type("Cvc5Sort")
+            .blocklist_type("cvc5_sort_t")
+            .blocklist_type("Cvc5Term")
+            .blocklist_type("cvc5_term_t")
+            .blocklist_type("Cvc5InputLanguage")
+            .raw_line("use super::*;")
+            .generate_comments(true)
+            .derive_default(true)
+            .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+            .generate()
+            .expect("Unable to generate cvc5 parser bindings");
+
+        parser_bindings
+            .write_to_file(out_path.join("parser_bindings.rs"))
+            .expect("Couldn't write parser bindings!");
     }
 }
 
+#[cfg(feature = "static")]
 fn read_expected_cvc5_version() -> String {
     let manifest = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("Cargo.toml");
     let content = std::fs::read_to_string(&manifest).expect("Failed to read Cargo.toml");
@@ -248,6 +225,7 @@ fn read_expected_cvc5_version() -> String {
         .to_string()
 }
 
+#[cfg(feature = "static")]
 fn check_cvc5_version(cvc5_dir: &Path, expected: &str) {
     let version_file = cvc5_dir.join("cmake/version-base.cmake");
     assert!(
@@ -276,11 +254,17 @@ fn check_cvc5_version(cvc5_dir: &Path, expected: &str) {
     println!("cargo:rerun-if-changed={}", version_file.display());
 }
 
+// return (include path, lib path) if exist
+
 #[cfg(unix)]
 #[cfg(feature = "static")]
-fn ensure_cvc5_built(cvc5_dir: &PathBuf) {
-    if cvc5_dir.join("build/src/libcvc5.a").exists() {
-        return;
+fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
+    let cvc5_dir = find_cvc5_dir();
+    let expected = read_expected_cvc5_version();
+    check_cvc5_version(&cvc5_dir, &expected);
+    let include_dir = find_cvc5_include_dir();
+    if cvc5_dir.join("build/install/lib/libcvc5.a").exists() {
+        return (include_dir, Some(cvc5_dir.join("build/install/lib")));
     }
 
     eprintln!("cvc5 not yet built — running configure and make (this may take a while)...");
@@ -300,7 +284,7 @@ fn ensure_cvc5_built(cvc5_dir: &PathBuf) {
         .arg("--auto-download")
         .arg(format!("--prefix={}/install", build_dir.display()))
         .arg("-DBUILD_GMP=1")
-        .current_dir(cvc5_dir)
+        .current_dir(&cvc5_dir)
         .status()
         .expect("Failed to run configure.sh");
     assert!(status.success(), "cvc5 configure.sh failed");
@@ -321,18 +305,39 @@ fn ensure_cvc5_built(cvc5_dir: &PathBuf) {
         .status()
         .expect("Failed to run make");
     assert!(status.success(), "cvc5 build failed");
+
+    let status = Command::new("make")
+        .arg("install")
+        .current_dir(cvc5_dir.join("build"))
+        .status()
+        .expect("Failed to run make");
+    assert!(status.success(), "cvc5 install failed");
+    return (
+        Some(include_dir.unwrap_or_else(|| cvc5_dir.join("build/install/include"))),
+        Some(cvc5_dir.join("build/install/lib")),
+    );
 }
 
 #[cfg(not(unix))]
 #[cfg(feature = "static")]
-fn ensure_cvc5_built(cvc5_dir: &PathBuf) {
-    assert!(
-        cvc5_dir.join("build/src/libcvc5.a").exists(),
-        "cvc5 is not built and automatic building is only supported on Unix. \
-         Please build cvc5 manually before running cargo build."
-    );
+fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
+    panic!("This rust binding for cvc5 is only supported on Unix systems!.");
 }
 
+#[cfg(not(feature = "static"))]
+fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
+    (find_cvc5_include_dir(), None)
+}
+
+fn find_cvc5_include_dir() -> Option<PathBuf> {
+    println!("cargo:rerun-if-env-changed=CVC5_INCLUDE_DIR");
+    match env::var("CVC5_INCLUDE_DIR") {
+        Ok(d) => Some(PathBuf::from(d)),
+        Err(_) => None,
+    }
+}
+
+#[cfg(feature = "static")]
 fn find_cvc5_dir() -> PathBuf {
     // 1. Check CVC5_DIR env var
     println!("cargo:rerun-if-env-changed=CVC5_DIR");
@@ -371,13 +376,7 @@ fn find_cvc5_dir() -> PathBuf {
     out
 }
 
-/// Link against prebuilt cvc5 libraries and generate bindings.
-///
-/// `lib_dir` is the directory containing the static libraries (libcvc5.a, etc.).
-/// Headers are located via `CVC5_INCLUDE_DIR` env var, or `<lib_dir>/../include`.
-fn link_prebuilt(lib_dir: &Path) {
-    println!("cargo:rerun-if-env-changed=CVC5_INCLUDE_DIR");
-
+fn resolve_paths_given_lib_dir(lib_dir: PathBuf) -> (Option<PathBuf>, Option<PathBuf>) {
     assert!(
         lib_dir.exists(),
         "CVC5_LIB_DIR does not exist: {}",
@@ -385,10 +384,7 @@ fn link_prebuilt(lib_dir: &Path) {
     );
 
     // Find include directory
-    let include_dir = match env::var("CVC5_INCLUDE_DIR") {
-        Ok(d) => PathBuf::from(d),
-        Err(_) => lib_dir.join("../include"),
-    };
+    let include_dir = find_cvc5_include_dir().unwrap_or_else(|| lib_dir.join("../include"));
     let include_dir = include_dir.canonicalize().unwrap_or_else(|_| {
         panic!(
             "Include directory not found. Set CVC5_INCLUDE_DIR or ensure \
@@ -397,30 +393,7 @@ fn link_prebuilt(lib_dir: &Path) {
         )
     });
 
-    // Link
-    println!("cargo:rustc-link-search=native={}", lib_dir.display());
-    link_with("cvc5");
-
-    if cfg!(feature = "parser") {
-        link_with("cvc5parser");
-    }
-
-    // Link bundled dependencies if present
-    for lib in &["cadical", "gmp"] {
-        if lib_dir.join(format!("lib{lib}.{LIB_EXTENSION}")).exists() {
-            link_with(lib);
-        }
-    }
-    #[cfg(feature = "static")]
-    for lib in &["picpoly", "picpolyxx"] {
-        let path = lib_dir.join(format!("lib{lib}.{LIB_EXTENSION}"));
-        if path.exists() {
-            link_with(lib);
-        }
-    }
-
-    link_cxx_stdlib();
-    generate_bindings(&include_dir, &include_dir);
+    (Some(include_dir), Some(lib_dir))
 }
 
 fn link_cxx_stdlib() {
