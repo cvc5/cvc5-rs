@@ -93,7 +93,7 @@ jobs:
           key: ${{ runner.os }}-cvc5-dynamic-${{ hashFiles('cvc5-sys/cvc5/**/*.cmake', 'cvc5-sys/cvc5/CMakeLists.txt') }}
           restore-keys: ${{ runner.os }}-cvc5-dynamic
 
-      - name: Build cvc5
+      - name: Build cvc5 (static linking)
         run: |
           cd cvc5-sys/cvc5
           if [ ! -f build/install/lib/libcvc5.a ]; then
@@ -102,7 +102,10 @@ jobs:
             make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
             make install
           fi
-          
+
+      - name: Build cvc5 (dynamic linking)
+        run: |
+          cd cvc5-sys/cvc5
           if [ ! -f build-dynamic/install/lib/libcvc5.so -a ! -f build-dynamic/install/lib/libcvc5.dylib ]; then
             ./configure.sh --name=build-dynamic --auto-download --prefix=$(pwd)/build-dynamic/install -DBUILD_GMP=1
             cd build-dynamic
