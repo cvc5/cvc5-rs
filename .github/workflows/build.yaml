@@ -96,7 +96,7 @@ jobs:
       - name: Build cvc5
         run: |
           cd cvc5-sys/cvc5
-          if [ ! -f build/src/libcvc5.a ]; then
+          if [ ! -f build/install/lib/libcvc5.a ]; then
             ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
             cd build
             make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
@@ -108,7 +108,7 @@ jobs:
             cd build-dynamic
             make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
             make install
-            cp libcadical.a libgmp* install/lib
+            cp deps/lib/libcadical.a deps/lib/libgmp* install/lib
           fi
 
       - uses: Swatinem/rust-cache@v2
