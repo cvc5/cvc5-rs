@@ -17,15 +17,15 @@ algebraic datatypes, and more.
 
 ## Version Correspondence
 
-| `cvc5` Version | `cvc5-sys` Version | `cvc5-rs` Version |
-|--------|---------|-----------|
-| 1.3.1  |  0.3.1  | >= 0.3.2 |
+| `cvc5` Version | `cvc5-sys` Version | `cvc5` Crate Version |
+|--------|--------------------|--------------------|
+| 1.3.1  | &gt;= 0.4 < 0.5    | &gt;= 0.4 < 0.5        |
 
 ## Prerequisites
 
-- cvc5 1.3.1 (included as a git submodule in `cvc5-sys/cvc5`; built automatically by `cvc5-sys` if needed)
+- cvc5 1.3.1 (included as a git submodule in `cvc5-sys/cvc5`; built automatically by `cvc5-sys` when the `static` feature is enabled)
 
-If building from source using the `static` feature, install
+If building from source using the `static` feature, install:
 
 - A C/C++ compiler, CMake ≥ 3.16, and libclang (for bindgen)
 - Git (for automatic source download when installed from crates.io)
@@ -37,7 +37,7 @@ git clone --recurse-submodules https://github.com/cvc5/cvc5-rs.git
 cd cvc5-rs
 
 # Build everything (cvc5 is compiled automatically on first run)
-cargo build
+cargo build --features static
 ```
 
 ## Usage
@@ -46,29 +46,53 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cvc5 = "0.3"
+cvc5 = "0.4"
+```
+
+Enable the `static` feature to statically link cvc5 and build it from source automatically:
+
+```toml
+[dependencies]
+cvc5 = { version = "0.4", features = ["static"] }
+```
+
+Without the `static` feature, cvc5 must be installed on the system or a path to shared library must be specified by
+`CVC5_LIB_DIR`. The build script discovers headers via `CVC5_INCLUDE_DIR`, `CVC5_LIB_DIR/../include`, or by asking the
+C compiler in this order.
+
+Enable the `parser` feature for SMT-LIB parsing support:
+
+```toml
+[dependencies]
+cvc5 = { version = "0.4", features = ["static", "parser"] }
 ```
 
 An application can set `CVC5_DIR` in its `.cargo/config.toml` to point to a local cvc5 checkout
-so that `cvc5-sys` can build against it:
+so that `cvc5-sys` can build against it (requires the `static` feature):
 
 ```toml
 [env]
 CVC5_DIR = { value = "cvc5", relative = true }
 ```
 
-Enable the `static` feature to statically-link against cvc5.
-
 ### Linking Against a Prebuilt cvc5
 
-If you already have cvc5 built, you can skip the automatic build by setting `CVC5_LIB_DIR` to the
-directory containing the static (if `static`) or dynamic libraries (`libcvc5.a`, etc.):
+If you already have cvc5 built and installed, you can skip the automatic build by setting
+`CVC5_LIB_DIR` to the directory containing the libraries:
 
 ```bash
-CVC5_LIB_DIR=/path/to/cvc5/build/lib cargo build
+CVC5_LIB_DIR=/path/to/cvc5/build/install/lib cargo build --features static
+```
+or
+```bash
+CVC5_LIB_DIR=/path/to/cvc5/build/install/lib cargo build
 ```
 
-Headers are expected at `$CVC5_LIB_DIR/../include` by default. To override, set `CVC5_INCLUDE_DIR`:
+Headers are resolved in this order:
+
+1. `CVC5_INCLUDE_DIR` environment variable (if set)
+2. `$CVC5_LIB_DIR/../include`
+3. Compiler discovery (the build script asks the C compiler to locate `cvc5/c/cvc5.h`)
 
 ```bash
 CVC5_LIB_DIR=/path/to/libs CVC5_INCLUDE_DIR=/path/to/include cargo build
@@ -80,7 +104,7 @@ CVC5_LIB_DIR=/path/to/libs CVC5_INCLUDE_DIR=/path/to/include cargo build
 use cvc5::{TermManager, Solver, Kind};
 
 let tm = TermManager::new();
-let mut solver = Solver::new( & tm);
+let mut solver = Solver::new(&tm);
 
 solver.set_logic("QF_LIA");
 solver.set_option("produce-models", "true");
@@ -89,7 +113,7 @@ let int_sort = tm.integer_sort();
 let x = tm.mk_const(int_sort, "x");
 let zero = tm.mk_integer(0);
 
-let gt = tm.mk_term(Kind::Gt, & [x.clone(), zero]);
+let gt = tm.mk_term(Kind::Gt, &[x.clone(), zero]);
 solver.assert_formula(gt);
 
 let result = solver.check_sat();
@@ -117,7 +141,15 @@ println!("x = {x_val}");
 - `Grammar` — for SyGuS (syntax-guided synthesis) problems.
 - `SynthResult` — result of a synthesis query.
 - `Proof` — proof objects when proof production is enabled.
-- `Statistics` — solver statistics.
+- `Statistics`, `Stat` — solver statistics.
+- `OptionInfo`, `OptionInfoKind` — solver option introspection.
+
+### Parser Types (parser feature)
+
+- `InputParser` — SMT-LIB input parser.
+- `SymbolManager` — symbol table for the parser.
+- `Command` — a parsed command.
+- `InputLanguage` — input language enum.
 
 ### Re-exported Enums
 
@@ -127,8 +159,14 @@ The following enums from `cvc5-sys` are re-exported for convenience:
 - `SortKind` — sort kinds (e.g., `BooleanSort`, `IntegerSort`, …)
 - `RoundingMode` — floating-point rounding modes
 - `ProofRule`, `ProofRewriteRule` — proof rules
+- `ProofComponent`, `ProofFormat` — proof output configuration
 - `SkolemId` — Skolem function identifiers
 - `UnknownExplanation` — reasons for unknown results
+- `BlockModelsMode` — model blocking modes
+- `LearnedLitType` — learned literal types
+- `FindSynthTarget` — synthesis targets
+- `OptionCategory` — option categories
+- `Plugin` — plugin interface
 
 ## Configuration
 
