@@ -57,11 +57,8 @@ fn main() {
         link_with("cvc5parser");
     }
 
-    for lib in &["cadical", "gmp"] {
-        link_with(lib);
-    }
     #[cfg(feature = "static")]
-    for lib in &["picpoly", "picpolyxx"] {
+    for lib in &["cadical", "picpoly", "picpolyxx", "gmp"] {
         link_with(lib);
     }
 
