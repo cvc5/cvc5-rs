@@ -1,0 +1,62 @@
+name: Setup cvc5
+description: Build and cache cvc5 (static, and optionally dynamic)
+
+inputs:
+  build-dynamic:
+    description: Also build the dynamic-linking variant of cvc5
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Install build dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake
+
+    - name: Install build dependencies (macOS)
+      if: runner.os == 'macOS'
+      shell: bash
+      run: brew install cmake
+
+    - name: Cache cvc5 build (static)
+      uses: actions/cache@v4
+      with:
+        path: cvc5-sys/cvc5/build
+        key: ${{ runner.os }}-cvc5-${{ hashFiles('cvc5-sys/cvc5/**/*.cmake', 'cvc5-sys/cvc5/CMakeLists.txt') }}
+        restore-keys: ${{ runner.os }}-cvc5-
+
+    - name: Build cvc5 (static)
+      shell: bash
+      run: |
+        cd cvc5-sys/cvc5
+        if [ ! -f build/install/lib/libcvc5.a ]; then
+          ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
+          cd build
+          make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+          make install
+        fi
+
+    - name: Cache cvc5 build (dynamic)
+      if: inputs.build-dynamic == 'true'
+      uses: actions/cache@v4
+      with:
+        path: cvc5-sys/cvc5/build-dynamic
+        key: ${{ runner.os }}-cvc5-dynamic-${{ hashFiles('cvc5-sys/cvc5/**/*.cmake', 'cvc5-sys/cvc5/CMakeLists.txt') }}
+        restore-keys: ${{ runner.os }}-cvc5-dynamic
+
+    - name: Build cvc5 (dynamic)
+      if: inputs.build-dynamic == 'true'
+      shell: bash
+      run: |
+        cd cvc5-sys/cvc5
+        if [ ! -f build-dynamic/install/lib/libcvc5.so -a ! -f build-dynamic/install/lib/libcvc5.dylib ]; then
+          ./configure.sh --name=build-dynamic --auto-download --prefix=$(pwd)/build-dynamic/install -DBUILD_GMP=1
+          cd build-dynamic
+          make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+          make install
+          cp deps/lib/libcadical.a deps/lib/libgmp* install/lib
+        fi
