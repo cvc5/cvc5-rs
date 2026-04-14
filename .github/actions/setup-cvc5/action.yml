@@ -58,5 +58,4 @@ runs:
           cd build-dynamic
           make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
           make install
-          cp deps/lib/libcadical.a deps/lib/libgmp* install/lib
         fi
