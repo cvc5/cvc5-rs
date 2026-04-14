@@ -7,7 +7,6 @@ use convert_case::{Case, Casing as _};
 use std::fs;
 #[cfg(feature = "static")]
 use std::path::Path;
-#[cfg(feature = "static")]
 use std::process::Command;
 
 fn link_with(name: &str) {
@@ -344,10 +343,9 @@ fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
 
 /// Ask the C compiler to resolve `cvc5/c/cvc5.h` and return its include
 /// directory (the parent of `cvc5/`).
-#[cfg(not(feature = "static"))]
 fn discover_include_dir() -> Option<PathBuf> {
     let compiler = cc::Build::new().cargo_warnings(false).get_compiler();
-    let output = std::process::Command::new(compiler.path())
+    let output = Command::new(compiler.path())
         .args(compiler.args())
         .args(["-E", "-M", "-xc", "-"])
         .stdin(std::process::Stdio::piped())
@@ -433,13 +431,17 @@ fn resolve_paths_given_lib_dir(lib_dir: PathBuf) -> (Option<PathBuf>, Option<Pat
 
     // Find include directory
     let include_dir = find_cvc5_include_dir().unwrap_or_else(|| lib_dir.join("../include"));
-    let include_dir = include_dir.canonicalize().unwrap_or_else(|_| {
-        panic!(
-            "Include directory not found. Set CVC5_INCLUDE_DIR or ensure \
+    let include_dir = include_dir
+        .canonicalize()
+        .ok()
+        .or_else(discover_include_dir)
+        .unwrap_or_else(|| {
+            panic!(
+                "Include directory not found. Set CVC5_INCLUDE_DIR or ensure \
              {}/include exists.",
-            lib_dir.join("..").display()
-        )
-    });
+                lib_dir.join("..").display()
+            )
+        });
 
     (Some(include_dir), Some(lib_dir))
 }
