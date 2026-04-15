@@ -22,19 +22,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential cmake
 
-      - name: Build cvc5
-        run: |
-          cd cvc5-sys/cvc5
-          ./configure.sh --static --auto-download --prefix=$(pwd)/build/install
-          cd build && make -j$(nproc)
+      - name: Setup cvc5
+        uses: ./.github/actions/setup-cvc5
 
       - uses: rust-lang/crates-io-auth-action@v1
         id: auth
 
-      - run: cargo publish -p cvc5-sys || true
+      - run: cargo publish -p cvc5-sys --all-features || true
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
 
-      - run: cargo publish -p cvc5-rs
+      - run: cargo publish -p cvc5 --all-features
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
