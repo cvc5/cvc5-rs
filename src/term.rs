@@ -417,6 +417,25 @@ impl<'tm> Term<'tm> {
             .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
             .collect()
     }
+
+    /// Test whether a cvc5 term is a constant value
+    pub fn is_const_value(&self) -> bool {
+        // Built-in value types
+        self.is_boolean_value()
+            || self.is_integer_value()
+            || self.is_real_value()
+            || self.is_string_value()
+            || self.is_bv_value()
+            || self.is_const_array()
+            || self.is_ff_value()
+            || self.is_uninterpreted_sort_value()
+            || self.is_fp_value()
+            || self.is_tuple_value()
+            || self.is_sequence_value()
+            // Datatype constructor with all-const args
+            || (self.kind() == Kind::ApplyConstructor
+            && (0..self.num_children()).all(|i| self.child(i).is_const_value()))
+    }
 }
 
 impl fmt::Display for Term<'_> {
