@@ -17,10 +17,7 @@ pub struct Sort<'tm> {
 
 impl Clone for Sort<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { sort_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { sort_copy(self.inner) })
     }
 }
 
@@ -33,7 +30,7 @@ impl Drop for Sort<'_> {
 impl<'tm> Sort<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Sort) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "Sort"),
             _phantom: PhantomData,
         }
     }
@@ -59,11 +56,12 @@ impl<'tm> Sort<'tm> {
     }
 
     /// Get the symbol (name) of this sort.
+    ///
+    /// Returns `""` if this sort has no symbol; use
+    /// [`has_symbol`](Sort::has_symbol) to distinguish that from an empty
+    /// symbol.
     pub fn symbol(&self) -> &str {
-        unsafe {
-            let s = sort_get_symbol(self.inner);
-            std::ffi::CStr::from_ptr(s).to_str().unwrap_or("")
-        }
+        unsafe { crate::ffi::cstr_or_empty(sort_get_symbol(self.inner)) }
     }
 
     /// Return `true` if this is the Boolean sort.
@@ -195,8 +193,9 @@ impl<'tm> Sort<'tm> {
     pub fn instantiated_parameters(&self) -> Vec<Sort<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { sort_get_instantiated_parameters(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Sort::from_raw(p))
             .collect()
     }
 
@@ -222,8 +221,9 @@ impl<'tm> Sort<'tm> {
     pub fn dt_constructor_domain(&self) -> Vec<Sort<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { sort_dt_constructor_get_domain(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Sort::from_raw(p))
             .collect()
     }
     /// Get the codomain sort of a datatype constructor sort.
@@ -254,8 +254,9 @@ impl<'tm> Sort<'tm> {
     pub fn fun_domain(&self) -> Vec<Sort<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { sort_fun_get_domain(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Sort::from_raw(p))
             .collect()
     }
     /// Get the codomain sort of a function sort.
@@ -321,8 +322,9 @@ impl<'tm> Sort<'tm> {
     pub fn tuple_element_sorts(&self) -> Vec<Sort<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { sort_tuple_get_element_sorts(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Sort::from_raw(p))
             .collect()
     }
     /// Get the element sort of a nullable sort.

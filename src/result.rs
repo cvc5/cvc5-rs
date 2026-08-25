@@ -10,10 +10,7 @@ pub struct Result<'tm> {
 
 impl Clone for Result<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { result_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { result_copy(self.inner) })
     }
 }
 
@@ -26,7 +23,7 @@ impl Drop for Result<'_> {
 impl<'tm> Result<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Result) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "Result"),
             _phantom: PhantomData,
         }
     }

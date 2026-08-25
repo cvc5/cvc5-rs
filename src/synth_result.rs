@@ -10,10 +10,7 @@ pub struct SynthResult<'tm> {
 
 impl Clone for SynthResult<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { synth_result_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { synth_result_copy(self.inner) })
     }
 }
 
@@ -26,7 +23,7 @@ impl Drop for SynthResult<'_> {
 impl<'tm> SynthResult<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::SynthResult) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "SynthResult"),
             _phantom: PhantomData,
         }
     }

@@ -28,6 +28,7 @@
 //! ```
 
 mod datatype;
+mod ffi;
 mod grammar;
 mod op;
 #[cfg(feature = "parser")]

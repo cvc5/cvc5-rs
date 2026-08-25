@@ -8,7 +8,10 @@ struct RawTermManager(*mut cvc5_sys::TermManager);
 
 impl RawTermManager {
     fn new() -> Self {
-        Self(unsafe { term_manager_new() })
+        Self(crate::ffi::non_null(
+            unsafe { term_manager_new() },
+            "TermManager",
+        ))
     }
 }
 
@@ -93,9 +96,14 @@ impl TermManager {
     /// Create mutually recursive datatype sorts from declarations.
     pub fn mk_dt_sorts(&self, decls: &[DatatypeDecl]) -> Vec<Sort<'_>> {
         let raw: Vec<cvc5_sys::DatatypeDecl> = decls.iter().map(|d| d.inner).collect();
+        // `cvc5_mk_dt_sorts` writes no out-length, so the caller has to supply
+        // one: it returns exactly `decls.len()` sorts on success. On failure it
+        // returns NULL (or, on cvc5 <= 1.3.4, aborts), which `raw_slice` maps to
+        // an empty result rather than reading `decls.len()` dangling pointers.
         let ptr = unsafe { mk_dt_sorts(self.ptr(), raw.len(), raw.as_ptr()) };
-        (0..decls.len())
-            .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, decls.len()) }
+            .iter()
+            .map(|&p| Sort::from_raw(p))
             .collect()
     }
 

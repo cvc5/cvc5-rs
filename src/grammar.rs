@@ -14,10 +14,7 @@ pub struct Grammar<'tm> {
 
 impl Clone for Grammar<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { grammar_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { grammar_copy(self.inner) })
     }
 }
 
@@ -30,7 +27,7 @@ impl Drop for Grammar<'_> {
 impl<'tm> Grammar<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Grammar) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "Grammar"),
             _phantom: PhantomData,
         }
     }

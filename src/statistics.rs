@@ -9,15 +9,15 @@ pub struct Statistics {
 
 impl Statistics {
     pub(crate) fn from_raw(raw: cvc5_sys::Statistics) -> Self {
-        Self { inner: raw }
+        Self {
+            inner: crate::ffi::non_null(raw, "Statistics"),
+        }
     }
 
     /// Look up a statistic by name.
     pub fn get(&self, name: &str) -> Stat {
         let c = CString::new(name).unwrap();
-        Stat {
-            inner: unsafe { stats_get(self.inner, c.as_ptr()) },
-        }
+        Stat::from_raw(unsafe { stats_get(self.inner, c.as_ptr()) })
     }
 
     /// Initialize the statistics iterator.
@@ -37,12 +37,12 @@ impl Statistics {
     pub fn iter_next(&self) -> (String, Stat) {
         let mut name: *const std::os::raw::c_char = std::ptr::null();
         let s = unsafe { stats_iter_next(self.inner, &mut name) };
-        let n = unsafe {
-            std::ffi::CStr::from_ptr(name)
-                .to_string_lossy()
-                .into_owned()
-        };
-        (n, Stat { inner: s })
+        // `name` is only written on success, so guard the stat pointer first:
+        // it gives the better panic message when the iterator is exhausted or
+        // uninitialized.
+        let stat = Stat::from_raw(s);
+        let n = unsafe { crate::ffi::cstr_to_string(name, "Statistics::iter_next name") };
+        (n, stat)
     }
 
     /// Advance the iterator and return only the next [`Stat`], ignoring the name.
@@ -72,6 +72,12 @@ pub struct Stat {
 }
 
 impl Stat {
+    pub(crate) fn from_raw(raw: cvc5_sys::Stat) -> Self {
+        Self {
+            inner: crate::ffi::non_null(raw, "Stat"),
+        }
+    }
+
     /// Return `true` if this is an internal (non-public) statistic.
     pub fn is_internal(&self) -> bool {
         unsafe { stat_is_internal(self.inner) }
@@ -127,12 +133,14 @@ impl Stat {
         let mut values: *mut u64 = std::ptr::null_mut();
         let mut size = 0usize;
         unsafe { stat_get_histogram(self.inner, &mut keys, &mut values, &mut size) };
-        (0..size)
-            .map(|i| unsafe {
-                let k = std::ffi::CStr::from_ptr(*keys.add(i))
-                    .to_string_lossy()
-                    .into_owned();
-                let v = *values.add(i);
+        // `keys`/`values`/`size` are only written on success; on failure they
+        // keep the null/zero initializers above.
+        let keys = unsafe { crate::ffi::raw_slice(keys, size) };
+        let values = unsafe { crate::ffi::raw_slice(values, size) };
+        keys.iter()
+            .zip(values)
+            .map(|(&k, &v)| {
+                let k = unsafe { crate::ffi::cstr_to_string(k, "Stat::get_histogram key") };
                 (k, v)
             })
             .collect()
