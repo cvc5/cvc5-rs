@@ -62,10 +62,8 @@ impl OptionInfo<'_> {
                 current: self.inner.info_bool.cur,
             },
             K::Str => OptionInfoKind::String {
-                default: unsafe { std::ffi::CStr::from_ptr(self.inner.info_str.dflt).to_str() }
-                    .expect(ERROR_NOT_UTF8),
-                current: unsafe { std::ffi::CStr::from_ptr(self.inner.info_str.cur).to_str() }
-                    .expect(ERROR_NOT_UTF8),
+                default: unsafe { opt_str(self.inner.info_str.dflt) },
+                current: unsafe { opt_str(self.inner.info_str.cur) },
             },
             K::Int64 => OptionInfoKind::Int64 {
                 default: self.inner.info_int.dflt,
@@ -110,16 +108,17 @@ impl OptionInfo<'_> {
                 },
             },
             K::Modes => OptionInfoKind::Mode {
-                default: unsafe { std::ffi::CStr::from_ptr(self.inner.info_mode.dflt).to_str() }
-                    .expect(ERROR_NOT_UTF8),
-                current: unsafe { std::ffi::CStr::from_ptr(self.inner.info_mode.cur).to_str() }
-                    .expect(ERROR_NOT_UTF8),
-                modes: (0..self.inner.info_mode.num_modes)
-                    .map(|i| {
-                        let p = unsafe { *self.inner.info_mode.modes.add(i) };
-                        unsafe { std::ffi::CStr::from_ptr(p).to_str() }.expect(ERROR_NOT_UTF8)
-                    })
-                    .collect(),
+                default: unsafe { opt_str(self.inner.info_mode.dflt) },
+                current: unsafe { opt_str(self.inner.info_mode.cur) },
+                modes: unsafe {
+                    crate::ffi::raw_slice(
+                        self.inner.info_mode.modes,
+                        self.inner.info_mode.num_modes,
+                    )
+                }
+                .iter()
+                .map(|&p| unsafe { opt_str(p) })
+                .collect(),
             },
         }
     }
@@ -127,27 +126,42 @@ impl OptionInfo<'_> {
         self.inner.category
     }
     pub fn name(&self) -> impl AsRef<str> {
-        unsafe { std::ffi::CStr::from_ptr(self.inner.name).to_string_lossy() }
+        unsafe { opt_str(self.inner.name) }
     }
     pub fn is_set_by_user(&self) -> bool {
         self.inner.is_set_by_user
     }
     pub fn aliases(&self) -> Vec<impl AsRef<str>> {
-        (0..self.inner.num_aliases)
-            .map(|i| {
-                let p = unsafe { *self.inner.aliases.add(i) };
-                unsafe { std::ffi::CStr::from_ptr(p).to_string_lossy() }
-            })
+        unsafe { crate::ffi::raw_slice(self.inner.aliases, self.inner.num_aliases) }
+            .iter()
+            .map(|&p| unsafe { opt_str(p) })
             .collect()
     }
     pub fn no_supports(&self) -> Vec<impl AsRef<str>> {
-        (0..self.inner.num_no_supports)
-            .map(|i| {
-                let p = unsafe { *self.inner.no_supports.add(i) };
-                unsafe { std::ffi::CStr::from_ptr(p).to_string_lossy() }
-            })
+        unsafe { crate::ffi::raw_slice(self.inner.no_supports, self.inner.num_no_supports) }
+            .iter()
+            .map(|&p| unsafe { opt_str(p) })
             .collect()
     }
+}
+
+/// Borrow a `const char*` from a [`cvc5_sys::OptionInfo`] as a `&str`.
+///
+/// `cvc5_get_option_info` `memset`s the whole struct to zero before populating
+/// it, so on failure every pointer field is NULL and every count is zero. Map
+/// NULL to `""` instead of dereferencing it: an option with no value is not
+/// worth panicking over, and the zeroed `kind` already reads as `Void`.
+///
+/// # Safety
+///
+/// If non-NULL, `ptr` must point to a NUL-terminated string valid for `'a`.
+unsafe fn opt_str<'a>(ptr: *const std::os::raw::c_char) -> &'a str {
+    if ptr.is_null() {
+        return "";
+    }
+    unsafe { std::ffi::CStr::from_ptr(ptr) }
+        .to_str()
+        .expect(ERROR_NOT_UTF8)
 }
 
 impl fmt::Display for OptionInfo<'_> {
@@ -174,7 +188,7 @@ impl<'tm> Solver<'tm> {
     pub fn new(tm: &'tm TermManager) -> Self {
         let tm_clone = tm.clone();
         Self {
-            inner: unsafe { new(tm_clone.ptr()) },
+            inner: crate::ffi::non_null(unsafe { new(tm_clone.ptr()) }, "Solver"),
             tm: tm_clone,
             _phantom: PhantomData,
         }
@@ -228,12 +242,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_option_names(&self) -> Vec<String> {
         let mut size = 0usize;
         let ptr = unsafe { get_option_names(self.inner, &mut size) };
-        (0..size)
-            .map(|i| unsafe {
-                std::ffi::CStr::from_ptr(*ptr.add(i))
-                    .to_string_lossy()
-                    .into_owned()
-            })
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| unsafe { crate::ffi::cstr_to_string(p, "Solver::get_option_names entry") })
             .collect()
     }
 
@@ -276,8 +287,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_assertions(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { get_assertions(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -300,8 +312,9 @@ impl<'tm> Solver<'tm> {
         let raw: Vec<cvc5_sys::Term> = terms.iter().map(|t| t.inner).collect();
         let mut rsize = 0usize;
         let ptr = unsafe { get_values(self.inner, raw.len(), raw.as_ptr(), &mut rsize) };
-        (0..rsize)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, rsize) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -309,8 +322,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_model_domain_elements(&self, sort: Sort) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { get_model_domain_elements(self.inner, sort.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -470,8 +484,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_unsat_core(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { get_unsat_core(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -479,8 +494,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_unsat_core_lemmas(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { get_unsat_core_lemmas(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -488,8 +504,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_unsat_assumptions(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { get_unsat_assumptions(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -499,8 +516,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_proof(&self, c: cvc5_sys::ProofComponent) -> Vec<Proof<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { get_proof(self.inner, c, &mut size) };
-        (0..size)
-            .map(|i| Proof::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Proof::from_raw(p))
             .collect()
     }
 
@@ -535,8 +553,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_learned_literals(&self, lit_type: cvc5_sys::LearnedLitType) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { get_learned_literals(self.inner, lit_type, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -546,11 +565,15 @@ impl<'tm> Solver<'tm> {
         let mut inputs: *mut cvc5_sys::Term = std::ptr::null_mut();
         let mut values: *mut cvc5_sys::Term = std::ptr::null_mut();
         unsafe { get_difficulty(self.inner, &mut size, &mut inputs, &mut values) };
-        let i = (0..size)
-            .map(|j| Term::from_raw(unsafe { *inputs.add(j) }))
+        // Out-params are only written on success; on failure they keep the
+        // null/zero initializers above.
+        let i = unsafe { crate::ffi::raw_slice(inputs, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect();
-        let v = (0..size)
-            .map(|j| Term::from_raw(unsafe { *values.add(j) }))
+        let v = unsafe { crate::ffi::raw_slice(values, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect();
         (i, v)
     }
@@ -562,8 +585,9 @@ impl<'tm> Solver<'tm> {
         let mut result: cvc5_sys::Result = std::ptr::null_mut();
         let mut size = 0usize;
         let ptr = unsafe { get_timeout_core(self.inner, &mut result, &mut size) };
-        let terms = (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        let terms = unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect();
         (Result::from_raw(result), terms)
     }
@@ -576,8 +600,9 @@ impl<'tm> Solver<'tm> {
         let ptr = unsafe {
             get_timeout_core_assuming(self.inner, raw.len(), raw.as_ptr(), &mut result, &mut rsize)
         };
-        let terms = (0..rsize)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        let terms = unsafe { crate::ffi::raw_slice(ptr, rsize) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect();
         (Result::from_raw(result), terms)
     }
@@ -742,8 +767,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_sygus_constraints(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { get_sygus_constraints(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -756,8 +782,9 @@ impl<'tm> Solver<'tm> {
     pub fn get_sygus_assumptions(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { get_sygus_assumptions(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -784,11 +811,23 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Get synthesis solutions for multiple function-to-synthesize terms.
+    ///
+    /// Returns an empty vector for an empty `terms` slice. The underlying C++
+    /// API rejects an empty vector outright
+    /// (`CVC5_API_ARG_SIZE_CHECK_EXPECTED(!terms.empty())`), which on cvc5
+    /// <= 1.3.4 terminates the process, so the empty case is short-circuited
+    /// here rather than forwarded.
     pub fn get_synth_solutions(&self, terms: &[Term]) -> Vec<Term<'tm>> {
+        if terms.is_empty() {
+            return Vec::new();
+        }
         let raw: Vec<cvc5_sys::Term> = terms.iter().map(|t| t.inner).collect();
+        // `cvc5_get_synth_solutions` writes no out-length; on success it returns
+        // exactly `terms.len()` entries (api/cpp/cvc5.cpp:8947-8960).
         let ptr = unsafe { get_synth_solutions(self.inner, raw.len(), raw.as_ptr()) };
-        (0..terms.len())
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, terms.len()) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 

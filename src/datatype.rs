@@ -17,10 +17,7 @@ pub struct DatatypeConstructorDecl<'tm> {
 
 impl Clone for DatatypeConstructorDecl<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { dt_cons_decl_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { dt_cons_decl_copy(self.inner) })
     }
 }
 
@@ -33,7 +30,7 @@ impl Drop for DatatypeConstructorDecl<'_> {
 impl<'tm> DatatypeConstructorDecl<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeConstructorDecl) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "DatatypeConstructorDecl"),
             _phantom: PhantomData,
         }
     }
@@ -98,10 +95,7 @@ pub struct DatatypeDecl<'tm> {
 
 impl Clone for DatatypeDecl<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { dt_decl_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { dt_decl_copy(self.inner) })
     }
 }
 
@@ -114,7 +108,7 @@ impl Drop for DatatypeDecl<'_> {
 impl<'tm> DatatypeDecl<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeDecl) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "DatatypeDecl"),
             _phantom: PhantomData,
         }
     }
@@ -194,10 +188,7 @@ pub struct DatatypeSelector<'tm> {
 
 impl Clone for DatatypeSelector<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { dt_sel_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { dt_sel_copy(self.inner) })
     }
 }
 
@@ -210,7 +201,7 @@ impl Drop for DatatypeSelector<'_> {
 impl<'tm> DatatypeSelector<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeSelector) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "DatatypeSelector"),
             _phantom: PhantomData,
         }
     }
@@ -285,10 +276,7 @@ pub struct DatatypeConstructor<'tm> {
 
 impl Clone for DatatypeConstructor<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { dt_cons_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { dt_cons_copy(self.inner) })
     }
 }
 
@@ -301,7 +289,7 @@ impl Drop for DatatypeConstructor<'_> {
 impl<'tm> DatatypeConstructor<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeConstructor) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "DatatypeConstructor"),
             _phantom: PhantomData,
         }
     }
@@ -390,10 +378,7 @@ pub struct Datatype<'tm> {
 
 impl Clone for Datatype<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { dt_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { dt_copy(self.inner) })
     }
 }
 
@@ -406,7 +391,7 @@ impl Drop for Datatype<'_> {
 impl<'tm> Datatype<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Datatype) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "Datatype"),
             _phantom: PhantomData,
         }
     }
@@ -451,8 +436,9 @@ impl<'tm> Datatype<'tm> {
     pub fn parameters(&self) -> Vec<Sort<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { dt_get_parameters(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Sort::from_raw(p))
             .collect()
     }
 

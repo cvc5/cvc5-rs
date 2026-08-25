@@ -16,10 +16,7 @@ pub struct Term<'tm> {
 
 impl Clone for Term<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { term_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { term_copy(self.inner) })
     }
 }
 
@@ -32,7 +29,7 @@ impl Drop for Term<'_> {
 impl<'tm> Term<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Term) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "Term"),
             _phantom: PhantomData,
         }
     }
@@ -78,11 +75,12 @@ impl<'tm> Term<'tm> {
     }
 
     /// Get the symbol (name) of this term.
+    ///
+    /// Returns `""` if this term has no symbol; use
+    /// [`has_symbol`](Term::has_symbol) to distinguish that from an empty
+    /// symbol.
     pub fn symbol(&self) -> &str {
-        unsafe {
-            let s = term_get_symbol(self.inner);
-            std::ffi::CStr::from_ptr(s).to_str().unwrap_or("")
-        }
+        unsafe { crate::ffi::cstr_or_empty(term_get_symbol(self.inner)) }
     }
 
     /// Return `true` if this term has an associated operator.
@@ -179,6 +177,11 @@ impl<'tm> Term<'tm> {
     /// Get the string value as a sequence of `wchar_t` code points.
     pub fn string_value(&self) -> Vec<char32_t> {
         let ptr = unsafe { term_get_string_value(self.inner) };
+        // NUL-terminated with no length, so a null pointer cannot be walked at
+        // all; treat it as the empty string rather than reading offset 0.
+        if ptr.is_null() {
+            return Vec::new();
+        }
         let mut v = Vec::new();
         let mut i = 0;
         loop {
@@ -194,6 +197,9 @@ impl<'tm> Term<'tm> {
     /// Get the string value as a sequence of Unicode code points (`char32_t`).
     pub fn u32string_value(&self) -> Vec<char32_t> {
         let ptr = unsafe { term_get_u32string_value(self.inner) };
+        if ptr.is_null() {
+            return Vec::new();
+        }
         let mut v = Vec::new();
         let mut i = 0;
         loop {
@@ -298,8 +304,9 @@ impl<'tm> Term<'tm> {
     pub fn tuple_value(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { term_get_tuple_value(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -352,8 +359,9 @@ impl<'tm> Term<'tm> {
     pub fn set_value(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { term_get_set_value(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -365,8 +373,9 @@ impl<'tm> Term<'tm> {
     pub fn sequence_value(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { term_get_sequence_value(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -413,8 +422,9 @@ impl<'tm> Term<'tm> {
     pub fn skolem_indices(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { term_get_skolem_indices(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 }

@@ -15,10 +15,7 @@ pub struct Proof<'tm> {
 
 impl Clone for Proof<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { proof_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { proof_copy(self.inner) })
     }
 }
 
@@ -31,7 +28,7 @@ impl Drop for Proof<'_> {
 impl<'tm> Proof<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Proof) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "Proof"),
             _phantom: PhantomData,
         }
     }
@@ -65,8 +62,9 @@ impl<'tm> Proof<'tm> {
     pub fn children(&self) -> Vec<Proof<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { proof_get_children(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Proof::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Proof::from_raw(p))
             .collect()
     }
 
@@ -74,8 +72,9 @@ impl<'tm> Proof<'tm> {
     pub fn arguments(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { proof_get_arguments(self.inner, &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 }

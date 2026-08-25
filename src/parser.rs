@@ -38,7 +38,10 @@ use crate::{Solver, Sort, Term, TermManager};
 struct RawSymbolManager(*mut cvc5_sys::parser::SymbolManager);
 impl RawSymbolManager {
     fn new(tm: *mut cvc5_sys::TermManager) -> Self {
-        Self(unsafe { symbol_manager_new(tm) })
+        Self(crate::ffi::non_null(
+            unsafe { symbol_manager_new(tm) },
+            "SymbolManager",
+        ))
     }
 }
 
@@ -95,10 +98,7 @@ impl SymbolManager {
     ///
     /// The underlying C API asserts that the logic has been set.
     pub fn get_logic(&self) -> &str {
-        unsafe {
-            let s = sm_get_logic(self.ptr());
-            std::ffi::CStr::from_ptr(s).to_str().unwrap_or("")
-        }
+        unsafe { crate::ffi::cstr_or_empty(sm_get_logic(self.ptr())) }
     }
 
     /// Get the sorts declared via `declare-sort` commands.
@@ -107,8 +107,9 @@ impl SymbolManager {
     pub fn get_declared_sorts(&self) -> Vec<Sort<'_>> {
         let mut size = 0usize;
         let ptr = unsafe { sm_get_declared_sorts(self.ptr(), &mut size) };
-        (0..size)
-            .map(|i| Sort::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Sort::from_raw(p))
             .collect()
     }
 
@@ -118,8 +119,9 @@ impl SymbolManager {
     pub fn get_declared_terms(&self) -> Vec<Term<'_>> {
         let mut size = 0usize;
         let ptr = unsafe { sm_get_declared_terms(self.ptr(), &mut size) };
-        (0..size)
-            .map(|i| Term::from_raw(unsafe { *ptr.add(i) }))
+        unsafe { crate::ffi::raw_slice(ptr, size) }
+            .iter()
+            .map(|&p| Term::from_raw(p))
             .collect()
     }
 
@@ -131,12 +133,17 @@ impl SymbolManager {
         let mut terms: *mut cvc5_sys::Term = std::ptr::null_mut();
         let mut names: *mut *const std::os::raw::c_char = std::ptr::null_mut();
         unsafe { sm_get_named_terms(self.ptr(), &mut size, &mut terms, &mut names) };
-        (0..size)
-            .map(|i| unsafe {
-                let t = Term::from_raw(*terms.add(i));
-                let n = std::ffi::CStr::from_ptr(*names.add(i))
-                    .to_string_lossy()
-                    .into_owned();
+        // Out-params are only written on success; on failure they keep the
+        // null/zero initializers above.
+        let terms = unsafe { crate::ffi::raw_slice(terms, size) };
+        let names = unsafe { crate::ffi::raw_slice(names, size) };
+        terms
+            .iter()
+            .zip(names)
+            .map(|(&t, &n)| {
+                let t = Term::from_raw(t);
+                let n =
+                    unsafe { crate::ffi::cstr_to_string(n, "SymbolManager::get_named_terms name") };
                 (t, n)
             })
             .collect()
@@ -157,10 +164,16 @@ pub struct Command {
 
 impl Command {
     pub(crate) fn from_raw(raw: cvc5_sys::parser::Command) -> Self {
-        Self { inner: raw }
+        Self {
+            inner: crate::ffi::non_null(raw, "Command"),
+        }
     }
 
     /// Return `true` if this is a null (empty) command.
+    ///
+    /// Always `false`: [`InputParser::next_command`] reports the end of input
+    /// as `Ok(None)` rather than handing back a null command, so a `Command`
+    /// value never wraps a null pointer. Retained for API compatibility.
     pub fn is_null(&self) -> bool {
         self.inner.is_null()
     }
@@ -179,10 +192,7 @@ impl Command {
 
     /// Get the name of this command (e.g. `"assert"`, `"check-sat"`).
     pub fn name(&self) -> &str {
-        unsafe {
-            let s = cmd_get_name(self.inner);
-            std::ffi::CStr::from_ptr(s).to_str().unwrap_or("")
-        }
+        unsafe { crate::ffi::cstr_or_empty(cmd_get_name(self.inner)) }
     }
 }
 
@@ -237,7 +247,7 @@ impl<'tm> InputParser<'tm> {
             .unwrap_or_else(|| SymbolManager::new(&solver.tm));
         let sm_ptr = sm.ptr();
         Self {
-            inner: unsafe { parser_new(solver.inner, sm_ptr) },
+            inner: crate::ffi::non_null(unsafe { parser_new(solver.inner, sm_ptr) }, "InputParser"),
             solver,
             sm,
         }

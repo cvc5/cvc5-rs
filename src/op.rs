@@ -15,10 +15,7 @@ pub struct Op<'tm> {
 
 impl Clone for Op<'_> {
     fn clone(&self) -> Self {
-        Self {
-            inner: unsafe { op_copy(self.inner) },
-            _phantom: PhantomData,
-        }
+        Self::from_raw(unsafe { op_copy(self.inner) })
     }
 }
 
@@ -31,7 +28,7 @@ impl Drop for Op<'_> {
 impl<'tm> Op<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Op) -> Self {
         Self {
-            inner: raw,
+            inner: crate::ffi::non_null(raw, "Op"),
             _phantom: PhantomData,
         }
     }
