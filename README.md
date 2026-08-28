@@ -17,9 +17,11 @@ algebraic datatypes, and more.
 
 ## Version Correspondence
 
-| `cvc5` Version | `cvc5-sys` Version | `cvc5` Crate Version |
-|--------|--------------------|--------------------|
-| 1.3.1  | &gt;= 0.4 < 0.5    | &gt;= 0.4 < 0.5        |
+| `cvc5` Version  | `cvc5-sys` Version | `cvc5` Crate Version |
+|-----------------|--------------------|----------------------|
+| &gt;= 1.3.1 < 1.3.5 | &gt;= 0.4 < 0.5    | &gt;= 0.4 < 0.6      |
+
+Warnings: 0.4.x includes known memory issues from cvc5. 0.5 fixes them but is incompatible with 0.4.
 
 ## Prerequisites
 

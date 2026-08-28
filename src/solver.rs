@@ -179,24 +179,21 @@ impl fmt::Display for OptionInfo<'_> {
 /// ensuring the term manager outlives the solver and all objects it produces.
 pub struct Solver<'tm> {
     pub(crate) inner: *mut cvc5_sys::Solver,
-    pub(crate) tm: TermManager,
-    _phantom: PhantomData<&'tm ()>,
+    pub(crate) tm: &'tm TermManager,
 }
 
 impl<'tm> Solver<'tm> {
     /// Create a new solver instance from the given term manager.
     pub fn new(tm: &'tm TermManager) -> Self {
-        let tm_clone = tm.clone();
         Self {
-            inner: crate::ffi::non_null(unsafe { new(tm_clone.ptr()) }, "Solver"),
-            tm: tm_clone,
-            _phantom: PhantomData,
+            inner: crate::ffi::non_null(unsafe { new(tm.ptr()) }, "Solver"),
+            tm,
         }
     }
 
-    /// Return the underlying term manager
-    pub fn term_manager(&self) -> TermManager {
-        self.tm.clone()
+    /// Return the underlying term manager.
+    pub fn term_manager(&self) -> &'tm TermManager {
+        self.tm
     }
 
     // ── Configuration ──────────────────────────────────────────────
@@ -273,12 +270,12 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Check satisfiability of the current assertions.
-    pub fn check_sat(&mut self) -> Result<'tm> {
+    pub fn check_sat<'s>(&'s self) -> Result<'s> {
         Result::from_raw(unsafe { check_sat(self.inner) })
     }
 
     /// Check satisfiability under the given assumptions.
-    pub fn check_sat_assuming(&mut self, assumptions: &[Term]) -> Result<'tm> {
+    pub fn check_sat_assuming<'s>(&'s self, assumptions: &[Term]) -> Result<'s> {
         let raw: Vec<cvc5_sys::Term> = assumptions.iter().map(|t| t.inner).collect();
         Result::from_raw(unsafe { check_sat_assuming(self.inner, raw.len(), raw.as_ptr()) })
     }
@@ -513,7 +510,7 @@ impl<'tm> Solver<'tm> {
     // ── Proofs ─────────────────────────────────────────────────────
 
     /// Get the proof of unsatisfiability.
-    pub fn get_proof(&self, c: cvc5_sys::ProofComponent) -> Vec<Proof<'tm>> {
+    pub fn get_proof<'s>(&'s self, c: cvc5_sys::ProofComponent) -> Vec<Proof<'s>> {
         let mut size = 0usize;
         let ptr = unsafe { get_proof(self.inner, c, &mut size) };
         unsafe { crate::ffi::raw_slice(ptr, size) }
@@ -581,7 +578,7 @@ impl<'tm> Solver<'tm> {
     // ── Timeout core ───────────────────────────────────────────────
 
     /// Get a timeout core: a minimal subset of assertions causing a timeout.
-    pub fn get_timeout_core(&mut self) -> (Result<'tm>, Vec<Term<'tm>>) {
+    pub fn get_timeout_core<'s>(&'s self) -> (Result<'s>, Vec<Term<'tm>>) {
         let mut result: cvc5_sys::Result = std::ptr::null_mut();
         let mut size = 0usize;
         let ptr = unsafe { get_timeout_core(self.inner, &mut result, &mut size) };
@@ -593,7 +590,10 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Get a timeout core under the given assumptions.
-    pub fn get_timeout_core_assuming(&self, assumptions: &[Term]) -> (Result<'tm>, Vec<Term<'tm>>) {
+    pub fn get_timeout_core_assuming<'s>(
+        &'s self,
+        assumptions: &[Term],
+    ) -> (Result<'s>, Vec<Term<'tm>>) {
         let raw: Vec<cvc5_sys::Term> = assumptions.iter().map(|t| t.inner).collect();
         let mut result: cvc5_sys::Result = std::ptr::null_mut();
         let mut rsize = 0usize;
@@ -719,7 +719,7 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Create a SyGuS grammar from bound variables and non-terminal symbols.
-    pub fn mk_grammar(&self, bound_vars: &[Term], symbols: &[Term]) -> Grammar<'tm> {
+    pub fn mk_grammar<'s>(&'s self, bound_vars: &[Term], symbols: &[Term]) -> Grammar<'s> {
         let bv: Vec<cvc5_sys::Term> = bound_vars.iter().map(|t| t.inner).collect();
         let sy: Vec<cvc5_sys::Term> = symbols.iter().map(|t| t.inner).collect();
         Grammar::from_raw(unsafe {
@@ -738,7 +738,7 @@ impl<'tm> Solver<'tm> {
 
     /// Declare a function to synthesize with a grammar constraint.
     pub fn synth_fun_with_grammar(
-        &mut self,
+        &self,
         symbol: &str,
         bound_vars: &[Term],
         sort: Sort,
@@ -796,12 +796,12 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Check for a synthesis solution.
-    pub fn check_synth(&mut self) -> SynthResult<'tm> {
+    pub fn check_synth<'s>(&'s self) -> SynthResult<'s> {
         SynthResult::from_raw(unsafe { check_synth(self.inner) })
     }
 
     /// Get the next synthesis solution.
-    pub fn check_synth_next(&mut self) -> SynthResult<'tm> {
+    pub fn check_synth_next<'s>(&'s self) -> SynthResult<'s> {
         SynthResult::from_raw(unsafe { check_synth_next(self.inner) })
     }
 
@@ -843,7 +843,7 @@ impl<'tm> Solver<'tm> {
     ///
     /// Returns `None` if the call failed.
     pub fn find_synth_with_grammar(
-        &mut self,
+        &self,
         target: cvc5_sys::FindSynthTarget,
         grammar: &Grammar,
     ) -> Option<Term<'tm>> {
@@ -920,7 +920,17 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Get the solver statistics.
-    pub fn get_statistics(&self) -> Statistics {
+    /// # Safety
+    ///
+    /// The returned [`Statistics`](crate::Statistics) points into a `std::vector`
+    /// owned by the term manager, and the C API hands out a pointer to its last
+    /// element. A second call to either `get_statistics` invalidates the handle
+    /// returned by the first. The caller must finish using one before asking for
+    /// another.
+    ///
+    /// Tracked upstream as cvc5/cvc5#12898; this becomes safe once those arenas
+    /// use `std::deque`.
+    pub unsafe fn get_statistics(&self) -> Statistics<'tm> {
         Statistics::from_raw(unsafe { get_statistics(self.inner) })
     }
 
