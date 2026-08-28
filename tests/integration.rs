@@ -462,7 +462,8 @@ fn statistics_basic() {
     solver.assert_formula(gt);
     solver.check_sat();
 
-    let stats = solver.get_statistics();
+    // SAFETY: only one Statistics handle is live at a time.
+    let stats = unsafe { solver.get_statistics() };
     let display = format!("{stats}");
     assert!(!display.is_empty());
     let debug = format!("{stats:?}");
@@ -471,7 +472,8 @@ fn statistics_basic() {
     // iterate — after check_sat there must be at least one stat
     stats.iter_init(false, false);
     assert!(stats.iter_has_next());
-    let (name, stat) = stats.iter_next();
+    // SAFETY: the previous Stat is not retained across this call.
+    let (name, stat) = unsafe { stats.iter_next() };
     assert!(!name.is_empty());
     // iter_init(false, false) = skip internal, skip default → only changed non-internal stats
     assert!(!stat.is_internal());

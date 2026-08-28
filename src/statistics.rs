@@ -1,21 +1,41 @@
 use cvc5_sys::*;
 use std::ffi::CString;
 use std::fmt;
+use std::marker::PhantomData;
 
 /// Solver statistics collected during solving.
-pub struct Statistics {
+///
+/// The lifetime parameter is bound to the [`TermManager`](crate::TermManager)
+/// that owns the statistics: they live in `Cvc5TermManager::d_alloc_statistics`,
+/// which `cvc5_term_manager_delete` frees.
+pub struct Statistics<'tm> {
     pub(crate) inner: cvc5_sys::Statistics,
+    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Statistics {
+impl<'tm> Statistics<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Statistics) -> Self {
         Self {
             inner: crate::ffi::non_null(raw, "Statistics"),
+            _phantom: PhantomData,
         }
     }
 
     /// Look up a statistic by name.
-    pub fn get(&self, name: &str) -> Stat {
+    ///
+    /// # Safety
+    ///
+    /// The returned [`Stat`] points into a `std::vector` owned by the term
+    /// manager, and the C API hands out a pointer to its last element. Any
+    /// further call to [`get`](Self::get), [`iter_next`](Self::iter_next) or
+    /// [`iter_next_stat`](Self::iter_next_stat) may grow that vector and
+    /// invalidate every `Stat` handed out earlier — the second such call is
+    /// already enough. The caller must finish using one `Stat` before obtaining
+    /// the next.
+    ///
+    /// Tracked upstream as cvc5/cvc5#12898; this becomes safe once those arenas
+    /// use `std::deque`.
+    pub unsafe fn get(&self, name: &str) -> Stat<'tm> {
         let c = CString::new(name).unwrap();
         Stat::from_raw(unsafe { stats_get(self.inner, c.as_ptr()) })
     }
@@ -34,7 +54,13 @@ impl Statistics {
     }
 
     /// Advance the iterator and return the next `(name, stat)` pair.
-    pub fn iter_next(&self) -> (String, Stat) {
+    ///
+    /// # Safety
+    ///
+    /// As [`get`](Self::get): each call may invalidate every previously returned
+    /// [`Stat`], so they cannot be collected. Read what you need from one before
+    /// advancing. Tracked upstream as cvc5/cvc5#12898.
+    pub unsafe fn iter_next(&self) -> (String, Stat<'tm>) {
         let mut name: *const std::os::raw::c_char = std::ptr::null();
         let s = unsafe { stats_iter_next(self.inner, &mut name) };
         // `name` is only written on success, so guard the stat pointer first:
@@ -46,18 +72,22 @@ impl Statistics {
     }
 
     /// Advance the iterator and return only the next [`Stat`], ignoring the name.
-    pub fn iter_next_stat(&self) -> Stat {
-        self.iter_next().1
+    ///
+    /// # Safety
+    ///
+    /// As [`iter_next`](Self::iter_next). Tracked upstream as cvc5/cvc5#12898.
+    pub unsafe fn iter_next_stat(&self) -> Stat<'tm> {
+        unsafe { self.iter_next() }.1
     }
 }
 
-impl fmt::Debug for Statistics {
+impl fmt::Debug for Statistics<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Statistics({self})")
     }
 }
 
-impl fmt::Display for Statistics {
+impl fmt::Display for Statistics<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { stats_to_string(self.inner) };
         write!(f, "{}", unsafe {
@@ -67,14 +97,19 @@ impl fmt::Display for Statistics {
 }
 
 /// A single statistic value.
-pub struct Stat {
+///
+/// Bound to the [`TermManager`](crate::TermManager) that owns it, as
+/// [`Statistics`] is.
+pub struct Stat<'tm> {
     pub(crate) inner: cvc5_sys::Stat,
+    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Stat {
+impl<'tm> Stat<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Stat) -> Self {
         Self {
             inner: crate::ffi::non_null(raw, "Stat"),
+            _phantom: PhantomData,
         }
     }
 
@@ -147,13 +182,13 @@ impl Stat {
     }
 }
 
-impl fmt::Debug for Stat {
+impl fmt::Debug for Stat<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Stat({self})")
     }
 }
 
-impl fmt::Display for Stat {
+impl fmt::Display for Stat<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { stat_to_string(self.inner) };
         write!(f, "{}", unsafe {

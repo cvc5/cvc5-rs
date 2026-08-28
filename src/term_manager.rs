@@ -1,43 +1,42 @@
 use cvc5_sys::*;
 use std::ffi::CString;
-use std::rc::Rc;
 
 use crate::{DatatypeConstructorDecl, DatatypeDecl, Op, Sort, Statistics, Term};
 
-struct RawTermManager(*mut cvc5_sys::TermManager);
+/// Manages creation of sorts, terms, and operators.
+///
+/// This is the arena every [`Term`] and [`Sort`] lives in, so it must outlive
+/// them all. That is enforced by borrowing: a `TermManager` is the single owner
+/// of the underlying `Cvc5TermManager`, and everything derived from it carries
+/// its lifetime.
+///
+/// Deliberately not [`Clone`], so there is exactly one owner and the arena
+/// cannot be freed while borrows are outstanding:
+///
+/// ```compile_fail,E0599
+/// let tm = cvc5::TermManager::new();
+/// let other = tm.clone();
+/// ```
+pub struct TermManager(*mut cvc5_sys::TermManager);
 
-impl RawTermManager {
-    fn new() -> Self {
-        Self(crate::ffi::non_null(
-            unsafe { term_manager_new() },
-            "TermManager",
-        ))
-    }
-}
-
-impl Drop for RawTermManager {
+impl Drop for TermManager {
     fn drop(&mut self) {
         unsafe { term_manager_delete(self.0) };
     }
 }
 
-/// Manages creation of sorts, terms, and operators.
-#[derive(Clone)]
-pub struct TermManager {
-    inner: Rc<RawTermManager>,
-}
-
 impl TermManager {
     /// Create a new term manager.
     pub fn new() -> Self {
-        Self {
-            inner: Rc::new(RawTermManager::new()),
-        }
+        Self(crate::ffi::non_null(
+            unsafe { term_manager_new() },
+            "TermManager",
+        ))
     }
 
     /// Raw pointer for read-only access.
     pub(crate) fn ptr(&self) -> *mut cvc5_sys::TermManager {
-        self.inner.0
+        self.0
     }
 
     // ── Sort creation ──────────────────────────────────────────────
@@ -498,7 +497,17 @@ impl TermManager {
     }
 
     /// Get the term manager statistics.
-    pub fn get_statistics(&self) -> Statistics {
+    /// # Safety
+    ///
+    /// The returned [`Statistics`](crate::Statistics) points into a `std::vector`
+    /// owned by the term manager, and the C API hands out a pointer to its last
+    /// element. A second call to either `get_statistics` invalidates the handle
+    /// returned by the first. The caller must finish using one before asking for
+    /// another.
+    ///
+    /// Tracked upstream as cvc5/cvc5#12898; this becomes safe once those arenas
+    /// use `std::deque`.
+    pub unsafe fn get_statistics(&self) -> Statistics<'_> {
         Statistics::from_raw(unsafe { term_manager_get_statistics(self.ptr()) })
     }
 
