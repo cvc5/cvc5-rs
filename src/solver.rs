@@ -199,7 +199,7 @@ impl<'tm> Solver<'tm> {
     // ── Configuration ──────────────────────────────────────────────
 
     /// Set the logic for this solver (e.g. , ).
-    pub fn set_logic(&mut self, logic: &str) {
+    pub fn set_logic(&self, logic: &str) {
         let c = CString::new(logic).unwrap();
         unsafe { set_logic(self.inner, c.as_ptr()) }
     }
@@ -219,7 +219,7 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Set a solver option (e.g. `"produce-models"`, `"true"`).
-    pub fn set_option(&mut self, option: &str, value: &str) {
+    pub fn set_option(&self, option: &str, value: &str) {
         let o = CString::new(option).unwrap();
         let v = CString::new(value).unwrap();
         unsafe { set_option(self.inner, o.as_ptr(), v.as_ptr()) }
@@ -246,7 +246,7 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Set solver information (SMT-LIB `set-info`).
-    pub fn set_info(&mut self, keyword: &str, value: &str) {
+    pub fn set_info(&self, keyword: &str, value: &str) {
         let k = CString::new(keyword).unwrap();
         let v = CString::new(value).unwrap();
         unsafe { set_info(self.inner, k.as_ptr(), v.as_ptr()) }
@@ -265,7 +265,7 @@ impl<'tm> Solver<'tm> {
     // ── Assertions & checking ──────────────────────────────────────
 
     /// Assert a formula to the solver.
-    pub fn assert_formula(&mut self, term: Term) {
+    pub fn assert_formula(&self, term: Term) {
         unsafe { assert_formula(self.inner, term.inner) }
     }
 
@@ -348,12 +348,12 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Block the current model using the given mode.
-    pub fn block_model(&mut self, mode: cvc5_sys::BlockModelsMode) {
+    pub fn block_model(&self, mode: cvc5_sys::BlockModelsMode) {
         unsafe { block_model(self.inner, mode) }
     }
 
     /// Block the current model values for the given terms.
-    pub fn block_model_values(&mut self, terms: &[Term]) {
+    pub fn block_model_values(&self, terms: &[Term]) {
         let raw: Vec<cvc5_sys::Term> = terms.iter().map(|t| t.inner).collect();
         unsafe { block_model_values(self.inner, raw.len(), raw.as_ptr()) }
     }
@@ -361,7 +361,7 @@ impl<'tm> Solver<'tm> {
     // ── Declarations ───────────────────────────────────────────────
 
     /// Declare a function (SMT-LIB `declare-fun`).
-    pub fn declare_fun(&mut self, name: &str, domain: &[Sort], codomain: Sort) -> Term<'tm> {
+    pub fn declare_fun(&self, name: &str, domain: &[Sort], codomain: Sort) -> Term<'tm> {
         let c = CString::new(name).unwrap();
         let raw: Vec<cvc5_sys::Sort> = domain.iter().map(|s| s.inner).collect();
         Term::from_raw(unsafe {
@@ -377,13 +377,13 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Declare an uninterpreted sort (SMT-LIB `declare-sort`).
-    pub fn declare_sort(&mut self, name: &str, arity: u32) -> Sort<'tm> {
+    pub fn declare_sort(&self, name: &str, arity: u32) -> Sort<'tm> {
         let c = CString::new(name).unwrap();
         Sort::from_raw(unsafe { declare_sort(self.inner, c.as_ptr(), arity, true) })
     }
 
     /// Declare a datatype from constructor declarations.
-    pub fn declare_dt(&mut self, symbol: &str, ctors: &[DatatypeConstructorDecl]) -> Sort<'tm> {
+    pub fn declare_dt(&self, symbol: &str, ctors: &[DatatypeConstructorDecl]) -> Sort<'tm> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<cvc5_sys::DatatypeConstructorDecl> = ctors.iter().map(|d| d.inner).collect();
         Sort::from_raw(unsafe { declare_dt(self.inner, c.as_ptr(), raw.len(), raw.as_ptr()) })
@@ -393,7 +393,7 @@ impl<'tm> Solver<'tm> {
 
     /// Define a function (SMT-LIB `define-fun`).
     pub fn define_fun(
-        &mut self,
+        &self,
         symbol: &str,
         vars: &[Term],
         sort: Sort,
@@ -417,7 +417,7 @@ impl<'tm> Solver<'tm> {
 
     /// Define a recursive function (SMT-LIB `define-fun-rec`).
     pub fn define_fun_rec(
-        &mut self,
+        &self,
         symbol: &str,
         vars: &[Term],
         sort: Sort,
@@ -441,7 +441,7 @@ impl<'tm> Solver<'tm> {
 
     /// Define a recursive function from a previously declared constant.
     pub fn define_fun_rec_from_const(
-        &mut self,
+        &self,
         fun: Term,
         vars: &[Term],
         term: Term,
@@ -463,15 +463,15 @@ impl<'tm> Solver<'tm> {
     // ── Scope management ───────────────────────────────────────────
 
     /// Push `n` assertion scope levels.
-    pub fn push(&mut self, n: u32) {
+    pub fn push(&self, n: u32) {
         unsafe { push(self.inner, n) }
     }
     /// Pop `n` assertion scope levels.
-    pub fn pop(&mut self, n: u32) {
+    pub fn pop(&self, n: u32) {
         unsafe { pop(self.inner, n) }
     }
     /// Remove all assertions and reset the scope.
-    pub fn reset_assertions(&mut self) {
+    pub fn reset_assertions(&self) {
         unsafe { reset_assertions(self.inner) }
     }
 
@@ -622,7 +622,7 @@ impl<'tm> Solver<'tm> {
     // ── Separation logic ───────────────────────────────────────────
 
     /// Declare the heap sorts for separation logic.
-    pub fn declare_sep_heap(&mut self, loc: Sort, data: Sort) {
+    pub fn declare_sep_heap(&self, loc: Sort, data: Sort) {
         unsafe { declare_sep_heap(self.inner, loc.inner, data.inner) }
     }
 
@@ -639,7 +639,7 @@ impl<'tm> Solver<'tm> {
     // ── Pools ──────────────────────────────────────────────────────
 
     /// Declare a term pool with the given initial values.
-    pub fn declare_pool(&mut self, symbol: &str, sort: Sort, init_value: &[Term]) -> Term<'tm> {
+    pub fn declare_pool(&self, symbol: &str, sort: Sort, init_value: &[Term]) -> Term<'tm> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<cvc5_sys::Term> = init_value.iter().map(|t| t.inner).collect();
         Term::from_raw(unsafe {
@@ -713,7 +713,7 @@ impl<'tm> Solver<'tm> {
     // ── SyGuS ──────────────────────────────────────────────────────
 
     /// Declare a SyGuS variable.
-    pub fn declare_sygus_var(&mut self, symbol: &str, sort: Sort) -> Term<'tm> {
+    pub fn declare_sygus_var(&self, symbol: &str, sort: Sort) -> Term<'tm> {
         let c = CString::new(symbol).unwrap();
         Term::from_raw(unsafe { declare_sygus_var(self.inner, c.as_ptr(), sort.inner) })
     }
@@ -728,7 +728,7 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Declare a function to synthesize (SyGuS `synth-fun`).
-    pub fn synth_fun(&mut self, symbol: &str, bound_vars: &[Term], sort: Sort) -> Term<'tm> {
+    pub fn synth_fun(&self, symbol: &str, bound_vars: &[Term], sort: Sort) -> Term<'tm> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<cvc5_sys::Term> = bound_vars.iter().map(|t| t.inner).collect();
         Term::from_raw(unsafe {
@@ -759,7 +759,7 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Add a SyGuS constraint.
-    pub fn add_sygus_constraint(&mut self, term: Term) {
+    pub fn add_sygus_constraint(&self, term: Term) {
         unsafe { add_sygus_constraint(self.inner, term.inner) }
     }
 
@@ -774,7 +774,7 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Add a SyGuS assumption.
-    pub fn add_sygus_assume(&mut self, term: Term) {
+    pub fn add_sygus_assume(&self, term: Term) {
         unsafe { add_sygus_assume(self.inner, term.inner) }
     }
 
@@ -789,7 +789,7 @@ impl<'tm> Solver<'tm> {
     }
 
     /// Add a SyGuS invariant constraint.
-    pub fn add_sygus_inv_constraint(&mut self, inv: Term, pre: Term, trans: Term, post: Term) {
+    pub fn add_sygus_inv_constraint(&self, inv: Term, pre: Term, trans: Term, post: Term) {
         unsafe {
             add_sygus_inv_constraint(self.inner, inv.inner, pre.inner, trans.inner, post.inner)
         }
@@ -862,13 +862,7 @@ impl<'tm> Solver<'tm> {
     // ── Mutually recursive definitions ─────────────────────────────
 
     /// Define mutually recursive functions.
-    pub fn define_funs_rec(
-        &mut self,
-        funs: &[Term],
-        vars: &[&[Term]],
-        terms: &[Term],
-        global: bool,
-    ) {
+    pub fn define_funs_rec(&self, funs: &[Term], vars: &[&[Term]], terms: &[Term], global: bool) {
         let rf: Vec<cvc5_sys::Term> = funs.iter().map(|t| t.inner).collect();
         let mut nvars: Vec<usize> = vars.iter().map(|v| v.len()).collect();
         let raw_vars: Vec<Vec<cvc5_sys::Term>> = vars
@@ -937,7 +931,7 @@ impl<'tm> Solver<'tm> {
     /**
     Get detailed information about a solver option.
      */
-    pub fn get_option_info(&mut self, option: &str) -> OptionInfo<'_> {
+    pub fn get_option_info(&self, option: &str) -> OptionInfo<'_> {
         let c = CString::new(option).unwrap();
         let mut info: cvc5_sys::OptionInfo = unsafe { std::mem::zeroed() };
         unsafe { get_option_info(self.inner, c.as_ptr(), &mut info) };
@@ -950,7 +944,7 @@ impl<'tm> Solver<'tm> {
     // ── Plugin ─────────────────────────────────────────────────────
 
     /// Add a plugin to the solver.
-    pub fn add_plugin(&mut self, plugin: &mut cvc5_sys::Plugin) {
+    pub fn add_plugin(&self, plugin: &mut cvc5_sys::Plugin) {
         unsafe { add_plugin(self.inner, plugin) }
     }
 

@@ -43,7 +43,7 @@ fn empty_tuple_sort_element_sorts() {
 #[test]
 fn empty_tuple_value() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_UFDT");
     solver.set_option("produce-models", "true");
 
@@ -62,7 +62,7 @@ fn empty_tuple_value() {
 #[test]
 fn empty_set_value() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_UFLIAFS");
     solver.set_option("produce-models", "true");
 
@@ -82,7 +82,7 @@ fn empty_set_value() {
 #[test]
 fn get_values_empty_slice() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-models", "true");
     assert!(solver.check_sat().is_sat());
@@ -94,7 +94,7 @@ fn get_values_empty_slice() {
 #[test]
 fn empty_sygus_constraints_and_assumptions() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_option("sygus", "true");
     assert_eq!(solver.get_sygus_constraints().len(), 0);
     assert_eq!(solver.get_sygus_assumptions().len(), 0);
@@ -105,7 +105,7 @@ fn empty_sygus_constraints_and_assumptions() {
 #[test]
 fn no_assertions() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     assert_eq!(solver.get_assertions().len(), 0);
 }
@@ -115,7 +115,7 @@ fn no_assertions() {
 #[test]
 fn empty_learned_literals() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-learned-literals", "true");
     assert!(solver.check_sat().is_sat());
@@ -128,7 +128,7 @@ fn empty_learned_literals() {
 #[test]
 fn option_info_without_aliases() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     let info = solver.get_option_info("incremental");
     assert_eq!(info.name().as_ref(), "incremental");
     assert_eq!(info.aliases().len(), 0);
@@ -144,7 +144,7 @@ fn option_info_without_aliases() {
 #[test]
 fn absent_interpolant_is_none() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-interpolants", "true");
     solver.set_option("incremental", "true");
@@ -204,7 +204,7 @@ fn option_names_still_populated() {
 #[test]
 fn non_empty_array_getter_still_works() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
 
     let x = tm.mk_const(tm.integer_sort(), "x");

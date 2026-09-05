@@ -7,7 +7,7 @@ use cvc5::{
 macro_rules! setup {
     ($tm:ident, $solver:ident, $logic:expr) => {
         let $tm = TermManager::new();
-        let mut $solver = Solver::new(&$tm);
+        let $solver = Solver::new(&$tm);
         $solver.set_logic($logic);
         $solver.set_option("produce-models", "true");
     };
@@ -114,7 +114,7 @@ fn qf_lra_sat() {
 #[test]
 fn boolean_sat() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_UF");
     solver.set_option("produce-models", "true");
 
@@ -168,7 +168,7 @@ fn push_pop() {
 #[test]
 fn check_sat_assuming() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_option("produce-unsat-assumptions", "true");
     solver.set_logic("QF_UF");
 
@@ -193,7 +193,7 @@ fn check_sat_assuming() {
 #[test]
 fn unsat_core() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_UF");
     solver.set_option("produce-unsat-cores", "true");
 
@@ -261,7 +261,7 @@ fn simple_datatype() {
 #[test]
 fn solver_config() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
 
     assert!(solver.is_logic_set());
@@ -288,7 +288,7 @@ fn result_display() {
 fn result_full_api() {
     // sat result
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     let sat = solver.check_sat();
     assert!(sat.is_sat());
@@ -309,7 +309,7 @@ fn result_full_api() {
 
     // unsat result — compare with sat
     let tm2 = TermManager::new();
-    let mut solver2 = Solver::new(&tm2);
+    let solver2 = Solver::new(&tm2);
     solver2.set_logic("QF_LIA");
     let b = tm2.boolean_sort();
     let a = tm2.mk_const(b.clone(), "a");
@@ -323,7 +323,7 @@ fn result_full_api() {
 
     // unknown result
     let tm3 = TermManager::new();
-    let mut solver3 = Solver::new(&tm3);
+    let solver3 = Solver::new(&tm3);
     solver3.set_logic("QF_NIA");
     solver3.set_option("tlimit-per", "1");
     let int = tm3.integer_sort();
@@ -353,8 +353,8 @@ fn result_full_api() {
 #[test]
 fn multiple_solvers() {
     let tm = TermManager::new();
-    let mut s1 = Solver::new(&tm);
-    let mut s2 = Solver::new(&tm);
+    let s1 = Solver::new(&tm);
+    let s2 = Solver::new(&tm);
 
     s1.set_logic("QF_LIA");
     s2.set_logic("QF_LIA");
@@ -410,7 +410,7 @@ fn op_bv_extract() {
 #[test]
 fn proof_basic() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_UF");
     solver.set_option("produce-proofs", "true");
 
@@ -453,7 +453,7 @@ fn proof_basic() {
 #[test]
 fn statistics_basic() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     let int = tm.integer_sort();
     let x = tm.mk_const(int, "x");
@@ -491,7 +491,7 @@ fn statistics_basic() {
 #[test]
 fn synth_result_basic() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("LIA");
     solver.set_option("sygus", "true");
 
@@ -532,7 +532,7 @@ fn synth_result_basic() {
 #[test]
 fn grammar_basic() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("LIA");
     solver.set_option("sygus", "true");
 
@@ -717,7 +717,7 @@ fn sort_fun_accessors() {
 #[test]
 fn sort_dt_accessors() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("ALL");
 
     // Pair(fst: Int, snd: Bool)
@@ -917,7 +917,7 @@ fn sort_builtin_no_symbol() {
 #[test]
 fn dt_properties() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("ALL");
 
     let color_sort = solver.declare_dt(
@@ -943,7 +943,7 @@ fn dt_properties() {
 #[test]
 fn dt_copy_eq_hash_display() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("ALL");
 
     let sort = solver.declare_dt("Unit", &[tm.mk_dt_cons_decl("unit")]);
@@ -967,7 +967,7 @@ fn dt_copy_eq_hash_display() {
 #[test]
 fn dt_constructor_by_name() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("ALL");
 
     let sort = solver.declare_dt("AB", &[tm.mk_dt_cons_decl("A"), tm.mk_dt_cons_decl("B")]);
@@ -983,7 +983,7 @@ fn dt_constructor_by_name() {
 #[test]
 fn dt_selector_by_name_on_datatype() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("ALL");
 
     let mut cons = tm.mk_dt_cons_decl("Wrap");
@@ -1001,7 +1001,7 @@ fn dt_selector_by_name_on_datatype() {
 #[test]
 fn dt_constructor_api() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("ALL");
 
     let mut cons = tm.mk_dt_cons_decl("Pair");
@@ -1050,7 +1050,7 @@ fn dt_constructor_api() {
 #[test]
 fn dt_selector_api() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("ALL");
 
     let mut cons = tm.mk_dt_cons_decl("Box");
@@ -1274,7 +1274,7 @@ fn dt_record() {
 #[test]
 fn dt_solving_with_selectors() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("ALL");
     solver.set_option("produce-models", "true");
 
@@ -1626,7 +1626,7 @@ fn term_ff_value() {
 #[test]
 fn term_tuple_value() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("ALL");
     solver.set_option("produce-models", "true");
 
@@ -1649,7 +1649,7 @@ fn term_tuple_value() {
 #[test]
 fn term_set_value() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("ALL");
     solver.set_option("produce-models", "true");
 
@@ -1677,7 +1677,7 @@ fn term_set_value() {
 #[test]
 fn term_sequence_value() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("ALL");
     solver.set_option("produce-models", "true");
 
@@ -1734,7 +1734,7 @@ fn term_substitute_terms() {
 #[test]
 fn term_uninterpreted_sort_value() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_UF");
     solver.set_option("produce-models", "true");
 
@@ -2023,7 +2023,7 @@ fn tm_all_rounding_modes() {
 #[test]
 fn solver_set_get_info() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_info("source", "test-suite");
     let info = solver.get_info("name");
     assert!(!info.is_empty());
@@ -2045,7 +2045,7 @@ fn solver_get_option_names() {
 #[test]
 fn solver_option_info() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     let info = solver.get_option_info("produce-models");
     assert_eq!(
         info.to_string(),
@@ -2103,7 +2103,7 @@ fn solver_get_values() {
 #[test]
 fn solver_reset_assertions() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_option("produce-models", "true");
     solver.set_logic("QF_LIA");
     let int = tm.integer_sort();
@@ -2157,7 +2157,7 @@ fn solver_define_fun() {
 #[test]
 fn solver_define_fun_rec() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("UFLIA");
     solver.set_option("produce-models", "true");
 
@@ -2175,7 +2175,7 @@ fn solver_define_fun_rec() {
 #[test]
 fn solver_define_fun_rec_from_const() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("UFLIA");
     solver.set_option("produce-models", "true");
 
@@ -2192,7 +2192,7 @@ fn solver_define_fun_rec_from_const() {
 #[test]
 fn solver_define_funs_rec() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("UFLIA");
 
     let int = tm.integer_sort();
@@ -2211,7 +2211,7 @@ fn solver_define_funs_rec() {
 #[test]
 fn solver_get_model() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_UF");
     solver.set_option("produce-models", "true");
 
@@ -2227,7 +2227,7 @@ fn solver_get_model() {
 #[test]
 fn solver_block_model() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-models", "true");
 
@@ -2248,7 +2248,7 @@ fn solver_block_model() {
 #[test]
 fn solver_block_model_values() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-models", "true");
 
@@ -2271,7 +2271,7 @@ fn solver_block_model_values() {
 #[test]
 fn solver_model_domain_elements() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_UF");
     solver.set_option("produce-models", "true");
 
@@ -2287,7 +2287,7 @@ fn solver_model_domain_elements() {
 #[test]
 fn solver_is_model_core_symbol() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-models", "true");
     solver.set_option("model-cores", "simple");
@@ -2309,7 +2309,7 @@ fn solver_is_model_core_symbol() {
 #[test]
 fn solver_unsat_core_lemmas() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_UF");
     solver.set_option("produce-unsat-cores", "true");
     solver.set_option("produce-proofs", "true");
@@ -2332,7 +2332,7 @@ fn solver_unsat_core_lemmas() {
 #[test]
 fn solver_proof_to_string() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_UF");
     solver.set_option("produce-proofs", "true");
 
@@ -2359,7 +2359,7 @@ fn solver_proof_to_string() {
 #[test]
 fn solver_get_learned_literals() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-models", "true");
     solver.set_option("produce-learned-literals", "true");
@@ -2381,7 +2381,7 @@ fn solver_get_learned_literals() {
 #[test]
 fn solver_get_difficulty() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-difficulty", "true");
 
@@ -2411,7 +2411,7 @@ fn solver_declare_pool() {
 #[test]
 fn solver_get_interpolant() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-interpolants", "true");
 
@@ -2433,7 +2433,7 @@ fn solver_get_interpolant() {
 #[test]
 fn solver_get_abduct() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-abducts", "true");
 
@@ -2451,7 +2451,7 @@ fn solver_get_abduct() {
 #[test]
 fn solver_sygus_var_and_queries() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("LIA");
     solver.set_option("sygus", "true");
 
@@ -2482,7 +2482,7 @@ fn solver_sygus_var_and_queries() {
 #[test]
 fn solver_get_synth_solutions() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("LIA");
     solver.set_option("sygus", "true");
 
@@ -2523,7 +2523,7 @@ fn solver_print_stats_safe() {
 #[test]
 fn solver_sep_logic() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_ALL");
     solver.set_option("produce-models", "true");
     solver.set_option("incremental", "false");
@@ -2549,7 +2549,7 @@ fn solver_sep_logic() {
 #[test]
 fn solver_get_instantiations() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("UFLIA");
     solver.set_option("produce-models", "true");
 
@@ -2586,7 +2586,7 @@ fn solver_get_instantiations() {
 #[test]
 fn solver_check_synth_next() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("LIA");
     solver.set_option("sygus", "true");
     solver.set_option("incremental", "true");
@@ -2605,7 +2605,7 @@ fn solver_check_synth_next() {
 #[test]
 fn solver_get_interpolant_with_grammar() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-interpolants", "true");
 
@@ -2631,7 +2631,7 @@ fn solver_get_interpolant_with_grammar() {
 #[test]
 fn solver_get_abduct_with_grammar() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-abducts", "true");
 
@@ -2654,7 +2654,7 @@ fn solver_get_abduct_with_grammar() {
 #[test]
 fn solver_quantifier_elimination() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("LIA");
 
     let int = tm.integer_sort();
@@ -2699,7 +2699,7 @@ fn solver_output_file() {
 #[test]
 fn solver_get_timeout_core() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-unsat-cores", "true");
     solver.set_option("timeout-core-timeout", "100");
@@ -2722,7 +2722,7 @@ fn solver_get_timeout_core() {
 #[test]
 fn solver_get_timeout_core_assuming() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-unsat-cores", "true");
     solver.set_option("timeout-core-timeout", "100");
@@ -2744,7 +2744,7 @@ fn solver_get_timeout_core_assuming() {
 #[test]
 fn solver_get_interpolant_next() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-interpolants", "true");
     solver.set_option("incremental", "true");
@@ -2769,7 +2769,7 @@ fn solver_get_interpolant_next() {
 #[test]
 fn solver_get_abduct_next() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA");
     solver.set_option("produce-abducts", "true");
     solver.set_option("incremental", "true");
