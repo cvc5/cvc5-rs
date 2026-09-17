@@ -117,3 +117,27 @@ jobs:
         run: cargo doc --all-features --no-deps
         env:
           RUSTDOCFLAGS: -D warnings
+
+  prebuilt:
+    name: Prebuilt bindings
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup cvc5
+        uses: ./.github/actions/setup-cvc5
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Verify cvc5-sys/prebuilt is current
+        env:
+          CVC5_INCLUDE_DIR: ${{ github.workspace }}/cvc5-sys/cvc5/build/install/include
+        run: ./cvc5-sys/prebuilt/regenerate.sh --check

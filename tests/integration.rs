@@ -8,8 +8,8 @@ macro_rules! setup {
     ($tm:ident, $solver:ident, $logic:expr) => {
         let $tm = TermManager::new();
         let $solver = Solver::new(&$tm);
-        $solver.set_logic($logic);
-        $solver.set_option("produce-models", "true");
+        $solver.set_logic($logic).unwrap();
+        $solver.set_option("produce-models", "true").unwrap();
     };
 }
 
@@ -20,28 +20,31 @@ fn qf_lia_sat() {
     setup!(tm, solver, "QF_LIA");
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int.clone(), "x");
-    let y = tm.mk_const(int, "y");
+    let x = tm.mk_const(int.clone(), "x").unwrap();
+    let y = tm.mk_const(int, "y").unwrap();
 
     // x > 0
     let zero = tm.mk_integer(0);
-    let x_gt_0 = tm.mk_term(Kind::Gt, &[x.clone(), zero]);
-    solver.assert_formula(x_gt_0);
+    let x_gt_0 = tm.mk_term(Kind::Gt, &[x.clone(), zero]).unwrap();
+    solver.assert_formula(x_gt_0).unwrap();
 
     // y = x + 1
     let one = tm.mk_integer(1);
-    let x_plus_1 = tm.mk_term(Kind::Add, &[x.clone(), one]);
-    let y_eq = tm.mk_term(Kind::Equal, &[y.clone(), x_plus_1]);
-    solver.assert_formula(y_eq);
+    let x_plus_1 = tm.mk_term(Kind::Add, &[x.clone(), one]).unwrap();
+    let y_eq = tm.mk_term(Kind::Equal, &[y.clone(), x_plus_1]).unwrap();
+    solver.assert_formula(y_eq).unwrap();
 
-    let result = solver.check_sat();
+    let result = solver.check_sat().unwrap();
     assert!(result.is_sat());
 
-    let x_val = solver.get_value(x);
-    let y_val = solver.get_value(y);
+    let x_val = solver.get_value(x).unwrap();
+    let y_val = solver.get_value(y).unwrap();
     assert!(x_val.is_int32_value());
     assert!(y_val.is_int32_value());
-    assert_eq!(y_val.int32_value(), x_val.int32_value() + 1);
+    assert_eq!(
+        y_val.int32_value().unwrap(),
+        x_val.int32_value().unwrap() + 1
+    );
 }
 
 #[test]
@@ -49,18 +52,18 @@ fn qf_lia_unsat() {
     setup!(tm, solver, "QF_LIA");
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
     let one = tm.mk_integer(1);
 
     // x < 0 AND x > 0
-    let lt = tm.mk_term(Kind::Lt, &[x.clone(), zero]);
-    let gt = tm.mk_term(Kind::Gt, &[x, one]);
-    solver.assert_formula(lt);
-    solver.assert_formula(gt);
+    let lt = tm.mk_term(Kind::Lt, &[x.clone(), zero]).unwrap();
+    let gt = tm.mk_term(Kind::Gt, &[x, one]).unwrap();
+    solver.assert_formula(lt).unwrap();
+    solver.assert_formula(gt).unwrap();
 
     // x < 0 AND x > 1 is unsat
-    let result = solver.check_sat();
+    let result = solver.check_sat().unwrap();
     assert!(result.is_unsat());
 }
 
@@ -70,23 +73,23 @@ fn qf_lia_unsat() {
 fn qf_bv_sat() {
     setup!(tm, solver, "QF_BV");
 
-    let bv8 = tm.mk_bv_sort(8);
-    let x = tm.mk_const(bv8, "x");
-    let ff = tm.mk_bv(8, 0xFF);
+    let bv8 = tm.mk_bv_sort(8).unwrap();
+    let x = tm.mk_const(bv8, "x").unwrap();
+    let ff = tm.mk_bv(8, 0xFF).unwrap();
 
     // x & 0xFF = x  (tautology for 8-bit, but let's also constrain x != 0)
-    let and_term = tm.mk_term(Kind::BitvectorAnd, &[x.clone(), ff]);
-    let eq = tm.mk_term(Kind::Equal, &[and_term, x.clone()]);
-    solver.assert_formula(eq);
+    let and_term = tm.mk_term(Kind::BitvectorAnd, &[x.clone(), ff]).unwrap();
+    let eq = tm.mk_term(Kind::Equal, &[and_term, x.clone()]).unwrap();
+    solver.assert_formula(eq).unwrap();
 
-    let zero = tm.mk_bv(8, 0);
-    let neq = tm.mk_term(Kind::Distinct, &[x.clone(), zero]);
-    solver.assert_formula(neq);
+    let zero = tm.mk_bv(8, 0).unwrap();
+    let neq = tm.mk_term(Kind::Distinct, &[x.clone(), zero]).unwrap();
+    solver.assert_formula(neq).unwrap();
 
-    assert!(solver.check_sat().is_sat());
-    let x_val = solver.get_value(x);
+    assert!(solver.check_sat().unwrap().is_sat());
+    let x_val = solver.get_value(x).unwrap();
     assert!(x_val.is_bv_value());
-    assert_ne!(x_val.bv_value(10), "0");
+    assert_ne!(x_val.bv_value(10).unwrap(), "0");
 }
 
 // ── QF_LRA: linear real arithmetic ─────────────────────────────────
@@ -96,15 +99,15 @@ fn qf_lra_sat() {
     setup!(tm, solver, "QF_LRA");
 
     let real = tm.real_sort();
-    let x = tm.mk_const(real, "x");
-    let half = tm.mk_real_from_rational(1, 2);
-    let eq = tm.mk_term(Kind::Equal, &[x.clone(), half]);
-    solver.assert_formula(eq);
+    let x = tm.mk_const(real, "x").unwrap();
+    let half = tm.mk_real_from_rational(1, 2).unwrap();
+    let eq = tm.mk_term(Kind::Equal, &[x.clone(), half]).unwrap();
+    solver.assert_formula(eq).unwrap();
 
-    assert!(solver.check_sat().is_sat());
-    let val = solver.get_value(x);
+    assert!(solver.check_sat().unwrap().is_sat());
+    let val = solver.get_value(x).unwrap();
     assert!(val.is_real_value());
-    let (num, den) = val.real32_value();
+    let (num, den) = val.real32_value().unwrap();
     assert_eq!(num, 1);
     assert_eq!(den, 2);
 }
@@ -115,26 +118,26 @@ fn qf_lra_sat() {
 fn boolean_sat() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_UF");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("QF_UF").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let bool_sort = tm.boolean_sort();
-    let a = tm.mk_const(bool_sort.clone(), "a");
-    let b = tm.mk_const(bool_sort, "b");
+    let a = tm.mk_const(bool_sort.clone(), "a").unwrap();
+    let b = tm.mk_const(bool_sort, "b").unwrap();
 
     // a OR b
-    let or_term = tm.mk_term(Kind::Or, &[a.clone(), b.clone()]);
-    solver.assert_formula(or_term);
+    let or_term = tm.mk_term(Kind::Or, &[a.clone(), b.clone()]).unwrap();
+    solver.assert_formula(or_term).unwrap();
 
     // NOT (a AND b)
-    let and_term = tm.mk_term(Kind::And, &[a.clone(), b.clone()]);
-    let not_and = tm.mk_term(Kind::Not, &[and_term]);
-    solver.assert_formula(not_and);
+    let and_term = tm.mk_term(Kind::And, &[a.clone(), b.clone()]).unwrap();
+    let not_and = tm.mk_term(Kind::Not, &[and_term]).unwrap();
+    solver.assert_formula(not_and).unwrap();
 
-    assert!(solver.check_sat().is_sat());
+    assert!(solver.check_sat().unwrap().is_sat());
 
-    let a_val = solver.get_value(a).boolean_value();
-    let b_val = solver.get_value(b).boolean_value();
+    let a_val = solver.get_value(a).unwrap().boolean_value().unwrap();
+    let b_val = solver.get_value(b).unwrap().boolean_value().unwrap();
     // Exactly one must be true
     assert!(a_val ^ b_val);
 }
@@ -146,21 +149,21 @@ fn push_pop() {
     setup!(tm, solver, "QF_LIA");
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
 
-    let x_gt_0 = tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]);
-    solver.assert_formula(x_gt_0);
+    let x_gt_0 = tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap();
+    solver.assert_formula(x_gt_0).unwrap();
 
-    solver.push(1);
+    solver.push(1).unwrap();
     // Add contradictory constraint in inner scope
-    let x_lt_0 = tm.mk_term(Kind::Lt, &[x.clone(), zero]);
-    solver.assert_formula(x_lt_0);
-    assert!(solver.check_sat().is_unsat());
+    let x_lt_0 = tm.mk_term(Kind::Lt, &[x.clone(), zero]).unwrap();
+    solver.assert_formula(x_lt_0).unwrap();
+    assert!(solver.check_sat().unwrap().is_unsat());
 
-    solver.pop(1);
+    solver.pop(1).unwrap();
     // After pop, only x > 0 remains — should be sat
-    assert!(solver.check_sat().is_sat());
+    assert!(solver.check_sat().unwrap().is_sat());
 }
 
 // ── check_sat_assuming ─────────────────────────────────────────────
@@ -169,22 +172,26 @@ fn push_pop() {
 fn check_sat_assuming() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_option("produce-unsat-assumptions", "true");
-    solver.set_logic("QF_UF");
+    solver
+        .set_option("produce-unsat-assumptions", "true")
+        .unwrap();
+    solver.set_logic("QF_UF").unwrap();
 
     let bool_sort = tm.boolean_sort();
-    let p = tm.mk_const(bool_sort.clone(), "p");
-    let q = tm.mk_const(bool_sort, "q");
+    let p = tm.mk_const(bool_sort.clone(), "p").unwrap();
+    let q = tm.mk_const(bool_sort, "q").unwrap();
 
     // Assert p => q
-    let imp = tm.mk_term(Kind::Implies, &[p.clone(), q.clone()]);
-    solver.assert_formula(imp);
+    let imp = tm.mk_term(Kind::Implies, &[p.clone(), q.clone()]).unwrap();
+    solver.assert_formula(imp).unwrap();
 
     // Assume p AND NOT q — should be unsat
-    let not_q = tm.mk_term(Kind::Not, &[q]);
-    let result = solver.check_sat_assuming(&[p.clone(), not_q.clone()]);
+    let not_q = tm.mk_term(Kind::Not, &[q]).unwrap();
+    let result = solver
+        .check_sat_assuming(&[p.clone(), not_q.clone()])
+        .unwrap();
     assert!(result.is_unsat());
-    let unsat_assumptions = solver.get_unsat_assumptions();
+    let unsat_assumptions = solver.get_unsat_assumptions().unwrap();
     assert_eq!(unsat_assumptions, vec![p.clone(), not_q.clone()]);
 }
 
@@ -194,18 +201,18 @@ fn check_sat_assuming() {
 fn unsat_core() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_UF");
-    solver.set_option("produce-unsat-cores", "true");
+    solver.set_logic("QF_UF").unwrap();
+    solver.set_option("produce-unsat-cores", "true").unwrap();
 
     let bool_sort = tm.boolean_sort();
-    let a = tm.mk_const(bool_sort.clone(), "a");
-    let not_a = tm.mk_term(Kind::Not, std::slice::from_ref(&a));
+    let a = tm.mk_const(bool_sort.clone(), "a").unwrap();
+    let not_a = tm.mk_term(Kind::Not, std::slice::from_ref(&a)).unwrap();
 
-    solver.assert_formula(a);
-    solver.assert_formula(not_a);
+    solver.assert_formula(a).unwrap();
+    solver.assert_formula(not_a).unwrap();
 
-    assert!(solver.check_sat().is_unsat());
-    let core = solver.get_unsat_core();
+    assert!(solver.check_sat().unwrap().is_unsat());
+    let core = solver.get_unsat_core().unwrap();
     assert!(!core.is_empty());
 }
 
@@ -216,19 +223,21 @@ fn qf_alia_arrays() {
     setup!(tm, solver, "QF_ALIA");
 
     let int = tm.integer_sort();
-    let arr_sort = tm.mk_array_sort(int.clone(), int.clone());
-    let a = tm.mk_const(arr_sort, "a");
+    let arr_sort = tm.mk_array_sort(int.clone(), int.clone()).unwrap();
+    let a = tm.mk_const(arr_sort, "a").unwrap();
     let idx = tm.mk_integer(0);
     let val = tm.mk_integer(42);
 
     // store(a, 0, 42)
-    let store = tm.mk_term(Kind::Store, &[a.clone(), idx.clone(), val.clone()]);
+    let store = tm
+        .mk_term(Kind::Store, &[a.clone(), idx.clone(), val.clone()])
+        .unwrap();
     // select(store(a, 0, 42), 0) = 42
-    let sel = tm.mk_term(Kind::Select, &[store, idx]);
-    let eq = tm.mk_term(Kind::Equal, &[sel, val]);
-    solver.assert_formula(eq);
+    let sel = tm.mk_term(Kind::Select, &[store, idx]).unwrap();
+    let eq = tm.mk_term(Kind::Equal, &[sel, val]).unwrap();
+    solver.assert_formula(eq).unwrap();
 
-    assert!(solver.check_sat().is_sat());
+    assert!(solver.check_sat().unwrap().is_sat());
 }
 
 // ── Datatypes ──────────────────────────────────────────────────────
@@ -242,18 +251,20 @@ fn simple_datatype() {
     let green = tm.mk_dt_cons_decl("green");
     let blue = tm.mk_dt_cons_decl("blue");
 
-    let color_sort = solver.declare_dt("Color", &[red, green, blue]);
-    let dt = color_sort.datatype();
+    let color_sort = solver.declare_dt("Color", &[red, green, blue]).unwrap();
+    let dt = color_sort.datatype().unwrap();
 
     assert_eq!(dt.num_constructors(), 3);
     assert_eq!(dt.name(), "Color");
 
-    let c = tm.mk_const(color_sort, "c");
-    let red_term = tm.mk_term(Kind::ApplyConstructor, &[dt.constructor(0).term()]);
-    let eq = tm.mk_term(Kind::Equal, &[c, red_term]);
-    solver.assert_formula(eq);
+    let c = tm.mk_const(color_sort, "c").unwrap();
+    let red_term = tm
+        .mk_term(Kind::ApplyConstructor, &[dt.constructor(0).unwrap().term()])
+        .unwrap();
+    let eq = tm.mk_term(Kind::Equal, &[c, red_term]).unwrap();
+    solver.assert_formula(eq).unwrap();
 
-    assert!(solver.check_sat().is_sat());
+    assert!(solver.check_sat().unwrap().is_sat());
 }
 
 // ── Solver configuration ───────────────────────────────────────────
@@ -262,13 +273,13 @@ fn simple_datatype() {
 fn solver_config() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
+    solver.set_logic("QF_LIA").unwrap();
 
     assert!(solver.is_logic_set());
-    assert_eq!(solver.get_logic(), "QF_LIA");
+    assert_eq!(solver.get_logic().unwrap(), "QF_LIA");
 
-    solver.set_option("produce-models", "true");
-    assert_eq!(solver.get_option("produce-models"), "true");
+    solver.set_option("produce-models", "true").unwrap();
+    assert_eq!(solver.get_option("produce-models").unwrap(), "true");
 
     let version = solver.version();
     assert!(!version.is_empty());
@@ -279,7 +290,7 @@ fn solver_config() {
 #[test]
 fn result_display() {
     setup!(tm, solver, "QF_LIA");
-    let result = solver.check_sat();
+    let result = solver.check_sat().unwrap();
     let s = format!("{result}");
     assert!(s == "sat" || s == "unsat" || s == "unknown");
 }
@@ -289,8 +300,8 @@ fn result_full_api() {
     // sat result
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    let sat = solver.check_sat();
+    solver.set_logic("QF_LIA").unwrap();
+    let sat = solver.check_sat().unwrap();
     assert!(sat.is_sat());
     assert!(!sat.is_unsat());
     assert!(!sat.is_unknown());
@@ -310,13 +321,13 @@ fn result_full_api() {
     // unsat result — compare with sat
     let tm2 = TermManager::new();
     let solver2 = Solver::new(&tm2);
-    solver2.set_logic("QF_LIA");
+    solver2.set_logic("QF_LIA").unwrap();
     let b = tm2.boolean_sort();
-    let a = tm2.mk_const(b.clone(), "a");
-    let not_a = tm2.mk_term(Kind::Not, std::slice::from_ref(&a));
-    solver2.assert_formula(a);
-    solver2.assert_formula(not_a);
-    let unsat = solver2.check_sat();
+    let a = tm2.mk_const(b.clone(), "a").unwrap();
+    let not_a = tm2.mk_term(Kind::Not, std::slice::from_ref(&a)).unwrap();
+    solver2.assert_formula(a).unwrap();
+    solver2.assert_formula(not_a).unwrap();
+    let unsat = solver2.check_sat().unwrap();
     assert!(unsat.is_unsat());
     assert!(sat.is_disequal(&unsat));
     assert_ne!(sat, unsat);
@@ -324,23 +335,37 @@ fn result_full_api() {
     // unknown result
     let tm3 = TermManager::new();
     let solver3 = Solver::new(&tm3);
-    solver3.set_logic("QF_NIA");
-    solver3.set_option("tlimit-per", "1");
+    solver3.set_logic("QF_NIA").unwrap();
+    solver3.set_option("tlimit-per", "1").unwrap();
     let int = tm3.integer_sort();
-    let x = tm3.mk_const(int.clone(), "x");
-    let y = tm3.mk_const(int.clone(), "y");
-    let z = tm3.mk_const(int, "z");
+    let x = tm3.mk_const(int.clone(), "x").unwrap();
+    let y = tm3.mk_const(int.clone(), "y").unwrap();
+    let z = tm3.mk_const(int, "z").unwrap();
     // Fermat-like: x^3 + y^3 = z^3, x,y,z > 1 — likely times out
     let two = tm3.mk_integer(2);
-    let x3 = tm3.mk_term(Kind::Pow, &[x.clone(), tm3.mk_integer(3)]);
-    let y3 = tm3.mk_term(Kind::Pow, &[y.clone(), tm3.mk_integer(3)]);
-    let z3 = tm3.mk_term(Kind::Pow, &[z.clone(), tm3.mk_integer(3)]);
-    let sum = tm3.mk_term(Kind::Add, &[x3, y3]);
-    solver3.assert_formula(tm3.mk_term(Kind::Equal, &[sum, z3]));
-    solver3.assert_formula(tm3.mk_term(Kind::Gt, &[x, two.clone()]));
-    solver3.assert_formula(tm3.mk_term(Kind::Gt, &[y, two.clone()]));
-    solver3.assert_formula(tm3.mk_term(Kind::Gt, &[z, two]));
-    let unk = solver3.check_sat();
+    let x3 = tm3
+        .mk_term(Kind::Pow, &[x.clone(), tm3.mk_integer(3)])
+        .unwrap();
+    let y3 = tm3
+        .mk_term(Kind::Pow, &[y.clone(), tm3.mk_integer(3)])
+        .unwrap();
+    let z3 = tm3
+        .mk_term(Kind::Pow, &[z.clone(), tm3.mk_integer(3)])
+        .unwrap();
+    let sum = tm3.mk_term(Kind::Add, &[x3, y3]).unwrap();
+    solver3
+        .assert_formula(tm3.mk_term(Kind::Equal, &[sum, z3]).unwrap())
+        .unwrap();
+    solver3
+        .assert_formula(tm3.mk_term(Kind::Gt, &[x, two.clone()]).unwrap())
+        .unwrap();
+    solver3
+        .assert_formula(tm3.mk_term(Kind::Gt, &[y, two.clone()]).unwrap())
+        .unwrap();
+    solver3
+        .assert_formula(tm3.mk_term(Kind::Gt, &[z, two]).unwrap())
+        .unwrap();
+    let unk = solver3.check_sat().unwrap();
     if unk.is_unknown() {
         let expl = unk.unknown_explanation();
         let expl_dbg = format!("{expl:?}");
@@ -356,21 +381,21 @@ fn multiple_solvers() {
     let s1 = Solver::new(&tm);
     let s2 = Solver::new(&tm);
 
-    s1.set_logic("QF_LIA");
-    s2.set_logic("QF_LIA");
+    s1.set_logic("QF_LIA").unwrap();
+    s2.set_logic("QF_LIA").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
 
-    let gt = tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]);
-    let lt = tm.mk_term(Kind::Lt, &[x, zero]);
+    let gt = tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap();
+    let lt = tm.mk_term(Kind::Lt, &[x, zero]).unwrap();
 
-    s1.assert_formula(gt);
-    s2.assert_formula(lt);
+    s1.assert_formula(gt).unwrap();
+    s2.assert_formula(lt).unwrap();
 
-    assert!(s1.check_sat().is_sat());
-    assert!(s2.check_sat().is_sat());
+    assert!(s1.check_sat().unwrap().is_sat());
+    assert!(s2.check_sat().unwrap().is_sat());
 }
 
 // ── Op (indexed operators) ─────────────────────────────────────────
@@ -378,7 +403,7 @@ fn multiple_solvers() {
 #[test]
 fn op_bv_extract() {
     let tm = TermManager::new();
-    let op = tm.mk_op(Kind::BitvectorExtract, &[3, 1]);
+    let op = tm.mk_op(Kind::BitvectorExtract, &[3, 1]).unwrap();
     assert_eq!(op.kind(), Kind::BitvectorExtract);
     assert!(op.is_indexed());
     assert_eq!(op.num_indices(), 2);
@@ -388,16 +413,16 @@ fn op_bv_extract() {
     assert_eq!(op, op2);
     assert!(!op.is_disequal(&op2));
 
-    let op3 = tm.mk_op(Kind::BitvectorExtract, &[7, 4]);
+    let op3 = tm.mk_op(Kind::BitvectorExtract, &[7, 4]).unwrap();
     assert!(op.is_disequal(&op3));
 
     // Use op to build a term
-    let bv8 = tm.mk_bv_sort(8);
-    let x = tm.mk_const(bv8, "x");
-    let ext = tm.mk_term_from_op(op, &[x]);
+    let bv8 = tm.mk_bv_sort(8).unwrap();
+    let x = tm.mk_const(bv8, "x").unwrap();
+    let ext = tm.mk_term_from_op(op, &[x]).unwrap();
     assert!(ext.has_op());
-    assert_eq!(ext.op().kind(), Kind::BitvectorExtract);
-    let dbg = format!("{:?}", tm.mk_op(Kind::BitvectorExtract, &[3, 1]));
+    assert_eq!(ext.op().unwrap().kind(), Kind::BitvectorExtract);
+    let dbg = format!("{:?}", tm.mk_op(Kind::BitvectorExtract, &[3, 1]).unwrap());
     assert!(!dbg.is_empty());
     // hash
     let mut set = std::collections::HashSet::new();
@@ -411,17 +436,17 @@ fn op_bv_extract() {
 fn proof_basic() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_UF");
-    solver.set_option("produce-proofs", "true");
+    solver.set_logic("QF_UF").unwrap();
+    solver.set_option("produce-proofs", "true").unwrap();
 
     let b = tm.boolean_sort();
-    let a = tm.mk_const(b.clone(), "a");
-    let not_a = tm.mk_term(Kind::Not, std::slice::from_ref(&a));
-    solver.assert_formula(a);
-    solver.assert_formula(not_a);
-    assert!(solver.check_sat().is_unsat());
+    let a = tm.mk_const(b.clone(), "a").unwrap();
+    let not_a = tm.mk_term(Kind::Not, std::slice::from_ref(&a)).unwrap();
+    solver.assert_formula(a).unwrap();
+    solver.assert_formula(not_a).unwrap();
+    assert!(solver.check_sat().unwrap().is_unsat());
 
-    let proofs = solver.get_proof(ProofComponent::Full);
+    let proofs = solver.get_proof(ProofComponent::Full).unwrap();
     assert!(!proofs.is_empty());
 
     let p = &proofs[0];
@@ -454,13 +479,13 @@ fn proof_basic() {
 fn statistics_basic() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
+    solver.set_logic("QF_LIA").unwrap();
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
-    let gt = tm.mk_term(Kind::Gt, &[x, zero]);
-    solver.assert_formula(gt);
-    solver.check_sat();
+    let gt = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
+    solver.assert_formula(gt).unwrap();
+    solver.check_sat().unwrap();
 
     // SAFETY: only one Statistics handle is live at a time.
     let stats = unsafe { solver.get_statistics() };
@@ -492,19 +517,21 @@ fn statistics_basic() {
 fn synth_result_basic() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("LIA");
-    solver.set_option("sygus", "true");
+    solver.set_logic("LIA").unwrap();
+    solver.set_option("sygus", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_var(int.clone(), "x");
-    let f = solver.synth_fun("f", std::slice::from_ref(&x), int.clone());
+    let x = tm.mk_var(int.clone(), "x").unwrap();
+    let f = solver
+        .synth_fun("f", std::slice::from_ref(&x), int.clone())
+        .unwrap();
 
     let zero = tm.mk_integer(0);
-    let fx = tm.mk_term(Kind::ApplyUf, &[f.clone(), x.clone()]);
-    let ge = tm.mk_term(Kind::Geq, &[fx, zero]);
-    solver.add_sygus_constraint(ge);
+    let fx = tm.mk_term(Kind::ApplyUf, &[f.clone(), x.clone()]).unwrap();
+    let ge = tm.mk_term(Kind::Geq, &[fx, zero]).unwrap();
+    solver.add_sygus_constraint(ge).unwrap();
 
-    let sr = solver.check_synth();
+    let sr = solver.check_synth().unwrap();
     assert!(!sr.is_null());
     assert!(sr.has_solution());
     assert!(!sr.has_no_solution());
@@ -522,7 +549,7 @@ fn synth_result_basic() {
     std::hash::Hash::hash(&sr, &mut std::collections::hash_map::DefaultHasher::new());
     set.insert(());
 
-    let sol = solver.get_synth_solution(f);
+    let sol = solver.get_synth_solution(f).unwrap();
     // solution is a term (e.g. a lambda body); verify it's non-null
     assert!(!format!("{sol}").is_empty());
 }
@@ -533,18 +560,21 @@ fn synth_result_basic() {
 fn grammar_basic() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("LIA");
-    solver.set_option("sygus", "true");
+    solver.set_logic("LIA").unwrap();
+    solver.set_option("sygus", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_var(int.clone(), "x");
-    let start = tm.mk_var(int.clone(), "start");
+    let x = tm.mk_var(int.clone(), "x").unwrap();
+    let start = tm.mk_var(int.clone(), "start").unwrap();
 
-    let mut g = solver.mk_grammar(std::slice::from_ref(&x), std::slice::from_ref(&start));
-    g.add_rule(start.clone(), tm.mk_integer(0));
-    g.add_rules(start.clone(), &[tm.mk_integer(1), x.clone()]);
-    g.add_any_constant(start.clone());
-    g.add_any_variable(start.clone());
+    let mut g = solver
+        .mk_grammar(std::slice::from_ref(&x), std::slice::from_ref(&start))
+        .unwrap();
+    g.add_rule(start.clone(), tm.mk_integer(0)).unwrap();
+    g.add_rules(start.clone(), &[tm.mk_integer(1), x.clone()])
+        .unwrap();
+    g.add_any_constant(start.clone()).unwrap();
+    g.add_any_variable(start.clone()).unwrap();
 
     let g2 = g.copy();
     assert_eq!(g, g2);
@@ -557,10 +587,10 @@ fn grammar_basic() {
     std::hash::Hash::hash(&g, &mut std::collections::hash_map::DefaultHasher::new());
     set.insert(());
 
-    let f = solver.synth_fun_with_grammar("f", &[x], int, &g);
-    let sr = solver.check_synth();
+    let f = solver.synth_fun_with_grammar("f", &[x], int, &g).unwrap();
+    let sr = solver.check_synth().unwrap();
     assert!(sr.has_solution());
-    let sol = solver.get_synth_solution(f);
+    let sol = solver.get_synth_solution(f).unwrap();
     assert!(!format!("{sol}").is_empty());
 }
 
@@ -581,39 +611,45 @@ fn sort_type_predicates() {
     assert!(tm.regexp_sort().is_regexp());
     assert!(tm.rm_sort().is_rm());
 
-    let bv32 = tm.mk_bv_sort(32);
+    let bv32 = tm.mk_bv_sort(32).unwrap();
     assert!(bv32.is_bv());
     assert!(!bv32.is_integer());
 
-    let fp32 = tm.mk_fp_sort(8, 24);
+    let fp32 = tm.mk_fp_sort(8, 24).unwrap();
     assert!(fp32.is_fp());
 
-    let arr = tm.mk_array_sort(tm.integer_sort(), tm.boolean_sort());
+    let arr = tm
+        .mk_array_sort(tm.integer_sort(), tm.boolean_sort())
+        .unwrap();
     assert!(arr.is_array());
     assert!(!arr.is_set());
 
-    let set = tm.mk_set_sort(tm.integer_sort());
+    let set = tm.mk_set_sort(tm.integer_sort()).unwrap();
     assert!(set.is_set());
 
-    let bag = tm.mk_bag_sort(tm.integer_sort());
+    let bag = tm.mk_bag_sort(tm.integer_sort()).unwrap();
     assert!(bag.is_bag());
 
-    let seq = tm.mk_sequence_sort(tm.integer_sort());
+    let seq = tm.mk_sequence_sort(tm.integer_sort()).unwrap();
     assert!(seq.is_sequence());
 
-    let tup = tm.mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()]);
+    let tup = tm
+        .mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()])
+        .unwrap();
     assert!(tup.is_tuple());
 
-    let nullable = tm.mk_nullable_sort(tm.integer_sort());
+    let nullable = tm.mk_nullable_sort(tm.integer_sort()).unwrap();
     assert!(nullable.is_nullable());
 
-    let ff = tm.mk_ff_sort("7", 10);
+    let ff = tm.mk_ff_sort("7", 10).unwrap();
     assert!(ff.is_ff());
 
-    let fun = tm.mk_fun_sort(&[tm.integer_sort()], tm.boolean_sort());
+    let fun = tm
+        .mk_fun_sort(&[tm.integer_sort()], tm.boolean_sort())
+        .unwrap();
     assert!(fun.is_fun());
 
-    let pred = tm.mk_predicate_sort(&[tm.integer_sort()]);
+    let pred = tm.mk_predicate_sort(&[tm.integer_sort()]).unwrap();
     assert!(pred.is_predicate());
 }
 
@@ -622,8 +658,8 @@ fn sort_type_predicates() {
 #[test]
 fn sort_bv_size() {
     let tm = TermManager::new();
-    assert_eq!(tm.mk_bv_sort(1).bv_size(), 1);
-    assert_eq!(tm.mk_bv_sort(64).bv_size(), 64);
+    assert_eq!(tm.mk_bv_sort(1).unwrap().bv_size().unwrap(), 1);
+    assert_eq!(tm.mk_bv_sort(64).unwrap().bv_size().unwrap(), 64);
 }
 
 // ── Sort: floating-point sizes ─────────────────────────────────────
@@ -631,9 +667,9 @@ fn sort_bv_size() {
 #[test]
 fn sort_fp_sizes() {
     let tm = TermManager::new();
-    let fp = tm.mk_fp_sort(8, 24);
-    assert_eq!(fp.fp_exponent_size(), 8);
-    assert_eq!(fp.fp_significand_size(), 24);
+    let fp = tm.mk_fp_sort(8, 24).unwrap();
+    assert_eq!(fp.fp_exponent_size().unwrap(), 8);
+    assert_eq!(fp.fp_significand_size().unwrap(), 24);
 }
 
 // ── Sort: finite field size ────────────────────────────────────────
@@ -641,8 +677,8 @@ fn sort_fp_sizes() {
 #[test]
 fn sort_ff_size() {
     let tm = TermManager::new();
-    let ff = tm.mk_ff_sort("7", 10);
-    assert_eq!(ff.ff_size(), "7");
+    let ff = tm.mk_ff_sort("7", 10).unwrap();
+    assert_eq!(ff.ff_size().unwrap(), "7");
 }
 
 // ── Sort: array accessors ──────────────────────────────────────────
@@ -652,9 +688,9 @@ fn sort_array_accessors() {
     let tm = TermManager::new();
     let idx = tm.integer_sort();
     let elem = tm.boolean_sort();
-    let arr = tm.mk_array_sort(idx.clone(), elem.clone());
-    assert_eq!(arr.array_index_sort(), idx);
-    assert_eq!(arr.array_element_sort(), elem);
+    let arr = tm.mk_array_sort(idx.clone(), elem.clone()).unwrap();
+    assert_eq!(arr.array_index_sort().unwrap(), idx);
+    assert_eq!(arr.array_element_sort().unwrap(), elem);
 }
 
 // ── Sort: set/bag/sequence element sort ────────────────────────────
@@ -664,10 +700,25 @@ fn sort_collection_element_sorts() {
     let tm = TermManager::new();
     let int = tm.integer_sort();
 
-    assert_eq!(tm.mk_set_sort(int.clone()).set_element_sort(), int);
-    assert_eq!(tm.mk_bag_sort(int.clone()).bag_element_sort(), int);
     assert_eq!(
-        tm.mk_sequence_sort(int.clone()).sequence_element_sort(),
+        tm.mk_set_sort(int.clone())
+            .unwrap()
+            .set_element_sort()
+            .unwrap(),
+        int
+    );
+    assert_eq!(
+        tm.mk_bag_sort(int.clone())
+            .unwrap()
+            .bag_element_sort()
+            .unwrap(),
+        int
+    );
+    assert_eq!(
+        tm.mk_sequence_sort(int.clone())
+            .unwrap()
+            .sequence_element_sort()
+            .unwrap(),
         int
     );
 }
@@ -679,9 +730,9 @@ fn sort_tuple_accessors() {
     let tm = TermManager::new();
     let int = tm.integer_sort();
     let bool_s = tm.boolean_sort();
-    let tup = tm.mk_tuple_sort(&[int.clone(), bool_s.clone()]);
-    assert_eq!(tup.tuple_length(), 2);
-    let elems = tup.tuple_element_sorts();
+    let tup = tm.mk_tuple_sort(&[int.clone(), bool_s.clone()]).unwrap();
+    assert_eq!(tup.tuple_length().unwrap(), 2);
+    let elems = tup.tuple_element_sorts().unwrap();
     assert_eq!(elems.len(), 2);
     assert_eq!(elems[0], int);
     assert_eq!(elems[1], bool_s);
@@ -693,8 +744,8 @@ fn sort_tuple_accessors() {
 fn sort_nullable_element() {
     let tm = TermManager::new();
     let int = tm.integer_sort();
-    let nullable = tm.mk_nullable_sort(int.clone());
-    assert_eq!(nullable.nullable_element_sort(), int);
+    let nullable = tm.mk_nullable_sort(int.clone()).unwrap();
+    assert_eq!(nullable.nullable_element_sort().unwrap(), int);
 }
 
 // ── Sort: function sort accessors ──────────────────────────────────
@@ -704,12 +755,14 @@ fn sort_fun_accessors() {
     let tm = TermManager::new();
     let int = tm.integer_sort();
     let bool_s = tm.boolean_sort();
-    let fun = tm.mk_fun_sort(&[int.clone(), int.clone()], bool_s.clone());
-    assert_eq!(fun.fun_arity(), 2);
-    let dom = fun.fun_domain();
+    let fun = tm
+        .mk_fun_sort(&[int.clone(), int.clone()], bool_s.clone())
+        .unwrap();
+    assert_eq!(fun.fun_arity().unwrap(), 2);
+    let dom = fun.fun_domain().unwrap();
     assert_eq!(dom.len(), 2);
     assert_eq!(dom[0], int);
-    assert_eq!(fun.fun_codomain(), bool_s);
+    assert_eq!(fun.fun_codomain().unwrap(), bool_s);
 }
 
 // ── Sort: datatype sort accessors ──────────────────────────────────
@@ -718,40 +771,40 @@ fn sort_fun_accessors() {
 fn sort_dt_accessors() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("ALL");
+    solver.set_logic("ALL").unwrap();
 
     // Pair(fst: Int, snd: Bool)
     let mut cons = tm.mk_dt_cons_decl("Pair");
-    cons.add_selector("fst", tm.integer_sort());
-    cons.add_selector("snd", tm.boolean_sort());
-    let pair_sort = solver.declare_dt("Pair", &[cons]);
+    cons.add_selector("fst", tm.integer_sort()).unwrap();
+    cons.add_selector("snd", tm.boolean_sort()).unwrap();
+    let pair_sort = solver.declare_dt("Pair", &[cons]).unwrap();
 
     assert!(pair_sort.is_dt());
-    assert_eq!(pair_sort.dt_arity(), 0);
+    assert_eq!(pair_sort.dt_arity().unwrap(), 0);
 
-    let dt = pair_sort.datatype();
-    let ctor = dt.constructor(0);
+    let dt = pair_sort.datatype().unwrap();
+    let ctor = dt.constructor(0).unwrap();
     let ctor_sort = ctor.term().sort();
     assert!(ctor_sort.is_dt_constructor());
-    assert_eq!(ctor_sort.dt_constructor_arity(), 2);
-    assert_eq!(ctor_sort.dt_constructor_codomain(), pair_sort);
-    let dom = ctor_sort.dt_constructor_domain();
+    assert_eq!(ctor_sort.dt_constructor_arity().unwrap(), 2);
+    assert_eq!(ctor_sort.dt_constructor_codomain().unwrap(), pair_sort);
+    let dom = ctor_sort.dt_constructor_domain().unwrap();
     assert_eq!(dom.len(), 2);
     assert_eq!(dom[0], tm.integer_sort());
     assert_eq!(dom[1], tm.boolean_sort());
 
     // selector sort
-    let sel = ctor.selector(0);
+    let sel = ctor.selector(0).unwrap();
     let sel_sort = sel.term().sort();
     assert!(sel_sort.is_dt_selector());
-    assert_eq!(sel_sort.dt_selector_domain(), pair_sort);
-    assert_eq!(sel_sort.dt_selector_codomain(), tm.integer_sort());
+    assert_eq!(sel_sort.dt_selector_domain().unwrap(), pair_sort);
+    assert_eq!(sel_sort.dt_selector_codomain().unwrap(), tm.integer_sort());
 
     // tester sort
     let tester_sort = ctor.tester_term().sort();
     assert!(tester_sort.is_dt_tester());
-    assert_eq!(tester_sort.dt_tester_domain(), pair_sort);
-    assert!(tester_sort.dt_tester_codomain().is_boolean());
+    assert_eq!(tester_sort.dt_tester_domain().unwrap(), pair_sort);
+    assert!(tester_sort.dt_tester_codomain().unwrap().is_boolean());
 }
 
 // ── Sort: uninterpreted sort ───────────────────────────────────────
@@ -762,7 +815,7 @@ fn sort_uninterpreted() {
     let u = tm.mk_uninterpreted_sort("U");
     assert!(u.is_uninterpreted_sort());
     assert!(u.has_symbol());
-    assert_eq!(u.symbol(), "U");
+    assert_eq!(u.symbol().unwrap(), "U");
     assert!(!u.is_integer());
 }
 
@@ -771,14 +824,18 @@ fn sort_uninterpreted() {
 #[test]
 fn sort_uninterpreted_sort_constructor() {
     let tm = TermManager::new();
-    let usc = tm.mk_uninterpreted_sort_constructor_sort(2, "List");
+    let usc = tm
+        .mk_uninterpreted_sort_constructor_sort(2, "List")
+        .unwrap();
     assert!(usc.is_uninterpreted_sort_constructor());
-    assert_eq!(usc.uninterpreted_sort_constructor_arity(), 2);
+    assert_eq!(usc.uninterpreted_sort_constructor_arity().unwrap(), 2);
 
-    let inst = usc.instantiate(&[tm.integer_sort(), tm.boolean_sort()]);
+    let inst = usc
+        .instantiate(&[tm.integer_sort(), tm.boolean_sort()])
+        .unwrap();
     assert!(inst.is_instantiated());
-    assert_eq!(inst.uninterpreted_sort_constructor(), usc);
-    let params = inst.instantiated_parameters();
+    assert_eq!(inst.uninterpreted_sort_constructor().unwrap(), usc);
+    let params = inst.instantiated_parameters().unwrap();
     assert_eq!(params.len(), 2);
     assert_eq!(params[0], tm.integer_sort());
 }
@@ -852,11 +909,11 @@ fn sort_kind() {
 fn sort_substitute() {
     let tm = TermManager::new();
     let p = tm.mk_param_sort("T");
-    let arr = tm.mk_array_sort(p.clone(), p.clone());
-    let subst = arr.substitute(p.clone(), tm.integer_sort());
+    let arr = tm.mk_array_sort(p.clone(), p.clone()).unwrap();
+    let subst = arr.substitute(p.clone(), tm.integer_sort()).unwrap();
     assert!(subst.is_array());
-    assert_eq!(subst.array_index_sort(), tm.integer_sort());
-    assert_eq!(subst.array_element_sort(), tm.integer_sort());
+    assert_eq!(subst.array_index_sort().unwrap(), tm.integer_sort());
+    assert_eq!(subst.array_element_sort().unwrap(), tm.integer_sort());
 }
 
 // ── Sort: substitute_sorts (multiple) ──────────────────────────────
@@ -866,10 +923,12 @@ fn sort_substitute_sorts() {
     let tm = TermManager::new();
     let t = tm.mk_param_sort("T");
     let u = tm.mk_param_sort("U");
-    let arr = tm.mk_array_sort(t.clone(), u.clone());
-    let subst = arr.substitute_sorts(&[t, u], &[tm.integer_sort(), tm.boolean_sort()]);
-    assert_eq!(subst.array_index_sort(), tm.integer_sort());
-    assert_eq!(subst.array_element_sort(), tm.boolean_sort());
+    let arr = tm.mk_array_sort(t.clone(), u.clone()).unwrap();
+    let subst = arr
+        .substitute_sorts(&[t, u], &[tm.integer_sort(), tm.boolean_sort()])
+        .unwrap();
+    assert_eq!(subst.array_index_sort().unwrap(), tm.integer_sort());
+    assert_eq!(subst.array_element_sort().unwrap(), tm.boolean_sort());
 }
 
 // ── Sort: record sort ──────────────────────────────────────────────
@@ -877,7 +936,9 @@ fn sort_substitute_sorts() {
 #[test]
 fn sort_record() {
     let tm = TermManager::new();
-    let rec = tm.mk_record_sort(&["x", "y"], &[tm.integer_sort(), tm.boolean_sort()]);
+    let rec = tm
+        .mk_record_sort(&["x", "y"], &[tm.integer_sort(), tm.boolean_sort()])
+        .unwrap();
     assert!(rec.is_record());
     assert!(rec.is_dt()); // records are datatypes internally
 }
@@ -887,9 +948,9 @@ fn sort_record() {
 #[test]
 fn sort_abstract() {
     let tm = TermManager::new();
-    let abs = tm.mk_abstract_sort(SortKind::BitvectorSort);
+    let abs = tm.mk_abstract_sort(SortKind::BitvectorSort).unwrap();
     assert!(abs.is_abstract());
-    assert_eq!(abs.abstract_kind(), SortKind::BitvectorSort);
+    assert_eq!(abs.abstract_kind().unwrap(), SortKind::BitvectorSort);
 }
 
 // ── Sort: Clone trait ──────────────────────────────────────────────
@@ -918,23 +979,25 @@ fn sort_builtin_no_symbol() {
 fn dt_properties() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("ALL");
+    solver.set_logic("ALL").unwrap();
 
-    let color_sort = solver.declare_dt(
-        "Color",
-        &[
-            tm.mk_dt_cons_decl("red"),
-            tm.mk_dt_cons_decl("green"),
-            tm.mk_dt_cons_decl("blue"),
-        ],
-    );
-    let dt = color_sort.datatype();
+    let color_sort = solver
+        .declare_dt(
+            "Color",
+            &[
+                tm.mk_dt_cons_decl("red"),
+                tm.mk_dt_cons_decl("green"),
+                tm.mk_dt_cons_decl("blue"),
+            ],
+        )
+        .unwrap();
+    let dt = color_sort.datatype().unwrap();
 
     assert!(!dt.is_parametric());
     assert!(!dt.is_codatatype());
     assert!(!dt.is_tuple());
     assert!(!dt.is_record());
-    assert!(dt.is_finite());
+    assert!(dt.is_finite().unwrap());
     assert!(dt.is_well_founded());
 }
 
@@ -944,10 +1007,12 @@ fn dt_properties() {
 fn dt_copy_eq_hash_display() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("ALL");
+    solver.set_logic("ALL").unwrap();
 
-    let sort = solver.declare_dt("Unit", &[tm.mk_dt_cons_decl("unit")]);
-    let dt = sort.datatype();
+    let sort = solver
+        .declare_dt("Unit", &[tm.mk_dt_cons_decl("unit")])
+        .unwrap();
+    let dt = sort.datatype().unwrap();
     let dt2 = dt.copy();
     assert_eq!(dt, dt2);
 
@@ -968,13 +1033,15 @@ fn dt_copy_eq_hash_display() {
 fn dt_constructor_by_name() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("ALL");
+    solver.set_logic("ALL").unwrap();
 
-    let sort = solver.declare_dt("AB", &[tm.mk_dt_cons_decl("A"), tm.mk_dt_cons_decl("B")]);
-    let dt = sort.datatype();
-    let a = dt.constructor_by_name("A");
+    let sort = solver
+        .declare_dt("AB", &[tm.mk_dt_cons_decl("A"), tm.mk_dt_cons_decl("B")])
+        .unwrap();
+    let dt = sort.datatype().unwrap();
+    let a = dt.constructor_by_name("A").unwrap();
     assert_eq!(a.name(), "A");
-    let b = dt.constructor_by_name("B");
+    let b = dt.constructor_by_name("B").unwrap();
     assert_eq!(b.name(), "B");
 }
 
@@ -984,14 +1051,14 @@ fn dt_constructor_by_name() {
 fn dt_selector_by_name_on_datatype() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("ALL");
+    solver.set_logic("ALL").unwrap();
 
     let mut cons = tm.mk_dt_cons_decl("Wrap");
-    cons.add_selector("val", tm.integer_sort());
-    let sort = solver.declare_dt("Wrapper", &[cons]);
-    let dt = sort.datatype();
+    cons.add_selector("val", tm.integer_sort()).unwrap();
+    let sort = solver.declare_dt("Wrapper", &[cons]).unwrap();
+    let dt = sort.datatype().unwrap();
 
-    let sel = dt.selector("val");
+    let sel = dt.selector("val").unwrap();
     assert_eq!(sel.name(), "val");
     assert_eq!(sel.codomain_sort(), tm.integer_sort());
 }
@@ -1002,24 +1069,24 @@ fn dt_selector_by_name_on_datatype() {
 fn dt_constructor_api() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("ALL");
+    solver.set_logic("ALL").unwrap();
 
     let mut cons = tm.mk_dt_cons_decl("Pair");
-    cons.add_selector("fst", tm.integer_sort());
-    cons.add_selector("snd", tm.boolean_sort());
-    let sort = solver.declare_dt("Pair", &[cons]);
-    let dt = sort.datatype();
-    let ctor = dt.constructor(0);
+    cons.add_selector("fst", tm.integer_sort()).unwrap();
+    cons.add_selector("snd", tm.boolean_sort()).unwrap();
+    let sort = solver.declare_dt("Pair", &[cons]).unwrap();
+    let dt = sort.datatype().unwrap();
+    let ctor = dt.constructor(0).unwrap();
 
     assert_eq!(ctor.name(), "Pair");
     assert_eq!(ctor.num_selectors(), 2);
 
     // selector by index
-    let fst = ctor.selector(0);
+    let fst = ctor.selector(0).unwrap();
     assert_eq!(fst.name(), "fst");
 
     // selector by name
-    let snd = ctor.selector_by_name("snd");
+    let snd = ctor.selector_by_name("snd").unwrap();
     assert_eq!(snd.name(), "snd");
 
     // tester
@@ -1051,12 +1118,18 @@ fn dt_constructor_api() {
 fn dt_selector_api() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("ALL");
+    solver.set_logic("ALL").unwrap();
 
     let mut cons = tm.mk_dt_cons_decl("Box");
-    cons.add_selector("contents", tm.integer_sort());
-    let sort = solver.declare_dt("Box", &[cons]);
-    let sel = sort.datatype().constructor(0).selector(0);
+    cons.add_selector("contents", tm.integer_sort()).unwrap();
+    let sort = solver.declare_dt("Box", &[cons]).unwrap();
+    let sel = sort
+        .datatype()
+        .unwrap()
+        .constructor(0)
+        .unwrap()
+        .selector(0)
+        .unwrap();
 
     assert_eq!(sel.name(), "contents");
     assert_eq!(sel.codomain_sort(), tm.integer_sort());
@@ -1097,12 +1170,12 @@ fn dt_decl_manual() {
     assert_eq!(decl.num_constructors(), 0);
 
     let nothing = tm.mk_dt_cons_decl("Nothing");
-    decl.add_constructor(&nothing);
+    decl.add_constructor(&nothing).unwrap();
     assert_eq!(decl.num_constructors(), 1);
 
     let mut just = tm.mk_dt_cons_decl("Just");
-    just.add_selector("val", tm.integer_sort());
-    decl.add_constructor(&just);
+    just.add_selector("val", tm.integer_sort()).unwrap();
+    decl.add_constructor(&just).unwrap();
     assert_eq!(decl.num_constructors(), 2);
 
     // copy, eq, hash
@@ -1120,10 +1193,10 @@ fn dt_decl_manual() {
     assert!(d.starts_with("DatatypeDecl("));
 
     // resolve via mk_dt_sort
-    let sort = tm.mk_dt_sort(&decl);
+    let sort = tm.mk_dt_sort(&decl).unwrap();
     assert!(sort.is_dt());
     assert!(decl.is_resolved());
-    let dt = sort.datatype();
+    let dt = sort.datatype().unwrap();
     assert_eq!(dt.num_constructors(), 2);
     assert!(dt.is_well_founded());
 }
@@ -1156,22 +1229,22 @@ fn dt_recursive_self_selector() {
 
     let nil = tm.mk_dt_cons_decl("Nil");
     let mut cons = tm.mk_dt_cons_decl("Cons");
-    cons.add_selector("head", tm.integer_sort());
+    cons.add_selector("head", tm.integer_sort()).unwrap();
     cons.add_selector_self("tail");
 
     let mut decl = tm.mk_dt_decl("IntList", false);
-    decl.add_constructor(&nil);
-    decl.add_constructor(&cons);
+    decl.add_constructor(&nil).unwrap();
+    decl.add_constructor(&cons).unwrap();
 
-    let sort = tm.mk_dt_sort(&decl);
-    let dt = sort.datatype();
+    let sort = tm.mk_dt_sort(&decl).unwrap();
+    let dt = sort.datatype().unwrap();
     assert_eq!(dt.num_constructors(), 2);
-    assert!(!dt.is_finite()); // recursive list over Int is not finite
+    assert!(!dt.is_finite().unwrap()); // recursive list over Int is not finite
     assert!(dt.is_well_founded());
 
     // tail selector codomain is IntList itself
-    let cons_ctor = dt.constructor_by_name("Cons");
-    let tail_sel = cons_ctor.selector_by_name("tail");
+    let cons_ctor = dt.constructor_by_name("Cons").unwrap();
+    let tail_sel = cons_ctor.selector_by_name("tail").unwrap();
     assert_eq!(tail_sel.codomain_sort(), sort);
 }
 
@@ -1187,27 +1260,27 @@ fn dt_mutual_recursion() {
     let tree_unres = tm.mk_unresolved_dt_sort("Tree", 0);
 
     let mut leaf = tm.mk_dt_cons_decl("Leaf");
-    leaf.add_selector("val", tm.integer_sort());
+    leaf.add_selector("val", tm.integer_sort()).unwrap();
     let mut node = tm.mk_dt_cons_decl("Node");
-    node.add_selector("children", forest_unres.clone());
+    node.add_selector("children", forest_unres.clone()).unwrap();
     let mut tree_decl = tm.mk_dt_decl("Tree", false);
-    tree_decl.add_constructor(&leaf);
-    tree_decl.add_constructor(&node);
+    tree_decl.add_constructor(&leaf).unwrap();
+    tree_decl.add_constructor(&node).unwrap();
 
     let empty = tm.mk_dt_cons_decl("Empty");
     let mut fcons = tm.mk_dt_cons_decl("FCons");
-    fcons.add_selector("head", tree_unres);
+    fcons.add_selector("head", tree_unres).unwrap();
     fcons.add_selector_unresolved("tail", "Forest");
     let mut forest_decl = tm.mk_dt_decl("Forest", false);
-    forest_decl.add_constructor(&empty);
-    forest_decl.add_constructor(&fcons);
+    forest_decl.add_constructor(&empty).unwrap();
+    forest_decl.add_constructor(&fcons).unwrap();
 
-    let sorts = tm.mk_dt_sorts(&[tree_decl, forest_decl]);
+    let sorts = tm.mk_dt_sorts(&[tree_decl, forest_decl]).unwrap();
     assert_eq!(sorts.len(), 2);
     assert!(sorts[0].is_dt());
     assert!(sorts[1].is_dt());
-    assert_eq!(sorts[0].datatype().name(), "Tree");
-    assert_eq!(sorts[1].datatype().name(), "Forest");
+    assert_eq!(sorts[0].datatype().unwrap().name(), "Tree");
+    assert_eq!(sorts[1].datatype().unwrap().name(), "Forest");
 }
 
 // ── Parametric datatype ────────────────────────────────────────────
@@ -1217,30 +1290,32 @@ fn dt_parametric() {
     let tm = TermManager::new();
 
     let t = tm.mk_param_sort("T");
-    let mut decl = tm.mk_dt_decl_with_params("Opt", std::slice::from_ref(&t), false);
+    let mut decl = tm
+        .mk_dt_decl_with_params("Opt", std::slice::from_ref(&t), false)
+        .unwrap();
     assert!(decl.is_parametric());
 
     let none = tm.mk_dt_cons_decl("None");
     let mut some = tm.mk_dt_cons_decl("Some");
-    some.add_selector("val", t.clone());
-    decl.add_constructor(&none);
-    decl.add_constructor(&some);
+    some.add_selector("val", t.clone()).unwrap();
+    decl.add_constructor(&none).unwrap();
+    decl.add_constructor(&some).unwrap();
 
-    let sort = tm.mk_dt_sort(&decl);
-    let dt = sort.datatype();
+    let sort = tm.mk_dt_sort(&decl).unwrap();
+    let dt = sort.datatype().unwrap();
     assert!(dt.is_parametric());
-    let params = dt.parameters();
+    let params = dt.parameters().unwrap();
     assert_eq!(params.len(), 1);
 
     // instantiate with Int
-    let inst = sort.instantiate(&[tm.integer_sort()]);
+    let inst = sort.instantiate(&[tm.integer_sort()]).unwrap();
     assert!(inst.is_dt());
-    let inst_dt = inst.datatype();
+    let inst_dt = inst.datatype().unwrap();
     assert_eq!(inst_dt.num_constructors(), 2);
 
     // instantiated_term on constructor of the *uninstantiated* sort
-    let some_ctor = dt.constructor_by_name("Some");
-    let inst_term = some_ctor.instantiated_term(inst.clone());
+    let some_ctor = dt.constructor_by_name("Some").unwrap();
+    let inst_term = some_ctor.instantiated_term(inst.clone()).unwrap();
     assert!(inst_term.sort().is_dt_constructor());
 }
 
@@ -1249,8 +1324,10 @@ fn dt_parametric() {
 #[test]
 fn dt_tuple() {
     let tm = TermManager::new();
-    let tup_sort = tm.mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()]);
-    let dt = tup_sort.datatype();
+    let tup_sort = tm
+        .mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()])
+        .unwrap();
+    let dt = tup_sort.datatype().unwrap();
     assert!(dt.is_tuple());
     assert!(!dt.is_record());
     assert_eq!(dt.num_constructors(), 1);
@@ -1261,11 +1338,13 @@ fn dt_tuple() {
 #[test]
 fn dt_record() {
     let tm = TermManager::new();
-    let rec_sort = tm.mk_record_sort(&["x", "y"], &[tm.integer_sort(), tm.boolean_sort()]);
-    let dt = rec_sort.datatype();
+    let rec_sort = tm
+        .mk_record_sort(&["x", "y"], &[tm.integer_sort(), tm.boolean_sort()])
+        .unwrap();
+    let dt = rec_sort.datatype().unwrap();
     assert!(dt.is_record());
     assert_eq!(dt.num_constructors(), 1);
-    let ctor = dt.constructor(0);
+    let ctor = dt.constructor(0).unwrap();
     assert_eq!(ctor.num_selectors(), 2);
 }
 
@@ -1275,45 +1354,55 @@ fn dt_record() {
 fn dt_solving_with_selectors() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("ALL");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("ALL").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let mut cons = tm.mk_dt_cons_decl("Pair");
-    cons.add_selector("fst", tm.integer_sort());
-    cons.add_selector("snd", tm.integer_sort());
-    let sort = solver.declare_dt("Pair", &[cons]);
-    let dt = sort.datatype();
+    cons.add_selector("fst", tm.integer_sort()).unwrap();
+    cons.add_selector("snd", tm.integer_sort()).unwrap();
+    let sort = solver.declare_dt("Pair", &[cons]).unwrap();
+    let dt = sort.datatype().unwrap();
 
-    let ctor = dt.constructor(0);
-    let fst_sel = ctor.selector_by_name("fst");
-    let snd_sel = ctor.selector_by_name("snd");
+    let ctor = dt.constructor(0).unwrap();
+    let fst_sel = ctor.selector_by_name("fst").unwrap();
+    let snd_sel = ctor.selector_by_name("snd").unwrap();
 
     // Build: p = Pair(3, 7)
     let three = tm.mk_integer(3);
     let seven = tm.mk_integer(7);
-    let pair_val = tm.mk_term(
-        Kind::ApplyConstructor,
-        &[ctor.term(), three.clone(), seven.clone()],
-    );
-    let p = tm.mk_const(sort, "p");
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[p.clone(), pair_val]));
+    let pair_val = tm
+        .mk_term(
+            Kind::ApplyConstructor,
+            &[ctor.term(), three.clone(), seven.clone()],
+        )
+        .unwrap();
+    let p = tm.mk_const(sort, "p").unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[p.clone(), pair_val]).unwrap())
+        .unwrap();
 
-    assert!(solver.check_sat().is_sat());
+    assert!(solver.check_sat().unwrap().is_sat());
 
     // select fst(p) == 3
-    let fst_app = tm.mk_term(Kind::ApplySelector, &[fst_sel.term(), p.clone()]);
-    let fst_val = solver.get_value(fst_app);
-    assert_eq!(fst_val.int32_value(), 3);
+    let fst_app = tm
+        .mk_term(Kind::ApplySelector, &[fst_sel.term(), p.clone()])
+        .unwrap();
+    let fst_val = solver.get_value(fst_app).unwrap();
+    assert_eq!(fst_val.int32_value().unwrap(), 3);
 
     // select snd(p) == 7
-    let snd_app = tm.mk_term(Kind::ApplySelector, &[snd_sel.term(), p.clone()]);
-    let snd_val = solver.get_value(snd_app);
-    assert_eq!(snd_val.int32_value(), 7);
+    let snd_app = tm
+        .mk_term(Kind::ApplySelector, &[snd_sel.term(), p.clone()])
+        .unwrap();
+    let snd_val = solver.get_value(snd_app).unwrap();
+    assert_eq!(snd_val.int32_value().unwrap(), 7);
 
     // tester: isPair(p) == true
-    let tester = tm.mk_term(Kind::ApplyTester, &[ctor.tester_term(), p]);
-    let tester_val = solver.get_value(tester);
-    assert!(tester_val.boolean_value());
+    let tester = tm
+        .mk_term(Kind::ApplyTester, &[ctor.tester_term(), p])
+        .unwrap();
+    let tester_val = solver.get_value(tester).unwrap();
+    assert!(tester_val.boolean_value().unwrap());
 }
 
 // ── Term: kind, sort, id ───────────────────────────────────────────
@@ -1321,7 +1410,7 @@ fn dt_solving_with_selectors() {
 #[test]
 fn term_kind_sort_id() {
     let tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x");
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     assert_eq!(x.kind(), Kind::Constant);
     assert!(x.sort().is_integer());
     assert!(x.id() > 0);
@@ -1329,7 +1418,7 @@ fn term_kind_sort_id() {
     let zero = tm.mk_integer(0);
     assert_eq!(zero.kind(), Kind::ConstInteger);
 
-    let gt = tm.mk_term(Kind::Gt, &[x, zero]);
+    let gt = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
     assert_eq!(gt.kind(), Kind::Gt);
     assert!(gt.sort().is_boolean());
 }
@@ -1339,9 +1428,9 @@ fn term_kind_sort_id() {
 #[test]
 fn term_children() {
     let tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x");
-    let y = tm.mk_const(tm.integer_sort(), "y");
-    let add = tm.mk_term(Kind::Add, &[x.clone(), y.clone()]);
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
+    let add = tm.mk_term(Kind::Add, &[x.clone(), y.clone()]).unwrap();
     assert_eq!(add.num_children(), 2);
     assert_eq!(add.child(0), x);
     assert_eq!(add.child(1), y);
@@ -1352,9 +1441,9 @@ fn term_children() {
 #[test]
 fn term_symbol() {
     let tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x");
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     assert!(x.has_symbol());
-    assert_eq!(x.symbol(), "x");
+    assert_eq!(x.symbol().unwrap(), "x");
 
     let zero = tm.mk_integer(0);
     assert!(!zero.has_symbol());
@@ -1365,12 +1454,12 @@ fn term_symbol() {
 #[test]
 fn term_op() {
     let tm = TermManager::new();
-    let bv8 = tm.mk_bv_sort(8);
-    let x = tm.mk_const(bv8, "x");
-    let op = tm.mk_op(Kind::BitvectorExtract, &[3, 0]);
-    let ext = tm.mk_term_from_op(op.clone(), &[x]);
+    let bv8 = tm.mk_bv_sort(8).unwrap();
+    let x = tm.mk_const(bv8, "x").unwrap();
+    let op = tm.mk_op(Kind::BitvectorExtract, &[3, 0]).unwrap();
+    let ext = tm.mk_term_from_op(op.clone(), &[x]).unwrap();
     assert!(ext.has_op());
-    assert_eq!(ext.op(), op);
+    assert_eq!(ext.op().unwrap(), op);
 
     // a plain constant has no op
     let c = tm.mk_integer(42);
@@ -1382,12 +1471,12 @@ fn term_op() {
 #[test]
 fn term_copy_eq_diseq() {
     let tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x");
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let x2 = x.copy();
     assert_eq!(x, x2);
     assert!(!x.is_disequal(&x2));
 
-    let y = tm.mk_const(tm.integer_sort(), "y");
+    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
     assert_ne!(x, y);
     assert!(x.is_disequal(&y));
 
@@ -1400,7 +1489,7 @@ fn term_copy_eq_diseq() {
 #[test]
 fn term_display_debug() {
     let tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x");
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let s = format!("{x}");
     assert!(s.contains("x"));
     let d = format!("{x:?}");
@@ -1412,13 +1501,13 @@ fn term_display_debug() {
 #[test]
 fn term_hash() {
     let tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x");
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let mut set = std::collections::HashSet::new();
     set.insert(x.clone());
     set.insert(x.copy());
     assert_eq!(set.len(), 1);
 
-    let y = tm.mk_const(tm.integer_sort(), "y");
+    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
     set.insert(y);
     assert_eq!(set.len(), 2);
 }
@@ -1428,8 +1517,8 @@ fn term_hash() {
 #[test]
 fn term_ord() {
     let tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x");
-    let y = tm.mk_const(tm.integer_sort(), "y");
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
     let cmp1 = x.cmp(&y);
     let cmp2 = y.cmp(&x);
     assert_eq!(cmp1, cmp2.reverse());
@@ -1443,14 +1532,14 @@ fn term_boolean_value() {
     let tm = TermManager::new();
     let t = tm.mk_true();
     assert!(t.is_boolean_value());
-    assert!(t.boolean_value());
+    assert!(t.boolean_value().unwrap());
 
     let f = tm.mk_false();
     assert!(f.is_boolean_value());
-    assert!(!f.boolean_value());
+    assert!(!f.boolean_value().unwrap());
 
     let b = tm.mk_boolean(true);
-    assert!(b.boolean_value());
+    assert!(b.boolean_value().unwrap());
 }
 
 // ── Term: integer values (i32, u32, i64, u64, string) ──────────────
@@ -1461,22 +1550,22 @@ fn term_integer_values() {
 
     let pos = tm.mk_integer(42);
     assert!(pos.is_int32_value());
-    assert_eq!(pos.int32_value(), 42);
+    assert_eq!(pos.int32_value().unwrap(), 42);
     assert!(pos.is_uint32_value());
-    assert_eq!(pos.uint32_value(), 42);
+    assert_eq!(pos.uint32_value().unwrap(), 42);
     assert!(pos.is_int64_value());
-    assert_eq!(pos.int64_value(), 42);
+    assert_eq!(pos.int64_value().unwrap(), 42);
     assert!(pos.is_uint64_value());
-    assert_eq!(pos.uint64_value(), 42);
+    assert_eq!(pos.uint64_value().unwrap(), 42);
     assert!(pos.is_integer_value());
-    assert_eq!(pos.integer_value(), "42");
+    assert_eq!(pos.integer_value().unwrap(), "42");
 
     let neg = tm.mk_integer(-7);
     assert!(neg.is_int32_value());
-    assert_eq!(neg.int32_value(), -7);
+    assert_eq!(neg.int32_value().unwrap(), -7);
     assert!(!neg.is_uint32_value()); // negative can't be uint
     assert!(neg.is_int64_value());
-    assert_eq!(neg.int64_value(), -7);
+    assert_eq!(neg.int64_value().unwrap(), -7);
 
     // sign
     assert_eq!(pos.real_or_integer_value_sign(), 1);
@@ -1489,9 +1578,9 @@ fn term_integer_values() {
 #[test]
 fn term_integer_from_str() {
     let tm = TermManager::new();
-    let big = tm.mk_integer_from_str("999999999999999999");
+    let big = tm.mk_integer_from_str("999999999999999999").unwrap();
     assert!(big.is_integer_value());
-    assert_eq!(big.integer_value(), "999999999999999999");
+    assert_eq!(big.integer_value().unwrap(), "999999999999999999");
 }
 
 // ── Term: real values ──────────────────────────────────────────────
@@ -1500,22 +1589,22 @@ fn term_integer_from_str() {
 fn term_real_values() {
     let tm = TermManager::new();
 
-    let half = tm.mk_real_from_rational(1, 2);
+    let half = tm.mk_real_from_rational(1, 2).unwrap();
     assert!(half.is_real_value());
-    let rv = half.real_value();
+    let rv = half.real_value().unwrap();
     assert!(rv.contains("1") && rv.contains("2"));
 
     assert!(half.is_real32_value());
-    let (num, den) = half.real32_value();
+    let (num, den) = half.real32_value().unwrap();
     assert_eq!(num, 1);
     assert_eq!(den, 2);
 
     assert!(half.is_real64_value());
-    let (num64, den64) = half.real64_value();
+    let (num64, den64) = half.real64_value().unwrap();
     assert_eq!(num64, 1);
     assert_eq!(den64, 2);
 
-    let from_str = tm.mk_real_from_str("3/4");
+    let from_str = tm.mk_real_from_str("3/4").unwrap();
     assert!(from_str.is_real_value());
 
     let from_int = tm.mk_real(5);
@@ -1527,15 +1616,15 @@ fn term_real_values() {
 #[test]
 fn term_bv_value() {
     let tm = TermManager::new();
-    let bv = tm.mk_bv(8, 0xAB);
+    let bv = tm.mk_bv(8, 0xAB).unwrap();
     assert!(bv.is_bv_value());
-    assert_eq!(bv.bv_value(10), "171"); // 0xAB = 171
-    assert_eq!(bv.bv_value(16), "ab");
-    assert_eq!(bv.bv_value(2), "10101011");
+    assert_eq!(bv.bv_value(10).unwrap(), "171"); // 0xAB = 171
+    assert_eq!(bv.bv_value(16).unwrap(), "ab");
+    assert_eq!(bv.bv_value(2).unwrap(), "10101011");
 
-    let from_str = tm.mk_bv_from_str(8, "ff", 16);
+    let from_str = tm.mk_bv_from_str(8, "ff", 16).unwrap();
     assert!(from_str.is_bv_value());
-    assert_eq!(from_str.bv_value(10), "255");
+    assert_eq!(from_str.bv_value(10).unwrap(), "255");
 }
 
 // ── Term: string value ─────────────────────────────────────────────
@@ -1545,7 +1634,7 @@ fn term_string_value() {
     let tm = TermManager::new();
     let s = tm.mk_string("hello", false);
     assert!(s.is_string_value());
-    let chars = s.u32string_value();
+    let chars = s.u32string_value().unwrap();
     assert_eq!(chars.len(), 5);
     assert_eq!(chars[0], b'h' as u32);
 }
@@ -1556,21 +1645,21 @@ fn term_string_value() {
 fn term_fp_special_values() {
     let tm = TermManager::new();
 
-    let pos_inf = tm.mk_fp_pos_inf(8, 24);
+    let pos_inf = tm.mk_fp_pos_inf(8, 24).unwrap();
     assert!(pos_inf.is_fp_pos_inf());
     assert!(pos_inf.is_fp_value());
     assert!(!pos_inf.is_fp_nan());
 
-    let neg_inf = tm.mk_fp_neg_inf(8, 24);
+    let neg_inf = tm.mk_fp_neg_inf(8, 24).unwrap();
     assert!(neg_inf.is_fp_neg_inf());
 
-    let nan = tm.mk_fp_nan(8, 24);
+    let nan = tm.mk_fp_nan(8, 24).unwrap();
     assert!(nan.is_fp_nan());
 
-    let pos_zero = tm.mk_fp_pos_zero(8, 24);
+    let pos_zero = tm.mk_fp_pos_zero(8, 24).unwrap();
     assert!(pos_zero.is_fp_pos_zero());
 
-    let neg_zero = tm.mk_fp_neg_zero(8, 24);
+    let neg_zero = tm.mk_fp_neg_zero(8, 24).unwrap();
     assert!(neg_zero.is_fp_neg_zero());
 }
 
@@ -1579,9 +1668,9 @@ fn term_fp_special_values() {
 #[test]
 fn term_fp_value() {
     let tm = TermManager::new();
-    let pos_zero = tm.mk_fp_pos_zero(8, 24);
+    let pos_zero = tm.mk_fp_pos_zero(8, 24).unwrap();
     assert!(pos_zero.is_fp_value());
-    let (ew, sw, bv) = pos_zero.fp_value();
+    let (ew, sw, bv) = pos_zero.fp_value().unwrap();
     assert_eq!(ew, 8);
     assert_eq!(sw, 24);
     assert!(bv.is_bv_value());
@@ -1594,7 +1683,10 @@ fn term_rm_value() {
     let tm = TermManager::new();
     let rne = tm.mk_rm(RoundingMode::RoundNearestTiesToEven);
     assert!(rne.is_rm_value());
-    assert_eq!(rne.rm_value(), RoundingMode::RoundNearestTiesToEven);
+    assert_eq!(
+        rne.rm_value().unwrap(),
+        RoundingMode::RoundNearestTiesToEven
+    );
 }
 
 // ── Term: const array ──────────────────────────────────────────────
@@ -1602,11 +1694,13 @@ fn term_rm_value() {
 #[test]
 fn term_const_array() {
     let tm = TermManager::new();
-    let arr_sort = tm.mk_array_sort(tm.integer_sort(), tm.integer_sort());
+    let arr_sort = tm
+        .mk_array_sort(tm.integer_sort(), tm.integer_sort())
+        .unwrap();
     let zero = tm.mk_integer(0);
-    let ca = tm.mk_const_array(arr_sort, zero.clone());
+    let ca = tm.mk_const_array(arr_sort, zero.clone()).unwrap();
     assert!(ca.is_const_array());
-    assert_eq!(ca.const_array_base(), zero);
+    assert_eq!(ca.const_array_base().unwrap(), zero);
 }
 
 // ── Term: finite field value ───────────────────────────────────────
@@ -1614,10 +1708,10 @@ fn term_const_array() {
 #[test]
 fn term_ff_value() {
     let tm = TermManager::new();
-    let ff_sort = tm.mk_ff_sort("7", 10);
-    let elem = tm.mk_ff_elem("3", ff_sort, 10);
+    let ff_sort = tm.mk_ff_sort("7", 10).unwrap();
+    let elem = tm.mk_ff_elem("3", ff_sort, 10).unwrap();
     assert!(elem.is_ff_value());
-    let v = elem.ff_value();
+    let v = elem.ff_value().unwrap();
     assert!(v.contains("3"));
 }
 
@@ -1627,20 +1721,25 @@ fn term_ff_value() {
 fn term_tuple_value() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("ALL");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("ALL").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
-    let tup = tm.mk_tuple(&[tm.mk_integer(1), tm.mk_true()]);
-    let t = tm.mk_const(
-        tm.mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()]),
-        "t",
-    );
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[t.clone(), tup]));
-    assert!(solver.check_sat().is_sat());
+    let tup = tm.mk_tuple(&[tm.mk_integer(1), tm.mk_true()]).unwrap();
+    let t = tm
+        .mk_const(
+            tm.mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()])
+                .unwrap(),
+            "t",
+        )
+        .unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[t.clone(), tup]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
 
-    let val = solver.get_value(t);
+    let val = solver.get_value(t).unwrap();
     assert!(val.is_tuple_value());
-    let elems = val.tuple_value();
+    let elems = val.tuple_value().unwrap();
     assert_eq!(elems.len(), 2);
 }
 
@@ -1650,25 +1749,27 @@ fn term_tuple_value() {
 fn term_set_value() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("ALL");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("ALL").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let int = tm.integer_sort();
-    let set_sort = tm.mk_set_sort(int.clone());
-    let s = tm.mk_const(set_sort.clone(), "s");
+    let set_sort = tm.mk_set_sort(int.clone()).unwrap();
+    let s = tm.mk_const(set_sort.clone(), "s").unwrap();
 
     // s = {1, 2}
     let one = tm.mk_integer(1);
     let two = tm.mk_integer(2);
-    let s1 = tm.mk_term(Kind::SetSingleton, &[one]);
-    let s2 = tm.mk_term(Kind::SetSingleton, &[two]);
-    let union = tm.mk_term(Kind::SetUnion, &[s1, s2]);
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[s.clone(), union]));
-    assert!(solver.check_sat().is_sat());
+    let s1 = tm.mk_term(Kind::SetSingleton, &[one]).unwrap();
+    let s2 = tm.mk_term(Kind::SetSingleton, &[two]).unwrap();
+    let union = tm.mk_term(Kind::SetUnion, &[s1, s2]).unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[s.clone(), union]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
 
-    let val = solver.get_value(s);
+    let val = solver.get_value(s).unwrap();
     assert!(val.is_set_value());
-    let elems = val.set_value();
+    let elems = val.set_value().unwrap();
     assert_eq!(elems.len(), 2);
 }
 
@@ -1678,21 +1779,23 @@ fn term_set_value() {
 fn term_sequence_value() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("ALL");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("ALL").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let int = tm.integer_sort();
-    let seq_sort = tm.mk_sequence_sort(int.clone());
-    let s = tm.mk_const(seq_sort, "s");
+    let seq_sort = tm.mk_sequence_sort(int.clone()).unwrap();
+    let s = tm.mk_const(seq_sort, "s").unwrap();
 
     let one = tm.mk_integer(1);
-    let unit = tm.mk_term(Kind::SeqUnit, &[one]);
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[s.clone(), unit]));
-    assert!(solver.check_sat().is_sat());
+    let unit = tm.mk_term(Kind::SeqUnit, &[one]).unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[s.clone(), unit]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
 
-    let val = solver.get_value(s);
+    let val = solver.get_value(s).unwrap();
     assert!(val.is_sequence_value());
-    let elems = val.sequence_value();
+    let elems = val.sequence_value().unwrap();
     assert_eq!(elems.len(), 1);
 }
 
@@ -1701,13 +1804,13 @@ fn term_sequence_value() {
 #[test]
 fn term_substitute_term() {
     let tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x");
-    let y = tm.mk_const(tm.integer_sort(), "y");
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
     let zero = tm.mk_integer(0);
 
     // x > 0, substitute x -> y
-    let gt = tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]);
-    let subst = gt.substitute_term(x, y.clone());
+    let gt = tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap();
+    let subst = gt.substitute_term(x, y.clone()).unwrap();
     // result should be y > 0
     assert_eq!(subst.child(0), y);
     assert_eq!(subst.child(1), zero);
@@ -1718,13 +1821,15 @@ fn term_substitute_term() {
 #[test]
 fn term_substitute_terms() {
     let tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x");
-    let y = tm.mk_const(tm.integer_sort(), "y");
-    let a = tm.mk_const(tm.integer_sort(), "a");
-    let b = tm.mk_const(tm.integer_sort(), "b");
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
+    let a = tm.mk_const(tm.integer_sort(), "a").unwrap();
+    let b = tm.mk_const(tm.integer_sort(), "b").unwrap();
 
-    let add = tm.mk_term(Kind::Add, &[x.clone(), y.clone()]);
-    let subst = add.substitute_terms(&[x, y], &[a.clone(), b.clone()]);
+    let add = tm.mk_term(Kind::Add, &[x.clone(), y.clone()]).unwrap();
+    let subst = add
+        .substitute_terms(&[x, y], &[a.clone(), b.clone()])
+        .unwrap();
     assert_eq!(subst.child(0), a);
     assert_eq!(subst.child(1), b);
 }
@@ -1735,16 +1840,16 @@ fn term_substitute_terms() {
 fn term_uninterpreted_sort_value() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_UF");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("QF_UF").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let u = tm.mk_uninterpreted_sort("U");
-    let x = tm.mk_const(u, "x");
-    assert!(solver.check_sat().is_sat());
+    let x = tm.mk_const(u, "x").unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
 
-    let val = solver.get_value(x);
+    let val = solver.get_value(x).unwrap();
     assert!(val.is_uninterpreted_sort_value());
-    let s = val.uninterpreted_sort_value();
+    let s = val.uninterpreted_sort_value().unwrap();
     assert!(!s.is_empty());
 }
 
@@ -1754,9 +1859,9 @@ fn term_uninterpreted_sort_value() {
 fn term_cardinality_constraint() {
     let tm = TermManager::new();
     let u = tm.mk_uninterpreted_sort("U");
-    let cc = tm.mk_cardinality_constraint(u.clone(), 3);
+    let cc = tm.mk_cardinality_constraint(u.clone(), 3).unwrap();
     assert!(cc.is_cardinality_constraint());
-    let (sort, upper) = cc.cardinality_constraint();
+    let (sort, upper) = cc.cardinality_constraint().unwrap();
     assert_eq!(sort, u);
     assert_eq!(upper, 3);
 }
@@ -1768,13 +1873,17 @@ fn term_empty_collections() {
     let tm = TermManager::new();
     let int = tm.integer_sort();
 
-    let es = tm.mk_empty_set(tm.mk_set_sort(int.clone()));
+    let es = tm
+        .mk_empty_set(tm.mk_set_sort(int.clone()).unwrap())
+        .unwrap();
     assert!(es.sort().is_set());
 
-    let eb = tm.mk_empty_bag(tm.mk_bag_sort(int.clone()));
+    let eb = tm
+        .mk_empty_bag(tm.mk_bag_sort(int.clone()).unwrap())
+        .unwrap();
     assert!(eb.sort().is_bag());
 
-    let eseq = tm.mk_empty_sequence(int);
+    let eseq = tm.mk_empty_sequence(int).unwrap();
     assert!(eseq.sort().is_sequence());
 }
 
@@ -1796,7 +1905,9 @@ fn term_regexp_constants() {
 #[test]
 fn term_universe_set() {
     let tm = TermManager::new();
-    let us = tm.mk_universe_set(tm.mk_set_sort(tm.integer_sort()));
+    let us = tm
+        .mk_universe_set(tm.mk_set_sort(tm.integer_sort()).unwrap())
+        .unwrap();
     assert!(us.sort().is_set());
 }
 
@@ -1818,11 +1929,11 @@ fn term_skolem() {
     let n = tm.get_num_idxs_for_skolem_id(id);
     assert!(n > 0);
 
-    let x = tm.mk_const(tm.integer_sort(), "x");
-    let sk = tm.mk_skolem(id, &[x]);
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let sk = tm.mk_skolem(id, &[x]).unwrap();
     assert!(sk.is_skolem());
-    assert_eq!(sk.skolem_id(), id);
-    let indices = sk.skolem_indices();
+    assert_eq!(sk.skolem_id().unwrap(), id);
+    let indices = sk.skolem_indices().unwrap();
     assert_eq!(indices.len(), n);
 }
 
@@ -1832,21 +1943,21 @@ fn term_skolem() {
 fn term_nullable() {
     let tm = TermManager::new();
     let int = tm.integer_sort();
-    let ns = tm.mk_nullable_sort(int.clone());
+    let ns = tm.mk_nullable_sort(int.clone()).unwrap();
 
-    let some = tm.mk_nullable_some(tm.mk_integer(42));
+    let some = tm.mk_nullable_some(tm.mk_integer(42)).unwrap();
     assert!(some.sort().is_nullable());
 
-    let null = tm.mk_nullable_null(ns);
+    let null = tm.mk_nullable_null(ns).unwrap();
     assert!(null.sort().is_nullable());
 
-    let is_null = tm.mk_nullable_is_null(some.clone());
+    let is_null = tm.mk_nullable_is_null(some.clone()).unwrap();
     assert!(is_null.sort().is_boolean());
 
-    let is_some = tm.mk_nullable_is_some(some.clone());
+    let is_some = tm.mk_nullable_is_some(some.clone()).unwrap();
     assert!(is_some.sort().is_boolean());
 
-    let val = tm.mk_nullable_val(some);
+    let val = tm.mk_nullable_val(some).unwrap();
     assert!(val.sort().is_integer());
 }
 
@@ -1855,10 +1966,10 @@ fn term_nullable() {
 #[test]
 fn term_fp_from_ieee() {
     let tm = TermManager::new();
-    let sign = tm.mk_bv(1, 0);
-    let exp = tm.mk_bv(8, 0);
-    let sig = tm.mk_bv(23, 0);
-    let fp = tm.mk_fp_from_ieee(sign, exp, sig);
+    let sign = tm.mk_bv(1, 0).unwrap();
+    let exp = tm.mk_bv(8, 0).unwrap();
+    let sig = tm.mk_bv(23, 0).unwrap();
+    let fp = tm.mk_fp_from_ieee(sign, exp, sig).unwrap();
     assert!(fp.sort().is_fp());
     assert!(fp.is_fp_pos_zero());
 }
@@ -1868,8 +1979,8 @@ fn term_fp_from_ieee() {
 #[test]
 fn term_fp_from_bv() {
     let tm = TermManager::new();
-    let bv = tm.mk_bv(32, 0);
-    let fp = tm.mk_fp(8, 24, bv);
+    let bv = tm.mk_bv(32, 0).unwrap();
+    let fp = tm.mk_fp(8, 24, bv).unwrap();
     assert!(fp.sort().is_fp());
 }
 
@@ -1887,14 +1998,14 @@ fn tm_default() {
 #[test]
 fn tm_mk_op_from_str() {
     let tm = TermManager::new();
-    let op = tm.mk_op_from_str(Kind::Divisible, "3");
+    let op = tm.mk_op_from_str(Kind::Divisible, "3").unwrap();
     assert_eq!(op.kind(), Kind::Divisible);
     assert!(op.is_indexed());
     assert_eq!(op.num_indices(), 1);
 
     // use it in a term
-    let x = tm.mk_const(tm.integer_sort(), "x");
-    let div = tm.mk_term_from_op(op, &[x]);
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let div = tm.mk_term_from_op(op, &[x]).unwrap();
     assert!(div.sort().is_boolean());
 }
 
@@ -1906,7 +2017,7 @@ fn tm_sep_terms() {
     let emp = tm.mk_sep_emp();
     assert!(emp.sort().is_boolean());
 
-    let nil = tm.mk_sep_nil(tm.integer_sort());
+    let nil = tm.mk_sep_nil(tm.integer_sort()).unwrap();
     assert!(nil.sort().is_integer());
 }
 
@@ -1917,9 +2028,9 @@ fn tm_mk_string_from_char32() {
     let tm = TermManager::new();
     // "AB" as null-terminated char32 array
     let chars: Vec<u32> = vec![0x41, 0x42, 0];
-    let s = tm.mk_string_from_char32(&chars);
+    let s = tm.mk_string_from_char32(&chars).unwrap();
     assert!(s.is_string_value());
-    let vals = s.u32string_value();
+    let vals = s.u32string_value().unwrap();
     assert_eq!(vals.len(), 2);
     assert_eq!(vals[0], 0x41);
     assert_eq!(vals[1], 0x42);
@@ -1930,9 +2041,9 @@ fn tm_mk_string_from_char32() {
 #[test]
 fn tm_mk_nullable_lift() {
     let tm = TermManager::new();
-    let a = tm.mk_nullable_some(tm.mk_integer(1));
-    let b = tm.mk_nullable_some(tm.mk_integer(2));
-    let lifted = tm.mk_nullable_lift(Kind::Add, &[a, b]);
+    let a = tm.mk_nullable_some(tm.mk_integer(1)).unwrap();
+    let b = tm.mk_nullable_some(tm.mk_integer(2)).unwrap();
+    let lifted = tm.mk_nullable_lift(Kind::Add, &[a, b]).unwrap();
     assert!(lifted.sort().is_nullable());
 }
 
@@ -1941,10 +2052,10 @@ fn tm_mk_nullable_lift() {
 #[test]
 fn tm_mk_var() {
     let tm = TermManager::new();
-    let v = tm.mk_var(tm.integer_sort(), "v");
+    let v = tm.mk_var(tm.integer_sort(), "v").unwrap();
     assert_eq!(v.kind(), Kind::Variable);
     assert!(v.has_symbol());
-    assert_eq!(v.symbol(), "v");
+    assert_eq!(v.symbol().unwrap(), "v");
     assert!(v.sort().is_integer());
 }
 
@@ -1953,10 +2064,10 @@ fn tm_mk_var() {
 #[test]
 fn tm_mk_const() {
     let tm = TermManager::new();
-    let c = tm.mk_const(tm.boolean_sort(), "p");
+    let c = tm.mk_const(tm.boolean_sort(), "p").unwrap();
     assert_eq!(c.kind(), Kind::Constant);
     assert!(c.has_symbol());
-    assert_eq!(c.symbol(), "p");
+    assert_eq!(c.symbol().unwrap(), "p");
     assert!(c.sort().is_boolean());
 }
 
@@ -1987,12 +2098,12 @@ fn tm_mk_string_escape() {
 #[test]
 fn tm_mk_bv_from_str_bases() {
     let tm = TermManager::new();
-    let from_bin = tm.mk_bv_from_str(8, "11111111", 2);
-    let from_dec = tm.mk_bv_from_str(8, "255", 10);
-    let from_hex = tm.mk_bv_from_str(8, "ff", 16);
-    assert_eq!(from_bin.bv_value(10), "255");
-    assert_eq!(from_dec.bv_value(10), "255");
-    assert_eq!(from_hex.bv_value(10), "255");
+    let from_bin = tm.mk_bv_from_str(8, "11111111", 2).unwrap();
+    let from_dec = tm.mk_bv_from_str(8, "255", 10).unwrap();
+    let from_hex = tm.mk_bv_from_str(8, "ff", 16).unwrap();
+    assert_eq!(from_bin.bv_value(10).unwrap(), "255");
+    assert_eq!(from_dec.bv_value(10).unwrap(), "255");
+    assert_eq!(from_hex.bv_value(10).unwrap(), "255");
 }
 
 // ── TermManager: all rounding modes ────────────────────────────────
@@ -2010,7 +2121,7 @@ fn tm_all_rounding_modes() {
     ] {
         let t = tm.mk_rm(rm);
         assert!(t.is_rm_value());
-        assert_eq!(t.rm_value(), rm);
+        assert_eq!(t.rm_value().unwrap(), rm);
     }
 }
 
@@ -2024,8 +2135,8 @@ fn tm_all_rounding_modes() {
 fn solver_set_get_info() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_info("source", "test-suite");
-    let info = solver.get_info("name");
+    solver.set_info("source", "test-suite").unwrap();
+    let info = solver.get_info("name").unwrap();
     assert!(!info.is_empty());
 }
 
@@ -2046,7 +2157,7 @@ fn solver_get_option_names() {
 fn solver_option_info() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    let info = solver.get_option_info("produce-models");
+    let info = solver.get_option_info("produce-models").unwrap();
     assert_eq!(
         info.to_string(),
         "OptionInfo{ produce-models | bool | false | default false }"
@@ -2058,10 +2169,12 @@ fn solver_option_info() {
 #[test]
 fn solver_simplify() {
     setup!(tm, solver, "QF_LIA");
-    let t = tm.mk_term(Kind::And, &[tm.mk_true(), tm.mk_true()]);
-    let simplified = solver.simplify(t, false);
+    let t = tm
+        .mk_term(Kind::And, &[tm.mk_true(), tm.mk_true()])
+        .unwrap();
+    let simplified = solver.simplify(t, false).unwrap();
     assert!(simplified.is_boolean_value());
-    assert!(simplified.boolean_value());
+    assert!(simplified.boolean_value().unwrap());
 }
 
 // ── get_assertions ─────────────────────────────────────────────────
@@ -2070,10 +2183,10 @@ fn solver_simplify() {
 fn solver_get_assertions() {
     setup!(tm, solver, "QF_LIA");
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
-    let gt = tm.mk_term(Kind::Gt, &[x, zero]);
-    solver.assert_formula(gt.clone());
+    let gt = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
+    solver.assert_formula(gt.clone()).unwrap();
     let assertions = solver.get_assertions();
     assert_eq!(assertions.len(), 1);
     assert_eq!(assertions[0], gt);
@@ -2085,17 +2198,21 @@ fn solver_get_assertions() {
 fn solver_get_values() {
     setup!(tm, solver, "QF_LIA");
     let int = tm.integer_sort();
-    let x = tm.mk_const(int.clone(), "x");
-    let y = tm.mk_const(int, "y");
+    let x = tm.mk_const(int.clone(), "x").unwrap();
+    let y = tm.mk_const(int, "y").unwrap();
     let one = tm.mk_integer(1);
     let two = tm.mk_integer(2);
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[x.clone(), one]));
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[y.clone(), two]));
-    assert!(solver.check_sat().is_sat());
-    let vals = solver.get_values(&[x, y]);
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[x.clone(), one]).unwrap())
+        .unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[y.clone(), two]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
+    let vals = solver.get_values(&[x, y]).unwrap();
     assert_eq!(vals.len(), 2);
-    assert_eq!(vals[0].int32_value(), 1);
-    assert_eq!(vals[1].int32_value(), 2);
+    assert_eq!(vals[0].int32_value().unwrap(), 1);
+    assert_eq!(vals[1].int32_value().unwrap(), 2);
 }
 
 // ── reset_assertions ───────────────────────────────────────────────
@@ -2104,18 +2221,22 @@ fn solver_get_values() {
 fn solver_reset_assertions() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_option("produce-models", "true");
-    solver.set_logic("QF_LIA");
+    solver.set_option("produce-models", "true").unwrap();
+    solver.set_logic("QF_LIA").unwrap();
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
     // assert contradiction
-    solver.assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]));
-    solver.assert_formula(tm.mk_term(Kind::Lt, &[x, zero]));
-    assert!(solver.check_sat().is_unsat());
+    solver
+        .assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap())
+        .unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Lt, &[x, zero]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_unsat());
     solver.reset_assertions();
     // after reset, no assertions → sat
-    assert!(solver.check_sat().is_sat());
+    assert!(solver.check_sat().unwrap().is_sat());
 }
 
 // ── declare_fun ────────────────────────────────────────────────────
@@ -2124,9 +2245,11 @@ fn solver_reset_assertions() {
 fn solver_declare_fun() {
     setup!(tm, solver, "QF_UFLIA");
     let int = tm.integer_sort();
-    let f = solver.declare_fun("f", std::slice::from_ref(&int), int.clone());
-    let x = tm.mk_const(int, "x");
-    let fx = tm.mk_term(Kind::ApplyUf, &[f, x]);
+    let f = solver
+        .declare_fun("f", std::slice::from_ref(&int), int.clone())
+        .unwrap();
+    let x = tm.mk_const(int, "x").unwrap();
+    let fx = tm.mk_term(Kind::ApplyUf, &[f, x]).unwrap();
     assert!(fx.sort().is_integer());
 }
 
@@ -2145,10 +2268,10 @@ fn solver_declare_sort() {
 fn solver_define_fun() {
     setup!(tm, solver, "QF_LIA");
     let int = tm.integer_sort();
-    let x = tm.mk_var(int.clone(), "x");
+    let x = tm.mk_var(int.clone(), "x").unwrap();
     let one = tm.mk_integer(1);
-    let body = tm.mk_term(Kind::Add, &[x.clone(), one]);
-    let f = solver.define_fun("inc", &[x], int, body, true);
+    let body = tm.mk_term(Kind::Add, &[x.clone(), one]).unwrap();
+    let f = solver.define_fun("inc", &[x], int, body, true).unwrap();
     assert!(f.sort().is_fun());
 }
 
@@ -2158,15 +2281,15 @@ fn solver_define_fun() {
 fn solver_define_fun_rec() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("UFLIA");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("UFLIA").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_var(int.clone(), "x");
+    let x = tm.mk_var(int.clone(), "x").unwrap();
     let zero = tm.mk_integer(0);
     // define f(x) = if x <= 0 then 0 else x + f(x-1)
     // For simplicity, just define f(x) = 0 recursively
-    let f = solver.define_fun_rec("f", &[x], int, zero, true);
+    let f = solver.define_fun_rec("f", &[x], int, zero, true).unwrap();
     assert!(f.sort().is_fun());
 }
 
@@ -2176,14 +2299,18 @@ fn solver_define_fun_rec() {
 fn solver_define_fun_rec_from_const() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("UFLIA");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("UFLIA").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let int = tm.integer_sort();
-    let fun = solver.declare_fun("g", std::slice::from_ref(&int), int.clone());
-    let x = tm.mk_var(int.clone(), "x");
+    let fun = solver
+        .declare_fun("g", std::slice::from_ref(&int), int.clone())
+        .unwrap();
+    let x = tm.mk_var(int.clone(), "x").unwrap();
     let zero = tm.mk_integer(0);
-    let f = solver.define_fun_rec_from_const(fun, &[x], zero, true);
+    let f = solver
+        .define_fun_rec_from_const(fun, &[x], zero, true)
+        .unwrap();
     assert!(f.sort().is_fun());
 }
 
@@ -2193,15 +2320,21 @@ fn solver_define_fun_rec_from_const() {
 fn solver_define_funs_rec() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("UFLIA");
+    solver.set_logic("UFLIA").unwrap();
 
     let int = tm.integer_sort();
-    let f = solver.declare_fun("f", std::slice::from_ref(&int), int.clone());
-    let g = solver.declare_fun("g", std::slice::from_ref(&int), int.clone());
-    let xf = tm.mk_var(int.clone(), "xf");
-    let xg = tm.mk_var(int.clone(), "xg");
+    let f = solver
+        .declare_fun("f", std::slice::from_ref(&int), int.clone())
+        .unwrap();
+    let g = solver
+        .declare_fun("g", std::slice::from_ref(&int), int.clone())
+        .unwrap();
+    let xf = tm.mk_var(int.clone(), "xf").unwrap();
+    let xg = tm.mk_var(int.clone(), "xg").unwrap();
     let zero = tm.mk_integer(0);
-    solver.define_funs_rec(&[f, g], &[&[xf], &[xg]], &[zero.clone(), zero], true);
+    solver
+        .define_funs_rec(&[f, g], &[&[xf], &[xg]], &[zero.clone(), zero], true)
+        .unwrap();
     // definitions accepted — verify solver recorded them
     assert_eq!(solver.get_assertions().len(), 2);
 }
@@ -2212,13 +2345,13 @@ fn solver_define_funs_rec() {
 fn solver_get_model() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_UF");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("QF_UF").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let u = solver.declare_sort("U", 0);
-    let x = tm.mk_const(u.clone(), "x");
-    assert!(solver.check_sat().is_sat());
-    let model = solver.get_model(&[u], &[x]);
+    let x = tm.mk_const(u.clone(), "x").unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
+    let model = solver.get_model(&[u], &[x]).unwrap();
     assert!(!model.is_empty());
 }
 
@@ -2228,20 +2361,24 @@ fn solver_get_model() {
 fn solver_block_model() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int.clone(), "x");
+    let x = tm.mk_const(int.clone(), "x").unwrap();
     let zero = tm.mk_integer(0);
     let ten = tm.mk_integer(10);
-    solver.assert_formula(tm.mk_term(Kind::Geq, &[x.clone(), zero]));
-    solver.assert_formula(tm.mk_term(Kind::Leq, &[x.clone(), ten]));
-    assert!(solver.check_sat().is_sat());
-    let v1 = solver.get_value(x.clone()).int32_value();
-    solver.block_model(BlockModelsMode::Values);
-    assert!(solver.check_sat().is_sat());
-    let v2 = solver.get_value(x).int32_value();
+    solver
+        .assert_formula(tm.mk_term(Kind::Geq, &[x.clone(), zero]).unwrap())
+        .unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Leq, &[x.clone(), ten]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
+    let v1 = solver.get_value(x.clone()).unwrap().int32_value().unwrap();
+    solver.block_model(BlockModelsMode::Values).unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
+    let v2 = solver.get_value(x).unwrap().int32_value().unwrap();
     assert_ne!(v1, v2);
 }
 
@@ -2249,20 +2386,24 @@ fn solver_block_model() {
 fn solver_block_model_values() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
     let ten = tm.mk_integer(10);
-    solver.assert_formula(tm.mk_term(Kind::Geq, &[x.clone(), zero]));
-    solver.assert_formula(tm.mk_term(Kind::Leq, &[x.clone(), ten]));
-    assert!(solver.check_sat().is_sat());
-    let v1 = solver.get_value(x.clone()).int32_value();
-    solver.block_model_values(std::slice::from_ref(&x));
-    assert!(solver.check_sat().is_sat());
-    let v2 = solver.get_value(x).int32_value();
+    solver
+        .assert_formula(tm.mk_term(Kind::Geq, &[x.clone(), zero]).unwrap())
+        .unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Leq, &[x.clone(), ten]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
+    let v1 = solver.get_value(x.clone()).unwrap().int32_value().unwrap();
+    solver.block_model_values(std::slice::from_ref(&x)).unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
+    let v2 = solver.get_value(x).unwrap().int32_value().unwrap();
     assert_ne!(v1, v2);
 }
 
@@ -2272,15 +2413,17 @@ fn solver_block_model_values() {
 fn solver_model_domain_elements() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_UF");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("QF_UF").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let u = solver.declare_sort("U", 0);
-    let x = tm.mk_const(u.clone(), "x");
-    let y = tm.mk_const(u.clone(), "y");
-    solver.assert_formula(tm.mk_term(Kind::Distinct, &[x.clone(), y.clone()]));
-    assert!(solver.check_sat().is_sat());
-    let elems = solver.get_model_domain_elements(u);
+    let x = tm.mk_const(u.clone(), "x").unwrap();
+    let y = tm.mk_const(u.clone(), "y").unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Distinct, &[x.clone(), y.clone()]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
+    let elems = solver.get_model_domain_elements(u).unwrap();
     assert!(elems.len() >= 2);
 }
 
@@ -2288,20 +2431,22 @@ fn solver_model_domain_elements() {
 fn solver_is_model_core_symbol() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-models", "true");
-    solver.set_option("model-cores", "simple");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
+    solver.set_option("model-cores", "simple").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int.clone(), "x");
-    let y = tm.mk_const(int, "y");
+    let x = tm.mk_const(int.clone(), "x").unwrap();
+    let y = tm.mk_const(int, "y").unwrap();
     let one = tm.mk_integer(1);
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[x.clone(), one]));
-    assert!(solver.check_sat().is_sat());
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[x.clone(), one]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
     // x is constrained, y is not — at minimum y should not be in core
     // x_in_core may vary by solver heuristics, just exercise the API
-    solver.is_model_core_symbol(x);
-    assert!(!solver.is_model_core_symbol(y));
+    solver.is_model_core_symbol(x).unwrap();
+    assert!(!solver.is_model_core_symbol(y).unwrap());
 }
 
 // ── get_unsat_core_lemmas ──────────────────────────────────────────
@@ -2310,17 +2455,17 @@ fn solver_is_model_core_symbol() {
 fn solver_unsat_core_lemmas() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_UF");
-    solver.set_option("produce-unsat-cores", "true");
-    solver.set_option("produce-proofs", "true");
+    solver.set_logic("QF_UF").unwrap();
+    solver.set_option("produce-unsat-cores", "true").unwrap();
+    solver.set_option("produce-proofs", "true").unwrap();
 
     let b = tm.boolean_sort();
-    let a = tm.mk_const(b, "a");
-    let not_a = tm.mk_term(Kind::Not, std::slice::from_ref(&a));
-    solver.assert_formula(a);
-    solver.assert_formula(not_a);
-    assert!(solver.check_sat().is_unsat());
-    let lemmas = solver.get_unsat_core_lemmas();
+    let a = tm.mk_const(b, "a").unwrap();
+    let not_a = tm.mk_term(Kind::Not, std::slice::from_ref(&a)).unwrap();
+    solver.assert_formula(a).unwrap();
+    solver.assert_formula(not_a).unwrap();
+    assert!(solver.check_sat().unwrap().is_unsat());
+    let lemmas = solver.get_unsat_core_lemmas().unwrap();
     // lemmas is a valid vec; each element should be a boolean term
     for lemma in &lemmas {
         assert!(lemma.sort().is_boolean());
@@ -2333,17 +2478,17 @@ fn solver_unsat_core_lemmas() {
 fn solver_proof_to_string() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_UF");
-    solver.set_option("produce-proofs", "true");
+    solver.set_logic("QF_UF").unwrap();
+    solver.set_option("produce-proofs", "true").unwrap();
 
     let b = tm.boolean_sort();
-    let a = tm.mk_const(b, "a");
-    let not_a = tm.mk_term(Kind::Not, std::slice::from_ref(&a));
-    solver.assert_formula(a.clone());
-    solver.assert_formula(not_a.clone());
-    assert!(solver.check_sat().is_unsat());
+    let a = tm.mk_const(b, "a").unwrap();
+    let not_a = tm.mk_term(Kind::Not, std::slice::from_ref(&a)).unwrap();
+    solver.assert_formula(a.clone()).unwrap();
+    solver.assert_formula(not_a.clone()).unwrap();
+    assert!(solver.check_sat().unwrap().is_unsat());
 
-    let proofs = solver.get_proof(ProofComponent::Full);
+    let proofs = solver.get_proof(ProofComponent::Full).unwrap();
     assert!(!proofs.is_empty());
     let s = solver.proof_to_string(
         proofs[0].copy(),
@@ -2360,16 +2505,20 @@ fn solver_proof_to_string() {
 fn solver_get_learned_literals() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-models", "true");
-    solver.set_option("produce-learned-literals", "true");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
+    solver
+        .set_option("produce-learned-literals", "true")
+        .unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
-    solver.assert_formula(tm.mk_term(Kind::Gt, &[x, zero]));
-    assert!(solver.check_sat().is_sat());
-    let lits = solver.get_learned_literals(LearnedLitType::Input);
+    solver
+        .assert_formula(tm.mk_term(Kind::Gt, &[x, zero]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
+    let lits = solver.get_learned_literals(LearnedLitType::Input).unwrap();
     // returned vec may be empty but should not panic; verify it's a valid vec
     for lit in &lits {
         assert!(lit.sort().is_boolean());
@@ -2382,15 +2531,17 @@ fn solver_get_learned_literals() {
 fn solver_get_difficulty() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-difficulty", "true");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-difficulty", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
-    solver.assert_formula(tm.mk_term(Kind::Gt, &[x, zero]));
-    solver.check_sat();
-    let (inputs, values) = solver.get_difficulty();
+    solver
+        .assert_formula(tm.mk_term(Kind::Gt, &[x, zero]).unwrap())
+        .unwrap();
+    solver.check_sat().unwrap();
+    let (inputs, values) = solver.get_difficulty().unwrap();
     assert_eq!(inputs.len(), values.len());
 }
 
@@ -2402,7 +2553,7 @@ fn solver_declare_pool() {
     let int = tm.integer_sort();
     let one = tm.mk_integer(1);
     let two = tm.mk_integer(2);
-    let pool = solver.declare_pool("p", int.clone(), &[one, two]);
+    let pool = solver.declare_pool("p", int.clone(), &[one, two]).unwrap();
     assert!(pool.sort().is_set());
 }
 
@@ -2412,19 +2563,23 @@ fn solver_declare_pool() {
 fn solver_get_interpolant() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-interpolants", "true");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-interpolants", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int.clone(), "x");
-    let y = tm.mk_const(int, "y");
+    let x = tm.mk_const(int.clone(), "x").unwrap();
+    let y = tm.mk_const(int, "y").unwrap();
     let zero = tm.mk_integer(0);
     // A: x > 0 AND x = y
-    solver.assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]));
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[x, y.clone()]));
+    solver
+        .assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap())
+        .unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[x, y.clone()]).unwrap())
+        .unwrap();
     // B (conjecture): y > 0
-    let conj = tm.mk_term(Kind::Gt, &[y, zero]);
-    let interp = solver.get_interpolant(conj);
+    let conj = tm.mk_term(Kind::Gt, &[y, zero]).unwrap();
+    let interp = solver.get_interpolant(conj).unwrap();
     assert!(interp.unwrap().sort().is_boolean());
 }
 
@@ -2434,15 +2589,15 @@ fn solver_get_interpolant() {
 fn solver_get_abduct() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-abducts", "true");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-abducts", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
     // conjecture: x > 0
-    let conj = tm.mk_term(Kind::Gt, &[x, zero]);
-    let abd = solver.get_abduct(conj);
+    let conj = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
+    let abd = solver.get_abduct(conj).unwrap();
     assert!(abd.unwrap().sort().is_boolean());
 }
 
@@ -2452,28 +2607,28 @@ fn solver_get_abduct() {
 fn solver_sygus_var_and_queries() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("LIA");
-    solver.set_option("sygus", "true");
+    solver.set_logic("LIA").unwrap();
+    solver.set_option("sygus", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = solver.declare_sygus_var("x", int.clone());
+    let x = solver.declare_sygus_var("x", int.clone()).unwrap();
     assert!(x.sort().is_integer());
 
-    let f = solver.synth_fun("f", &[], int.clone());
+    let f = solver.synth_fun("f", &[], int.clone()).unwrap();
     let zero = tm.mk_integer(0);
     // constraint: f() >= 0
-    let ge = tm.mk_term(Kind::Geq, &[f.clone(), zero.clone()]);
-    solver.add_sygus_constraint(ge);
+    let ge = tm.mk_term(Kind::Geq, &[f.clone(), zero.clone()]).unwrap();
+    solver.add_sygus_constraint(ge).unwrap();
     let constraints = solver.get_sygus_constraints();
     assert_eq!(constraints.len(), 1);
 
     // assumption
-    let assume = tm.mk_term(Kind::Gt, &[f.clone(), zero]);
-    solver.add_sygus_assume(assume);
+    let assume = tm.mk_term(Kind::Gt, &[f.clone(), zero]).unwrap();
+    solver.add_sygus_assume(assume).unwrap();
     let assumptions = solver.get_sygus_assumptions();
     assert_eq!(assumptions.len(), 1);
 
-    let sr = solver.check_synth();
+    let sr = solver.check_synth().unwrap();
     assert!(sr.has_solution());
 }
 
@@ -2483,17 +2638,21 @@ fn solver_sygus_var_and_queries() {
 fn solver_get_synth_solutions() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("LIA");
-    solver.set_option("sygus", "true");
+    solver.set_logic("LIA").unwrap();
+    solver.set_option("sygus", "true").unwrap();
 
     let int = tm.integer_sort();
-    let f = solver.synth_fun("f", &[], int.clone());
-    let g = solver.synth_fun("g", &[], int.clone());
+    let f = solver.synth_fun("f", &[], int.clone()).unwrap();
+    let g = solver.synth_fun("g", &[], int.clone()).unwrap();
     let zero = tm.mk_integer(0);
-    solver.add_sygus_constraint(tm.mk_term(Kind::Geq, &[f.clone(), zero.clone()]));
-    solver.add_sygus_constraint(tm.mk_term(Kind::Geq, &[g.clone(), zero]));
-    assert!(solver.check_synth().has_solution());
-    let sols = solver.get_synth_solutions(&[f, g]);
+    solver
+        .add_sygus_constraint(tm.mk_term(Kind::Geq, &[f.clone(), zero.clone()]).unwrap())
+        .unwrap();
+    solver
+        .add_sygus_constraint(tm.mk_term(Kind::Geq, &[g.clone(), zero]).unwrap())
+        .unwrap();
+    assert!(solver.check_synth().unwrap().has_solution());
+    let sols = solver.get_synth_solutions(&[f, g]).unwrap();
     assert_eq!(sols.len(), 2);
 }
 
@@ -2524,23 +2683,23 @@ fn solver_print_stats_safe() {
 fn solver_sep_logic() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_ALL");
-    solver.set_option("produce-models", "true");
-    solver.set_option("incremental", "false");
+    solver.set_logic("QF_ALL").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
+    solver.set_option("incremental", "false").unwrap();
 
     let int = tm.integer_sort();
-    solver.declare_sep_heap(int.clone(), int.clone());
+    solver.declare_sep_heap(int.clone(), int.clone()).unwrap();
 
-    let x = tm.mk_const(int.clone(), "x");
+    let x = tm.mk_const(int.clone(), "x").unwrap();
     let one = tm.mk_integer(1);
     // x pto 1
-    let pto = tm.mk_term(Kind::SepPto, &[x.clone(), one]);
-    solver.assert_formula(pto);
-    assert!(solver.check_sat().is_sat());
+    let pto = tm.mk_term(Kind::SepPto, &[x.clone(), one]).unwrap();
+    solver.assert_formula(pto).unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
 
-    let heap = solver.get_value_sep_heap();
+    let heap = solver.get_value_sep_heap().unwrap();
     assert!(!format!("{heap}").is_empty());
-    let nil = solver.get_value_sep_nil();
+    let nil = solver.get_value_sep_nil().unwrap();
     assert!(!format!("{nil}").is_empty());
 }
 
@@ -2550,28 +2709,30 @@ fn solver_sep_logic() {
 fn solver_get_instantiations() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("UFLIA");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("UFLIA").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_var(int.clone(), "x");
-    let f = solver.declare_fun("f", std::slice::from_ref(&int), int.clone());
-    let fx = tm.mk_term(Kind::ApplyUf, &[f.clone(), x.clone()]);
+    let x = tm.mk_var(int.clone(), "x").unwrap();
+    let f = solver
+        .declare_fun("f", std::slice::from_ref(&int), int.clone())
+        .unwrap();
+    let fx = tm.mk_term(Kind::ApplyUf, &[f.clone(), x.clone()]).unwrap();
     let zero = tm.mk_integer(0);
-    let ge = tm.mk_term(Kind::Geq, &[fx, zero]);
+    let ge = tm.mk_term(Kind::Geq, &[fx, zero]).unwrap();
     // forall x. f(x) >= 0
-    let bound = tm.mk_term(Kind::VariableList, &[x]);
-    let forall = tm.mk_term(Kind::Forall, &[bound, ge]);
-    solver.assert_formula(forall);
+    let bound = tm.mk_term(Kind::VariableList, &[x]).unwrap();
+    let forall = tm.mk_term(Kind::Forall, &[bound, ge]).unwrap();
+    solver.assert_formula(forall).unwrap();
 
-    let c = tm.mk_const(int, "c");
-    let fc = tm.mk_term(Kind::ApplyUf, &[f, c]);
-    let neg = tm.mk_term(Kind::Lt, &[fc, tm.mk_integer(0)]);
-    solver.assert_formula(neg);
+    let c = tm.mk_const(int, "c").unwrap();
+    let fc = tm.mk_term(Kind::ApplyUf, &[f, c]).unwrap();
+    let neg = tm.mk_term(Kind::Lt, &[fc, tm.mk_integer(0)]).unwrap();
+    solver.assert_formula(neg).unwrap();
 
-    let result = solver.check_sat();
+    let result = solver.check_sat().unwrap();
     assert!(result.is_unsat());
-    let inst = solver.get_instantiations();
+    let inst = solver.get_instantiations().unwrap();
     assert!(!inst.is_empty());
 }
 
@@ -2587,16 +2748,18 @@ fn solver_get_instantiations() {
 fn solver_check_synth_next() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("LIA");
-    solver.set_option("sygus", "true");
-    solver.set_option("incremental", "true");
+    solver.set_logic("LIA").unwrap();
+    solver.set_option("sygus", "true").unwrap();
+    solver.set_option("incremental", "true").unwrap();
 
     let int = tm.integer_sort();
-    let f = solver.synth_fun("f", &[], int.clone());
+    let f = solver.synth_fun("f", &[], int.clone()).unwrap();
     let zero = tm.mk_integer(0);
-    solver.add_sygus_constraint(tm.mk_term(Kind::Geq, &[f.clone(), zero]));
-    assert!(solver.check_synth().has_solution());
-    let sr2 = solver.check_synth_next();
+    solver
+        .add_sygus_constraint(tm.mk_term(Kind::Geq, &[f.clone(), zero]).unwrap())
+        .unwrap();
+    assert!(solver.check_synth().unwrap().has_solution());
+    let sr2 = solver.check_synth_next().unwrap();
     assert!(sr2.has_solution());
 }
 
@@ -2606,23 +2769,29 @@ fn solver_check_synth_next() {
 fn solver_get_interpolant_with_grammar() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-interpolants", "true");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-interpolants", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int.clone(), "x");
-    let y = tm.mk_const(int, "y");
+    let x = tm.mk_const(int.clone(), "x").unwrap();
+    let y = tm.mk_const(int, "y").unwrap();
     let zero = tm.mk_integer(0);
-    solver.assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]));
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[x, y.clone()]));
-    let conj = tm.mk_term(Kind::Gt, &[y, zero]);
+    solver
+        .assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap())
+        .unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[x, y.clone()]).unwrap())
+        .unwrap();
+    let conj = tm.mk_term(Kind::Gt, &[y, zero]).unwrap();
 
-    let start = tm.mk_var(tm.boolean_sort(), "start");
-    let mut g = solver.mk_grammar(&[], std::slice::from_ref(&start));
-    g.add_rule(start.clone(), tm.mk_true());
-    g.add_rule(start, conj.clone());
+    let start = tm.mk_var(tm.boolean_sort(), "start").unwrap();
+    let mut g = solver
+        .mk_grammar(&[], std::slice::from_ref(&start))
+        .unwrap();
+    g.add_rule(start.clone(), tm.mk_true()).unwrap();
+    g.add_rule(start, conj.clone()).unwrap();
 
-    let interp = solver.get_interpolant_with_grammar(conj, &g);
+    let interp = solver.get_interpolant_with_grammar(conj, &g).unwrap();
     assert!(interp.unwrap().sort().is_boolean());
 }
 
@@ -2632,20 +2801,22 @@ fn solver_get_interpolant_with_grammar() {
 fn solver_get_abduct_with_grammar() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-abducts", "true");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-abducts", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
-    let conj = tm.mk_term(Kind::Gt, &[x, zero]);
+    let conj = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
 
-    let start = tm.mk_var(tm.boolean_sort(), "start");
-    let mut g = solver.mk_grammar(&[], std::slice::from_ref(&start));
-    g.add_rule(start.clone(), conj.clone());
-    g.add_rule(start, tm.mk_true());
+    let start = tm.mk_var(tm.boolean_sort(), "start").unwrap();
+    let mut g = solver
+        .mk_grammar(&[], std::slice::from_ref(&start))
+        .unwrap();
+    g.add_rule(start.clone(), conj.clone()).unwrap();
+    g.add_rule(start, tm.mk_true()).unwrap();
 
-    let abd = solver.get_abduct_with_grammar(conj, &g);
+    let abd = solver.get_abduct_with_grammar(conj, &g).unwrap();
     assert!(abd.unwrap().sort().is_boolean());
 }
 
@@ -2655,28 +2826,30 @@ fn solver_get_abduct_with_grammar() {
 fn solver_quantifier_elimination() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("LIA");
+    solver.set_logic("LIA").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_var(int.clone(), "x");
-    let y = tm.mk_const(int, "y");
+    let x = tm.mk_var(int.clone(), "x").unwrap();
+    let y = tm.mk_const(int, "y").unwrap();
     let zero = tm.mk_integer(0);
 
     // exists x. (x > 0 AND y = x)  =>  y > 0
-    let body = tm.mk_term(
-        Kind::And,
-        &[
-            tm.mk_term(Kind::Gt, &[x.clone(), zero]),
-            tm.mk_term(Kind::Equal, &[y, x.clone()]),
-        ],
-    );
-    let bound = tm.mk_term(Kind::VariableList, &[x]);
-    let exists = tm.mk_term(Kind::Exists, &[bound, body]);
+    let body = tm
+        .mk_term(
+            Kind::And,
+            &[
+                tm.mk_term(Kind::Gt, &[x.clone(), zero]).unwrap(),
+                tm.mk_term(Kind::Equal, &[y, x.clone()]).unwrap(),
+            ],
+        )
+        .unwrap();
+    let bound = tm.mk_term(Kind::VariableList, &[x]).unwrap();
+    let exists = tm.mk_term(Kind::Exists, &[bound, body]).unwrap();
 
-    let result = solver.get_quantifier_elimination(exists.clone());
+    let result = solver.get_quantifier_elimination(exists.clone()).unwrap();
     assert!(result.sort().is_boolean());
 
-    let partial = solver.get_quantifier_elimination_disjunct(exists);
+    let partial = solver.get_quantifier_elimination_disjunct(exists).unwrap();
     assert!(partial.sort().is_boolean());
 }
 
@@ -2700,16 +2873,18 @@ fn solver_output_file() {
 fn solver_get_timeout_core() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-unsat-cores", "true");
-    solver.set_option("timeout-core-timeout", "100");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-unsat-cores", "true").unwrap();
+    solver.set_option("timeout-core-timeout", "100").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let one = tm.mk_integer(1);
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[x, one]));
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[x, one]).unwrap())
+        .unwrap();
 
-    let (result, terms) = solver.get_timeout_core();
+    let (result, terms) = solver.get_timeout_core().unwrap();
     // simple problem should be sat, not timeout
     assert!(result.is_sat() || result.is_unknown());
     for t in &terms {
@@ -2723,16 +2898,16 @@ fn solver_get_timeout_core() {
 fn solver_get_timeout_core_assuming() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-unsat-cores", "true");
-    solver.set_option("timeout-core-timeout", "100");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-unsat-cores", "true").unwrap();
+    solver.set_option("timeout-core-timeout", "100").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
-    let gt = tm.mk_term(Kind::Gt, &[x, zero]);
+    let gt = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
 
-    let (result, terms) = solver.get_timeout_core_assuming(&[gt]);
+    let (result, terms) = solver.get_timeout_core_assuming(&[gt]).unwrap();
     assert!(result.is_sat() || result.is_unknown());
     for t in &terms {
         assert!(t.sort().is_boolean());
@@ -2745,22 +2920,26 @@ fn solver_get_timeout_core_assuming() {
 fn solver_get_interpolant_next() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-interpolants", "true");
-    solver.set_option("incremental", "true");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-interpolants", "true").unwrap();
+    solver.set_option("incremental", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int.clone(), "x");
-    let y = tm.mk_const(int, "y");
+    let x = tm.mk_const(int.clone(), "x").unwrap();
+    let y = tm.mk_const(int, "y").unwrap();
     let zero = tm.mk_integer(0);
-    solver.assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]));
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[x, y.clone()]));
-    let conj = tm.mk_term(Kind::Gt, &[y, zero]);
+    solver
+        .assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap())
+        .unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[x, y.clone()]).unwrap())
+        .unwrap();
+    let conj = tm.mk_term(Kind::Gt, &[y, zero]).unwrap();
 
-    let interp1 = solver.get_interpolant(conj.clone());
+    let interp1 = solver.get_interpolant(conj.clone()).unwrap();
     assert!(interp1.unwrap().sort().is_boolean());
 
-    let interp2 = solver.get_interpolant_next();
+    let interp2 = solver.get_interpolant_next().unwrap();
     assert!(interp2.unwrap().sort().is_boolean());
 }
 
@@ -2770,18 +2949,18 @@ fn solver_get_interpolant_next() {
 fn solver_get_abduct_next() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-abducts", "true");
-    solver.set_option("incremental", "true");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-abducts", "true").unwrap();
+    solver.set_option("incremental", "true").unwrap();
 
     let int = tm.integer_sort();
-    let x = tm.mk_const(int, "x");
+    let x = tm.mk_const(int, "x").unwrap();
     let zero = tm.mk_integer(0);
-    let conj = tm.mk_term(Kind::Gt, &[x, zero]);
+    let conj = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
 
-    let abd1 = solver.get_abduct(conj.clone());
+    let abd1 = solver.get_abduct(conj.clone()).unwrap();
     assert!(abd1.unwrap().sort().is_boolean());
 
-    let abd2 = solver.get_abduct_next();
+    let abd2 = solver.get_abduct_next().unwrap();
     assert!(abd2.unwrap().sort().is_boolean());
 }

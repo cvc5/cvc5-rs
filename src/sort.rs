@@ -3,13 +3,27 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use crate::Datatype;
+use crate::error::Result;
+use crate::ffi::{checked, cstr_or_empty, non_null, raw_slice, wrap};
 
 /// A cvc5 sort (type).
 ///
 /// Sorts represent types in the SMT solver — Boolean, Integer, Real,
 /// BitVector, Array, Datatype, etc.
-/// The lifetime `'tm` ties this sort to the [`TermManager`](crate::TermManager)
-/// that created it.
+///
+/// # Lifetime
+///
+/// As with [`Term`](crate::Term), `'tm` prevents the sort from outliving the
+/// [`TermManager`](crate::TermManager) that owns its allocation:
+///
+/// ```compile_fail,E0597
+/// use cvc5::TermManager;
+/// let s = {
+///     let tm = TermManager::new();
+///     tm.boolean_sort()
+/// };
+/// println!("{s}");
+/// ```
 pub struct Sort<'tm> {
     pub(crate) inner: cvc5_sys::Sort,
     pub(crate) _phantom: PhantomData<&'tm ()>,
@@ -30,7 +44,7 @@ impl Drop for Sort<'_> {
 impl<'tm> Sort<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Sort) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "Sort"),
+            inner: non_null(raw, "Sort"),
             _phantom: PhantomData,
         }
     }
@@ -60,8 +74,10 @@ impl<'tm> Sort<'tm> {
     /// Returns `""` if this sort has no symbol; use
     /// [`has_symbol`](Sort::has_symbol) to distinguish that from an empty
     /// symbol.
-    pub fn symbol(&self) -> &str {
-        unsafe { crate::ffi::cstr_or_empty(sort_get_symbol(self.inner)) }
+    pub fn symbol(&self) -> Result<&str> {
+        let p = unsafe { sort_get_symbol(self.inner) };
+        let p = checked(p, "symbol")?;
+        Ok(unsafe { cstr_or_empty(p) })
     }
 
     /// Return `true` if this is the Boolean sort.
@@ -174,162 +190,189 @@ impl<'tm> Sort<'tm> {
     }
 
     /// Get the associated uninterpreted sort constructor of an instantiated sort.
-    pub fn uninterpreted_sort_constructor(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_get_uninterpreted_sort_constructor(self.inner) })
+    pub fn uninterpreted_sort_constructor(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_get_uninterpreted_sort_constructor(self.inner) };
+        wrap(raw, "uninterpreted_sort_constructor")
     }
 
     /// Get the datatype associated with a datatype sort.
-    pub fn datatype(&self) -> Datatype<'tm> {
-        Datatype::from_raw(unsafe { sort_get_datatype(self.inner) })
+    pub fn datatype(&self) -> Result<Datatype<'tm>> {
+        let raw = unsafe { sort_get_datatype(self.inner) };
+        wrap(raw, "datatype")
     }
 
     /// Instantiate a parametric sort with the given sort parameters.
-    pub fn instantiate(&self, params: &[Sort]) -> Sort<'tm> {
+    pub fn instantiate(&self, params: &[Sort]) -> Result<Sort<'tm>> {
         let raw: Vec<cvc5_sys::Sort> = params.iter().map(|s| s.inner).collect();
-        Sort::from_raw(unsafe { sort_instantiate(self.inner, raw.len(), raw.as_ptr()) })
+        let raw = unsafe { sort_instantiate(self.inner, raw.len(), raw.as_ptr()) };
+        wrap(raw, "instantiate")
     }
 
     /// Get the sort parameters of an instantiated sort.
-    pub fn instantiated_parameters(&self) -> Vec<Sort<'tm>> {
+    pub fn instantiated_parameters(&self) -> Result<Vec<Sort<'tm>>> {
         let mut size = 0usize;
         let ptr = unsafe { sort_get_instantiated_parameters(self.inner, &mut size) };
-        unsafe { crate::ffi::raw_slice(ptr, size) }
+        let ptr = checked(ptr, "instantiated_parameters")?;
+        Ok(unsafe { raw_slice(ptr, size) }
             .iter()
             .map(|&p| Sort::from_raw(p))
-            .collect()
+            .collect())
     }
 
     /// Substitute `s` with `replacement` in this sort.
-    pub fn substitute(&self, s: Sort, replacement: Sort) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_substitute(self.inner, s.inner, replacement.inner) })
+    pub fn substitute(&self, s: Sort, replacement: Sort) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_substitute(self.inner, s.inner, replacement.inner) };
+        wrap(raw, "substitute")
     }
 
     /// Simultaneously substitute `sorts` with `replacements` in this sort.
-    pub fn substitute_sorts(&self, sorts: &[Sort], replacements: &[Sort]) -> Sort<'tm> {
+    pub fn substitute_sorts(&self, sorts: &[Sort], replacements: &[Sort]) -> Result<Sort<'tm>> {
         let s: Vec<cvc5_sys::Sort> = sorts.iter().map(|s| s.inner).collect();
         let r: Vec<cvc5_sys::Sort> = replacements.iter().map(|s| s.inner).collect();
-        Sort::from_raw(unsafe {
-            sort_substitute_sorts(self.inner, s.len(), s.as_ptr(), r.as_ptr())
-        })
+        let raw = unsafe { sort_substitute_sorts(self.inner, s.len(), s.as_ptr(), r.as_ptr()) };
+        wrap(raw, "substitute_sorts")
     }
 
     /// Get the arity of a datatype constructor sort.
-    pub fn dt_constructor_arity(&self) -> usize {
-        unsafe { sort_dt_constructor_get_arity(self.inner) }
+    pub fn dt_constructor_arity(&self) -> Result<usize> {
+        let v = unsafe { sort_dt_constructor_get_arity(self.inner) };
+        checked(v, "dt_constructor_arity")
     }
     /// Get the domain sorts of a datatype constructor sort.
-    pub fn dt_constructor_domain(&self) -> Vec<Sort<'tm>> {
+    pub fn dt_constructor_domain(&self) -> Result<Vec<Sort<'tm>>> {
         let mut size = 0usize;
         let ptr = unsafe { sort_dt_constructor_get_domain(self.inner, &mut size) };
-        unsafe { crate::ffi::raw_slice(ptr, size) }
+        let ptr = checked(ptr, "dt_constructor_domain")?;
+        Ok(unsafe { raw_slice(ptr, size) }
             .iter()
             .map(|&p| Sort::from_raw(p))
-            .collect()
+            .collect())
     }
     /// Get the codomain sort of a datatype constructor sort.
-    pub fn dt_constructor_codomain(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_dt_constructor_get_codomain(self.inner) })
+    pub fn dt_constructor_codomain(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_dt_constructor_get_codomain(self.inner) };
+        wrap(raw, "dt_constructor_codomain")
     }
     /// Get the domain sort of a datatype selector sort.
-    pub fn dt_selector_domain(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_dt_selector_get_domain(self.inner) })
+    pub fn dt_selector_domain(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_dt_selector_get_domain(self.inner) };
+        wrap(raw, "dt_selector_domain")
     }
     /// Get the codomain sort of a datatype selector sort.
-    pub fn dt_selector_codomain(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_dt_selector_get_codomain(self.inner) })
+    pub fn dt_selector_codomain(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_dt_selector_get_codomain(self.inner) };
+        wrap(raw, "dt_selector_codomain")
     }
     /// Get the domain sort of a datatype tester sort.
-    pub fn dt_tester_domain(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_dt_tester_get_domain(self.inner) })
+    pub fn dt_tester_domain(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_dt_tester_get_domain(self.inner) };
+        wrap(raw, "dt_tester_domain")
     }
     /// Get the codomain sort of a datatype tester sort.
-    pub fn dt_tester_codomain(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_dt_tester_get_codomain(self.inner) })
+    pub fn dt_tester_codomain(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_dt_tester_get_codomain(self.inner) };
+        wrap(raw, "dt_tester_codomain")
     }
     /// Get the arity of a function sort.
-    pub fn fun_arity(&self) -> usize {
-        unsafe { sort_fun_get_arity(self.inner) }
+    pub fn fun_arity(&self) -> Result<usize> {
+        let v = unsafe { sort_fun_get_arity(self.inner) };
+        checked(v, "fun_arity")
     }
     /// Get the domain sorts of a function sort.
-    pub fn fun_domain(&self) -> Vec<Sort<'tm>> {
+    pub fn fun_domain(&self) -> Result<Vec<Sort<'tm>>> {
         let mut size = 0usize;
         let ptr = unsafe { sort_fun_get_domain(self.inner, &mut size) };
-        unsafe { crate::ffi::raw_slice(ptr, size) }
+        let ptr = checked(ptr, "fun_domain")?;
+        Ok(unsafe { raw_slice(ptr, size) }
             .iter()
             .map(|&p| Sort::from_raw(p))
-            .collect()
+            .collect())
     }
     /// Get the codomain sort of a function sort.
-    pub fn fun_codomain(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_fun_get_codomain(self.inner) })
+    pub fn fun_codomain(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_fun_get_codomain(self.inner) };
+        wrap(raw, "fun_codomain")
     }
     /// Get the index sort of an array sort.
-    pub fn array_index_sort(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_array_get_index_sort(self.inner) })
+    pub fn array_index_sort(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_array_get_index_sort(self.inner) };
+        wrap(raw, "array_index_sort")
     }
     /// Get the element sort of an array sort.
-    pub fn array_element_sort(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_array_get_element_sort(self.inner) })
+    pub fn array_element_sort(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_array_get_element_sort(self.inner) };
+        wrap(raw, "array_element_sort")
     }
     /// Get the element sort of a set sort.
-    pub fn set_element_sort(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_set_get_element_sort(self.inner) })
+    pub fn set_element_sort(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_set_get_element_sort(self.inner) };
+        wrap(raw, "set_element_sort")
     }
     /// Get the element sort of a bag sort.
-    pub fn bag_element_sort(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_bag_get_element_sort(self.inner) })
+    pub fn bag_element_sort(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_bag_get_element_sort(self.inner) };
+        wrap(raw, "bag_element_sort")
     }
     /// Get the element sort of a sequence sort.
-    pub fn sequence_element_sort(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_sequence_get_element_sort(self.inner) })
+    pub fn sequence_element_sort(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_sequence_get_element_sort(self.inner) };
+        wrap(raw, "sequence_element_sort")
     }
     /// Get the kind of an abstract sort.
-    pub fn abstract_kind(&self) -> cvc5_sys::SortKind {
-        unsafe { sort_abstract_get_kind(self.inner) }
+    pub fn abstract_kind(&self) -> Result<cvc5_sys::SortKind> {
+        let v = unsafe { sort_abstract_get_kind(self.inner) };
+        checked(v, "abstract_kind")
     }
     /// Get the arity of an uninterpreted sort constructor.
-    pub fn uninterpreted_sort_constructor_arity(&self) -> usize {
-        unsafe { sort_uninterpreted_sort_constructor_get_arity(self.inner) }
+    pub fn uninterpreted_sort_constructor_arity(&self) -> Result<usize> {
+        let v = unsafe { sort_uninterpreted_sort_constructor_get_arity(self.inner) };
+        checked(v, "uninterpreted_sort_constructor_arity")
     }
     /// Get the bit-width of a bit-vector sort.
-    pub fn bv_size(&self) -> u32 {
-        unsafe { sort_bv_get_size(self.inner) }
+    pub fn bv_size(&self) -> Result<u32> {
+        let v = unsafe { sort_bv_get_size(self.inner) };
+        checked(v, "bv_size")
     }
     /// Get the size (modulus) of a finite field sort as a string.
-    pub fn ff_size(&self) -> String {
-        unsafe {
-            let s = sort_ff_get_size(self.inner);
-            std::ffi::CStr::from_ptr(s).to_string_lossy().into_owned()
-        }
+    pub fn ff_size(&self) -> Result<String> {
+        let p = unsafe { sort_ff_get_size(self.inner) };
+        let p = checked(p, "ff_size")?;
+        Ok(unsafe { cstr_or_empty(p) }.to_owned())
     }
     /// Get the exponent size of a floating-point sort.
-    pub fn fp_exponent_size(&self) -> u32 {
-        unsafe { sort_fp_get_exp_size(self.inner) }
+    pub fn fp_exponent_size(&self) -> Result<u32> {
+        let v = unsafe { sort_fp_get_exp_size(self.inner) };
+        checked(v, "fp_exponent_size")
     }
     /// Get the significand size of a floating-point sort.
-    pub fn fp_significand_size(&self) -> u32 {
-        unsafe { sort_fp_get_sig_size(self.inner) }
+    pub fn fp_significand_size(&self) -> Result<u32> {
+        let v = unsafe { sort_fp_get_sig_size(self.inner) };
+        checked(v, "fp_significand_size")
     }
     /// Get the arity of a datatype sort.
-    pub fn dt_arity(&self) -> usize {
-        unsafe { sort_dt_get_arity(self.inner) }
+    pub fn dt_arity(&self) -> Result<usize> {
+        let v = unsafe { sort_dt_get_arity(self.inner) };
+        checked(v, "dt_arity")
     }
     /// Get the length (number of elements) of a tuple sort.
-    pub fn tuple_length(&self) -> usize {
-        unsafe { sort_tuple_get_length(self.inner) }
+    pub fn tuple_length(&self) -> Result<usize> {
+        let v = unsafe { sort_tuple_get_length(self.inner) };
+        checked(v, "tuple_length")
     }
     /// Get the element sorts of a tuple sort.
-    pub fn tuple_element_sorts(&self) -> Vec<Sort<'tm>> {
+    pub fn tuple_element_sorts(&self) -> Result<Vec<Sort<'tm>>> {
         let mut size = 0usize;
         let ptr = unsafe { sort_tuple_get_element_sorts(self.inner, &mut size) };
-        unsafe { crate::ffi::raw_slice(ptr, size) }
+        let ptr = checked(ptr, "tuple_element_sorts")?;
+        Ok(unsafe { raw_slice(ptr, size) }
             .iter()
             .map(|&p| Sort::from_raw(p))
-            .collect()
+            .collect())
     }
     /// Get the element sort of a nullable sort.
-    pub fn nullable_element_sort(&self) -> Sort<'tm> {
-        Sort::from_raw(unsafe { sort_nullable_get_element_sort(self.inner) })
+    pub fn nullable_element_sort(&self) -> Result<Sort<'tm>> {
+        let raw = unsafe { sort_nullable_get_element_sort(self.inner) };
+        wrap(raw, "nullable_element_sort")
     }
 }
 

@@ -3,6 +3,8 @@ use std::ffi::CString;
 use std::fmt;
 use std::marker::PhantomData;
 
+use crate::error::Result;
+use crate::ffi::{checked, non_null, raw_slice, wrap};
 use crate::{Sort, Term};
 
 // ---------------------------------------------------------------------------
@@ -30,15 +32,16 @@ impl Drop for DatatypeConstructorDecl<'_> {
 impl<'tm> DatatypeConstructorDecl<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeConstructorDecl) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "DatatypeConstructorDecl"),
+            inner: non_null(raw, "DatatypeConstructorDecl"),
             _phantom: PhantomData,
         }
     }
 
     /// Add a selector with the given name and codomain sort.
-    pub fn add_selector(&mut self, name: &str, sort: Sort) {
+    pub fn add_selector(&mut self, name: &str, sort: Sort) -> Result<()> {
         let c = CString::new(name).unwrap();
-        unsafe { dt_cons_decl_add_selector(self.inner, c.as_ptr(), sort.inner) }
+        unsafe { dt_cons_decl_add_selector(self.inner, c.as_ptr(), sort.inner) };
+        checked((), "add_selector")
     }
 
     /// Add a selector whose codomain is the datatype itself (self-reference).
@@ -108,7 +111,7 @@ impl Drop for DatatypeDecl<'_> {
 impl<'tm> DatatypeDecl<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeDecl) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "DatatypeDecl"),
+            inner: non_null(raw, "DatatypeDecl"),
             _phantom: PhantomData,
         }
     }
@@ -119,8 +122,9 @@ impl<'tm> DatatypeDecl<'tm> {
     }
 
     /// Add a constructor declaration to this datatype.
-    pub fn add_constructor(&mut self, ctor: &DatatypeConstructorDecl) {
-        unsafe { dt_decl_add_constructor(self.inner, ctor.inner) }
+    pub fn add_constructor(&mut self, ctor: &DatatypeConstructorDecl) -> Result<()> {
+        unsafe { dt_decl_add_constructor(self.inner, ctor.inner) };
+        checked((), "add_constructor")
     }
 
     /// Get the number of constructors in this declaration.
@@ -201,7 +205,7 @@ impl Drop for DatatypeSelector<'_> {
 impl<'tm> DatatypeSelector<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeSelector) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "DatatypeSelector"),
+            inner: non_null(raw, "DatatypeSelector"),
             _phantom: PhantomData,
         }
     }
@@ -289,7 +293,7 @@ impl Drop for DatatypeConstructor<'_> {
 impl<'tm> DatatypeConstructor<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::DatatypeConstructor) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "DatatypeConstructor"),
+            inner: non_null(raw, "DatatypeConstructor"),
             _phantom: PhantomData,
         }
     }
@@ -309,8 +313,9 @@ impl<'tm> DatatypeConstructor<'tm> {
     }
 
     /// Get the constructor term instantiated for the given parametric datatype sort.
-    pub fn instantiated_term(&self, sort: Sort) -> Term<'tm> {
-        Term::from_raw(unsafe { dt_cons_get_instantiated_term(self.inner, sort.inner) })
+    pub fn instantiated_term(&self, sort: Sort) -> Result<Term<'tm>> {
+        let raw = unsafe { dt_cons_get_instantiated_term(self.inner, sort.inner) };
+        wrap(raw, "instantiated_term")
     }
 
     /// Get the tester (discriminator) function as a term.
@@ -324,14 +329,16 @@ impl<'tm> DatatypeConstructor<'tm> {
     }
 
     /// Get the selector at the given index.
-    pub fn selector(&self, index: usize) -> DatatypeSelector<'tm> {
-        DatatypeSelector::from_raw(unsafe { dt_cons_get_selector(self.inner, index) })
+    pub fn selector(&self, index: usize) -> Result<DatatypeSelector<'tm>> {
+        let raw = unsafe { dt_cons_get_selector(self.inner, index) };
+        wrap(raw, "selector")
     }
 
     /// Get a selector by name.
-    pub fn selector_by_name(&self, name: &str) -> DatatypeSelector<'tm> {
+    pub fn selector_by_name(&self, name: &str) -> Result<DatatypeSelector<'tm>> {
         let c = CString::new(name).unwrap();
-        DatatypeSelector::from_raw(unsafe { dt_cons_get_selector_by_name(self.inner, c.as_ptr()) })
+        let raw = unsafe { dt_cons_get_selector_by_name(self.inner, c.as_ptr()) };
+        wrap(raw, "selector_by_name")
     }
 }
 
@@ -391,7 +398,7 @@ impl Drop for Datatype<'_> {
 impl<'tm> Datatype<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Datatype) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "Datatype"),
+            inner: non_null(raw, "Datatype"),
             _phantom: PhantomData,
         }
     }
@@ -402,20 +409,23 @@ impl<'tm> Datatype<'tm> {
     }
 
     /// Get the constructor at the given index.
-    pub fn constructor(&self, index: usize) -> DatatypeConstructor<'tm> {
-        DatatypeConstructor::from_raw(unsafe { dt_get_constructor(self.inner, index) })
+    pub fn constructor(&self, index: usize) -> Result<DatatypeConstructor<'tm>> {
+        let raw = unsafe { dt_get_constructor(self.inner, index) };
+        wrap(raw, "constructor")
     }
 
     /// Get a constructor by name.
-    pub fn constructor_by_name(&self, name: &str) -> DatatypeConstructor<'tm> {
+    pub fn constructor_by_name(&self, name: &str) -> Result<DatatypeConstructor<'tm>> {
         let c = CString::new(name).unwrap();
-        DatatypeConstructor::from_raw(unsafe { dt_get_constructor_by_name(self.inner, c.as_ptr()) })
+        let raw = unsafe { dt_get_constructor_by_name(self.inner, c.as_ptr()) };
+        wrap(raw, "constructor_by_name")
     }
 
     /// Get a selector by name (searches all constructors).
-    pub fn selector(&self, name: &str) -> DatatypeSelector<'tm> {
+    pub fn selector(&self, name: &str) -> Result<DatatypeSelector<'tm>> {
         let c = CString::new(name).unwrap();
-        DatatypeSelector::from_raw(unsafe { dt_get_selector(self.inner, c.as_ptr()) })
+        let raw = unsafe { dt_get_selector(self.inner, c.as_ptr()) };
+        wrap(raw, "selector")
     }
 
     /// Get the name of this datatype.
@@ -433,13 +443,14 @@ impl<'tm> Datatype<'tm> {
     }
 
     /// Get the sort parameters of a parametric datatype.
-    pub fn parameters(&self) -> Vec<Sort<'tm>> {
+    pub fn parameters(&self) -> Result<Vec<Sort<'tm>>> {
         let mut size = 0usize;
         let ptr = unsafe { dt_get_parameters(self.inner, &mut size) };
-        unsafe { crate::ffi::raw_slice(ptr, size) }
+        let ptr = checked(ptr, "parameters")?;
+        Ok(unsafe { raw_slice(ptr, size) }
             .iter()
             .map(|&p| Sort::from_raw(p))
-            .collect()
+            .collect())
     }
 
     /// Return `true` if this datatype is parametric.
@@ -463,8 +474,9 @@ impl<'tm> Datatype<'tm> {
     }
 
     /// Return `true` if this datatype is finite.
-    pub fn is_finite(&self) -> bool {
-        unsafe { dt_is_finite(self.inner) }
+    pub fn is_finite(&self) -> Result<bool> {
+        let v = unsafe { dt_is_finite(self.inner) };
+        checked(v, "is_finite")
     }
 
     /// Return `true` if this datatype is well-founded.

@@ -24,18 +24,90 @@
 //! catchable, it names the operation that failed, and it does not take the
 //! process down or defer the failure to an unrelated line.
 
+use crate::error::{Error, Result, has_error, last_error};
 use std::ffi::CStr;
 use std::os::raw::c_char;
 
 /// Report an unexpected `NULL` from the C API and panic.
+///
+/// cvc5 records why a call failed in thread-local state and clears it on entry
+/// to the *next* call, so the message is only readable here because no cvc5 call
+/// happens between the failing one and this guard.
 #[cold]
 #[inline(never)]
 fn unexpected_null(what: &str) -> ! {
-    panic!(
-        "cvc5 C API returned NULL for `{what}`. This means the underlying call \
-         failed. On cvc5 builds that capture errors instead of aborting \
-         (post-1.3.4), the reason is available from `cvc5_get_error_message()`."
-    )
+    match last_error() {
+        Some(msg) => panic!("cvc5 call failed while producing `{what}`: {msg}"),
+        None => panic!(
+            "cvc5 C API returned NULL for `{what}` but reported no error. This is \
+             an unexpected result rather than a failed call."
+        ),
+    }
+}
+
+/// Gate a value on cvc5's thread-local error state.
+///
+/// Call immediately after the C function, before constructing any wrapper: the
+/// state reflects only the most recent cvc5 call, and `from_raw` would panic on
+/// a `NULL` that this turns into an `Err`.
+///
+/// For values that are about to be wrapped in an owning type, prefer [`wrap`],
+/// which pairs this check with the constructor.
+#[inline]
+pub(crate) fn checked<T>(value: T, what: &str) -> Result<T> {
+    if has_error() {
+        Err(Error::from_state(what))
+    } else {
+        Ok(value)
+    }
+}
+
+/// A wrapper type built from a raw cvc5 pointer.
+///
+/// Implemented by delegating to each type's infallible `from_raw`, which stays
+/// infallible because `Clone` and the many non-fallible getters both need it.
+pub(crate) trait FromRaw: Sized {
+    type Raw;
+    fn wrap_raw(raw: Self::Raw) -> Self;
+}
+
+/// Gate a raw pointer on the error state and wrap it, in one step.
+///
+/// This is the shape almost every fallible getter and constructor needs:
+/// `wrap(unsafe { cvc5_... }, "name")` instead of hand-composing [`checked`]
+/// with `from_raw`.
+#[inline]
+pub(crate) fn wrap<T: FromRaw>(raw: T::Raw, what: &str) -> Result<T> {
+    checked(raw, what).map(T::wrap_raw)
+}
+
+macro_rules! impl_from_raw {
+    ($($ty:ty : $raw:ty),* $(,)?) => {
+        $(impl FromRaw for $ty {
+            type Raw = $raw;
+            #[inline]
+            fn wrap_raw(raw: Self::Raw) -> Self {
+                Self::from_raw(raw)
+            }
+        })*
+    };
+}
+
+impl_from_raw! {
+    crate::Term<'_>: cvc5_sys::Term,
+    crate::Sort<'_>: cvc5_sys::Sort,
+    crate::Op<'_>: cvc5_sys::Op,
+    crate::Datatype<'_>: cvc5_sys::Datatype,
+    crate::DatatypeConstructor<'_>: cvc5_sys::DatatypeConstructor,
+    crate::DatatypeSelector<'_>: cvc5_sys::DatatypeSelector,
+    crate::DatatypeDecl<'_>: cvc5_sys::DatatypeDecl,
+    crate::DatatypeConstructorDecl<'_>: cvc5_sys::DatatypeConstructorDecl,
+    crate::Proof<'_>: cvc5_sys::Proof,
+    crate::Grammar<'_>: cvc5_sys::Grammar,
+    crate::SatResult<'_>: cvc5_sys::Result,
+    crate::SynthResult<'_>: cvc5_sys::SynthResult,
+    crate::Statistics: cvc5_sys::Statistics,
+    crate::Stat: cvc5_sys::Stat,
 }
 
 /// Guard an object pointer that the C API is expected to always populate.

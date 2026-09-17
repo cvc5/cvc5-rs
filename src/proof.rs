@@ -3,6 +3,8 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use crate::Term;
+use crate::error::Result;
+use crate::ffi::{checked, non_null, raw_slice};
 
 /// A cvc5 proof object.
 ///
@@ -28,7 +30,7 @@ impl Drop for Proof<'_> {
 impl<'tm> Proof<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Proof) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "Proof"),
+            inner: non_null(raw, "Proof"),
             _phantom: PhantomData,
         }
     }
@@ -49,8 +51,9 @@ impl<'tm> Proof<'tm> {
     }
 
     /// Get the rewrite rule used at the root of this proof node.
-    pub fn rewrite_rule(&self) -> cvc5_sys::ProofRewriteRule {
-        unsafe { proof_get_rewrite_rule(self.inner) }
+    pub fn rewrite_rule(&self) -> Result<cvc5_sys::ProofRewriteRule> {
+        let v = unsafe { proof_get_rewrite_rule(self.inner) };
+        checked(v, "rewrite_rule")
     }
 
     /// Get the conclusion (result) of this proof node as a term.
@@ -62,7 +65,7 @@ impl<'tm> Proof<'tm> {
     pub fn children(&self) -> Vec<Proof<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { proof_get_children(self.inner, &mut size) };
-        unsafe { crate::ffi::raw_slice(ptr, size) }
+        unsafe { raw_slice(ptr, size) }
             .iter()
             .map(|&p| Proof::from_raw(p))
             .collect()
@@ -72,7 +75,7 @@ impl<'tm> Proof<'tm> {
     pub fn arguments(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { proof_get_arguments(self.inner, &mut size) };
-        unsafe { crate::ffi::raw_slice(ptr, size) }
+        unsafe { raw_slice(ptr, size) }
             .iter()
             .map(|&p| Term::from_raw(p))
             .collect()

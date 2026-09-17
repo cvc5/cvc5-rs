@@ -3,6 +3,8 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use crate::Term;
+use crate::error::Result;
+use crate::ffi::{non_null, wrap};
 
 /// A cvc5 operator (indexed operator).
 ///
@@ -28,7 +30,7 @@ impl Drop for Op<'_> {
 impl<'tm> Op<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Op) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "Op"),
+            inner: non_null(raw, "Op"),
             _phantom: PhantomData,
         }
     }
@@ -59,8 +61,9 @@ impl<'tm> Op<'tm> {
     }
 
     /// Get the index at position `i` as a term.
-    pub fn index(&self, i: usize) -> Term<'tm> {
-        Term::from_raw(unsafe { op_get_index(self.inner, i) })
+    pub fn index(&self, i: usize) -> Result<Term<'tm>> {
+        let raw = unsafe { op_get_index(self.inner, i) };
+        wrap(raw, "index")
     }
 }
 

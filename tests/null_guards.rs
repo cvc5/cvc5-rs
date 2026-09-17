@@ -34,8 +34,8 @@ use cvc5::{Kind, LearnedLitType, Solver, TermManager};
 #[test]
 fn empty_tuple_sort_element_sorts() {
     let tm = TermManager::new();
-    let unit = tm.mk_tuple_sort(&[]);
-    assert_eq!(unit.tuple_element_sorts().len(), 0);
+    let unit = tm.mk_tuple_sort(&[]).unwrap();
+    assert_eq!(unit.tuple_element_sorts().unwrap().len(), 0);
 }
 
 /// `cvc5_term_get_tuple_value` — `res.data()` on an empty thread-local vector.
@@ -44,17 +44,19 @@ fn empty_tuple_sort_element_sorts() {
 fn empty_tuple_value() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_UFDT");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("QF_UFDT").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
-    let unit = tm.mk_tuple(&[]);
-    let c = tm.mk_const(tm.mk_tuple_sort(&[]), "u");
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[c.clone(), unit]));
-    assert!(solver.check_sat().is_sat());
+    let unit = tm.mk_tuple(&[]).unwrap();
+    let c = tm.mk_const(tm.mk_tuple_sort(&[]).unwrap(), "u").unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[c.clone(), unit]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
 
-    let v = solver.get_value(c);
+    let v = solver.get_value(c).unwrap();
     assert!(v.is_tuple_value());
-    assert_eq!(v.tuple_value().len(), 0);
+    assert_eq!(v.tuple_value().unwrap().len(), 0);
 }
 
 /// `cvc5_term_get_set_value` — empty set literal.
@@ -63,18 +65,20 @@ fn empty_tuple_value() {
 fn empty_set_value() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_UFLIAFS");
-    solver.set_option("produce-models", "true");
+    solver.set_logic("QF_UFLIAFS").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
 
-    let set_sort = tm.mk_set_sort(tm.integer_sort());
-    let empty = tm.mk_empty_set(set_sort.clone());
-    let c = tm.mk_const(set_sort, "s");
-    solver.assert_formula(tm.mk_term(Kind::Equal, &[c.clone(), empty]));
-    assert!(solver.check_sat().is_sat());
+    let set_sort = tm.mk_set_sort(tm.integer_sort()).unwrap();
+    let empty = tm.mk_empty_set(set_sort.clone()).unwrap();
+    let c = tm.mk_const(set_sort, "s").unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Equal, &[c.clone(), empty]).unwrap())
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
 
-    let v = solver.get_value(c);
+    let v = solver.get_value(c).unwrap();
     assert!(v.is_set_value());
-    assert_eq!(v.set_value().len(), 0);
+    assert_eq!(v.set_value().unwrap().len(), 0);
 }
 
 /// `cvc5_get_values` with an empty request list.
@@ -83,10 +87,10 @@ fn empty_set_value() {
 fn get_values_empty_slice() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-models", "true");
-    assert!(solver.check_sat().is_sat());
-    assert_eq!(solver.get_values(&[]).len(), 0);
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-models", "true").unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
+    assert_eq!(solver.get_values(&[]).unwrap().len(), 0);
 }
 
 /// `cvc5_get_sygus_constraints` / `_assumptions` — deterministic NULL when none
@@ -95,7 +99,7 @@ fn get_values_empty_slice() {
 fn empty_sygus_constraints_and_assumptions() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_option("sygus", "true");
+    solver.set_option("sygus", "true").unwrap();
     assert_eq!(solver.get_sygus_constraints().len(), 0);
     assert_eq!(solver.get_sygus_assumptions().len(), 0);
 }
@@ -106,7 +110,7 @@ fn empty_sygus_constraints_and_assumptions() {
 fn no_assertions() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
+    solver.set_logic("QF_LIA").unwrap();
     assert_eq!(solver.get_assertions().len(), 0);
 }
 
@@ -116,10 +120,18 @@ fn no_assertions() {
 fn empty_learned_literals() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-learned-literals", "true");
-    assert!(solver.check_sat().is_sat());
-    assert_eq!(solver.get_learned_literals(LearnedLitType::Input).len(), 0);
+    solver.set_logic("QF_LIA").unwrap();
+    solver
+        .set_option("produce-learned-literals", "true")
+        .unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
+    assert_eq!(
+        solver
+            .get_learned_literals(LearnedLitType::Input)
+            .unwrap()
+            .len(),
+        0
+    );
 }
 
 /// `cvc5_get_option_info` `memset`s its out-struct to zero before filling it, so
@@ -129,7 +141,7 @@ fn empty_learned_literals() {
 fn option_info_without_aliases() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    let info = solver.get_option_info("incremental");
+    let info = solver.get_option_info("incremental").unwrap();
     assert_eq!(info.name().as_ref(), "incremental");
     assert_eq!(info.aliases().len(), 0);
     assert_eq!(info.no_supports().len(), 0);
@@ -145,18 +157,20 @@ fn option_info_without_aliases() {
 fn absent_interpolant_is_none() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
-    solver.set_option("produce-interpolants", "true");
-    solver.set_option("incremental", "true");
+    solver.set_logic("QF_LIA").unwrap();
+    solver.set_option("produce-interpolants", "true").unwrap();
+    solver.set_option("incremental", "true").unwrap();
 
-    let x = tm.mk_const(tm.integer_sort(), "x");
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let zero = tm.mk_integer(0);
-    solver.assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]));
+    solver
+        .assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap())
+        .unwrap();
 
     // `x < 0` does not follow from `x > 0`, so no interpolant exists and cvc5
     // hands back the null term.
-    let conj = tm.mk_term(Kind::Lt, &[x, zero]);
-    assert!(solver.get_interpolant(conj).is_none());
+    let conj = tm.mk_term(Kind::Lt, &[x, zero]).unwrap();
+    assert!(solver.get_interpolant(conj).unwrap().is_none());
 }
 
 // ── Group 3: positive paths ────────────────────────────────────────────────
@@ -168,7 +182,7 @@ fn absent_interpolant_is_none() {
 fn synth_solutions_empty_input_is_short_circuited() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    assert_eq!(solver.get_synth_solutions(&[]).len(), 0);
+    assert_eq!(solver.get_synth_solutions(&[]).unwrap().len(), 0);
 }
 
 /// A symbol-bearing sort/term still reports its symbol after the guard change.
@@ -179,13 +193,13 @@ fn synth_solutions_empty_input_is_short_circuited() {
 #[test]
 fn symbol_roundtrip() {
     let tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x");
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     assert!(x.has_symbol());
-    assert_eq!(x.symbol(), "x");
+    assert_eq!(x.symbol().unwrap(), "x");
 
     let u = tm.mk_uninterpreted_sort("U");
     assert!(u.has_symbol());
-    assert_eq!(u.symbol(), "U");
+    assert_eq!(u.symbol().unwrap(), "U");
 }
 
 /// `cvc5_get_option_names` returns a `const char**`; guarding it must not have
@@ -205,14 +219,20 @@ fn option_names_still_populated() {
 fn non_empty_array_getter_still_works() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
-    solver.set_logic("QF_LIA");
+    solver.set_logic("QF_LIA").unwrap();
 
-    let x = tm.mk_const(tm.integer_sort(), "x");
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let zero = tm.mk_integer(0);
-    solver.assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]));
-    solver.assert_formula(tm.mk_term(Kind::Lt, &[x, tm.mk_integer(10)]));
+    solver
+        .assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap())
+        .unwrap();
+    solver
+        .assert_formula(tm.mk_term(Kind::Lt, &[x, tm.mk_integer(10)]).unwrap())
+        .unwrap();
     assert_eq!(solver.get_assertions().len(), 2);
 
-    let tup = tm.mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()]);
-    assert_eq!(tup.tuple_element_sorts().len(), 2);
+    let tup = tm
+        .mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()])
+        .unwrap();
+    assert_eq!(tup.tuple_element_sorts().unwrap().len(), 2);
 }

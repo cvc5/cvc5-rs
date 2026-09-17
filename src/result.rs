@@ -1,29 +1,47 @@
+use crate::ffi::non_null;
 use cvc5_sys::*;
 use std::fmt;
 use std::marker::PhantomData;
 
 /// The result of a satisfiability check.
-pub struct Result<'tm> {
+///
+/// # Lifetime
+///
+/// The lifetime parameter is bound to the [`Solver`](crate::Solver) that produced
+/// this result, not to the [`TermManager`](crate::TermManager): results live in
+/// the solver's own allocation table (`Cvc5::d_alloc_results`), which
+/// `cvc5_delete` frees. So this does not compile:
+///
+/// ```compile_fail,E0597
+/// use cvc5::{Solver, TermManager};
+/// let tm = TermManager::new();
+/// let r = {
+///     let solver = Solver::new(&tm);
+///     solver.check_sat().unwrap()
+/// };
+/// println!("{}", r.is_sat());
+/// ```
+pub struct SatResult<'tm> {
     pub(crate) inner: cvc5_sys::Result,
     pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for Result<'_> {
+impl Clone for SatResult<'_> {
     fn clone(&self) -> Self {
         Self::from_raw(unsafe { result_copy(self.inner) })
     }
 }
 
-impl Drop for Result<'_> {
+impl Drop for SatResult<'_> {
     fn drop(&mut self) {
         unsafe { result_release(self.inner) }
     }
 }
 
-impl<'tm> Result<'tm> {
+impl<'tm> SatResult<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Result) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "Result"),
+            inner: non_null(raw, "SatResult"),
             _phantom: PhantomData,
         }
     }
@@ -34,12 +52,12 @@ impl<'tm> Result<'tm> {
     }
 
     /// Create a copy of this result (increments the internal reference count).
-    pub fn copy(&self) -> Result<'tm> {
-        Result::from_raw(unsafe { result_copy(self.inner) })
+    pub fn copy(&self) -> SatResult<'tm> {
+        SatResult::from_raw(unsafe { result_copy(self.inner) })
     }
 
     /// Check disequality with another result.
-    pub fn is_disequal(&self, other: &Result) -> bool {
+    pub fn is_disequal(&self, other: &SatResult) -> bool {
         unsafe { result_is_disequal(self.inner, other.inner) }
     }
 
@@ -64,7 +82,7 @@ impl<'tm> Result<'tm> {
     }
 }
 
-impl fmt::Display for Result<'_> {
+impl fmt::Display for SatResult<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { result_to_string(self.inner) };
         let cs = unsafe { std::ffi::CStr::from_ptr(s) };
@@ -72,21 +90,21 @@ impl fmt::Display for Result<'_> {
     }
 }
 
-impl fmt::Debug for Result<'_> {
+impl fmt::Debug for SatResult<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Result({self})")
+        write!(f, "SatResult({self})")
     }
 }
 
-impl PartialEq for Result<'_> {
+impl PartialEq for SatResult<'_> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { result_is_equal(self.inner, other.inner) }
     }
 }
 
-impl Eq for Result<'_> {}
+impl Eq for SatResult<'_> {}
 
-impl std::hash::Hash for Result<'_> {
+impl std::hash::Hash for SatResult<'_> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { result_hash(self.inner) }.hash(state);
     }
