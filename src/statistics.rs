@@ -1,3 +1,5 @@
+use crate::error::Result;
+use crate::ffi::{checked, cstr_or_empty, cstr_to_string, non_null, raw_slice, wrap};
 use cvc5_sys::*;
 use std::ffi::CString;
 use std::fmt;
@@ -16,7 +18,7 @@ pub struct Statistics<'tm> {
 impl<'tm> Statistics<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Statistics) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "Statistics"),
+            inner: non_null(raw, "Statistics"),
             _phantom: PhantomData,
         }
     }
@@ -35,9 +37,10 @@ impl<'tm> Statistics<'tm> {
     ///
     /// Tracked upstream as cvc5/cvc5#12898; this becomes safe once those arenas
     /// use `std::deque`.
-    pub unsafe fn get(&self, name: &str) -> Stat<'tm> {
+    pub unsafe fn get(&self, name: &str) -> Result<Stat<'tm>> {
         let c = CString::new(name).unwrap();
-        Stat::from_raw(unsafe { stats_get(self.inner, c.as_ptr()) })
+        let raw = unsafe { stats_get(self.inner, c.as_ptr()) };
+        wrap(raw, "get")
     }
 
     /// Initialize the statistics iterator.
@@ -67,7 +70,7 @@ impl<'tm> Statistics<'tm> {
         // it gives the better panic message when the iterator is exhausted or
         // uninitialized.
         let stat = Stat::from_raw(s);
-        let n = unsafe { crate::ffi::cstr_to_string(name, "Statistics::iter_next name") };
+        let n = unsafe { cstr_to_string(name, "Statistics::iter_next name") };
         (n, stat)
     }
 
@@ -108,7 +111,7 @@ pub struct Stat<'tm> {
 impl<'tm> Stat<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Stat) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "Stat"),
+            inner: non_null(raw, "Stat"),
             _phantom: PhantomData,
         }
     }
@@ -144,41 +147,41 @@ impl<'tm> Stat<'tm> {
     }
 
     /// Get the integer value of this statistic.
-    pub fn get_int(&self) -> i64 {
-        unsafe { stat_get_int(self.inner) }
+    pub fn get_int(&self) -> Result<i64> {
+        let v = unsafe { stat_get_int(self.inner) };
+        checked(v, "get_int")
     }
 
     /// Get the double value of this statistic.
-    pub fn get_double(&self) -> f64 {
-        unsafe { stat_get_double(self.inner) }
+    pub fn get_double(&self) -> Result<f64> {
+        let v = unsafe { stat_get_double(self.inner) };
+        checked(v, "get_double")
     }
 
     /// Get the string value of this statistic.
-    pub fn get_string(&self) -> String {
-        unsafe {
-            std::ffi::CStr::from_ptr(stat_get_string(self.inner))
-                .to_string_lossy()
-                .into_owned()
-        }
+    pub fn get_string(&self) -> Result<String> {
+        let p = unsafe { stat_get_string(self.inner) };
+        let p = checked(p, "get_string")?;
+        Ok(unsafe { cstr_or_empty(p) }.to_owned())
     }
 
     /// Get the histogram value as a list of `(key, count)` pairs.
-    pub fn get_histogram(&self) -> Vec<(String, u64)> {
+    pub fn get_histogram(&self) -> Result<Vec<(String, u64)>> {
         let mut keys: *mut *const std::os::raw::c_char = std::ptr::null_mut();
         let mut values: *mut u64 = std::ptr::null_mut();
         let mut size = 0usize;
         unsafe { stat_get_histogram(self.inner, &mut keys, &mut values, &mut size) };
-        // `keys`/`values`/`size` are only written on success; on failure they
-        // keep the null/zero initializers above.
-        let keys = unsafe { crate::ffi::raw_slice(keys, size) };
-        let values = unsafe { crate::ffi::raw_slice(values, size) };
-        keys.iter()
+        checked((), "get_histogram")?;
+        let keys = unsafe { raw_slice(keys, size) };
+        let values = unsafe { raw_slice(values, size) };
+        Ok(keys
+            .iter()
             .zip(values)
             .map(|(&k, &v)| {
-                let k = unsafe { crate::ffi::cstr_to_string(k, "Stat::get_histogram key") };
+                let k = unsafe { cstr_to_string(k, "Stat::get_histogram key") };
                 (k, v)
             })
-            .collect()
+            .collect())
     }
 }
 

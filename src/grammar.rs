@@ -3,6 +3,8 @@ use std::fmt;
 use std::marker::PhantomData;
 
 use crate::Term;
+use crate::error::Result;
+use crate::ffi::{checked, non_null};
 
 /// A cvc5 grammar for syntax-guided synthesis (SyGuS).
 ///
@@ -27,7 +29,7 @@ impl Drop for Grammar<'_> {
 impl<'tm> Grammar<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::Grammar) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "Grammar"),
+            inner: non_null(raw, "Grammar"),
             _phantom: PhantomData,
         }
     }
@@ -43,24 +45,28 @@ impl<'tm> Grammar<'tm> {
     }
 
     /// Add a rule to the given non-terminal symbol.
-    pub fn add_rule(&mut self, symbol: Term, rule: Term) {
-        unsafe { grammar_add_rule(self.inner, symbol.inner, rule.inner) }
+    pub fn add_rule(&mut self, symbol: Term, rule: Term) -> Result<()> {
+        unsafe { grammar_add_rule(self.inner, symbol.inner, rule.inner) };
+        checked((), "add_rule")
     }
 
     /// Add rules to the given non-terminal symbol.
-    pub fn add_rules(&mut self, symbol: Term, rules: &[Term]) {
+    pub fn add_rules(&mut self, symbol: Term, rules: &[Term]) -> Result<()> {
         let raw: Vec<cvc5_sys::Term> = rules.iter().map(|t| t.inner).collect();
-        unsafe { grammar_add_rules(self.inner, symbol.inner, raw.len(), raw.as_ptr()) }
+        unsafe { grammar_add_rules(self.inner, symbol.inner, raw.len(), raw.as_ptr()) };
+        checked((), "add_rules")
     }
 
     /// Allow the symbol to be an arbitrary constant.
-    pub fn add_any_constant(&mut self, symbol: Term) {
-        unsafe { grammar_add_any_constant(self.inner, symbol.inner) }
+    pub fn add_any_constant(&mut self, symbol: Term) -> Result<()> {
+        unsafe { grammar_add_any_constant(self.inner, symbol.inner) };
+        checked((), "add_any_constant")
     }
 
     /// Allow the symbol to be any input variable.
-    pub fn add_any_variable(&mut self, symbol: Term) {
-        unsafe { grammar_add_any_variable(self.inner, symbol.inner) }
+    pub fn add_any_variable(&mut self, symbol: Term) -> Result<()> {
+        unsafe { grammar_add_any_variable(self.inner, symbol.inner) };
+        checked((), "add_any_variable")
     }
 }
 

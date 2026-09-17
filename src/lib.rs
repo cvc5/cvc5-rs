@@ -10,24 +10,25 @@
 //! let tm = TermManager::new();
 //! let solver = Solver::new(&tm);
 //!
-//! solver.set_logic("QF_LIA");
-//! solver.set_option("produce-models", "true");
+//! solver.set_logic("QF_LIA").unwrap();
+//! solver.set_option("produce-models", "true").unwrap();
 //!
 //! let int_sort = tm.integer_sort();
-//! let x = tm.mk_const(int_sort, "x");
+//! let x = tm.mk_const(int_sort, "x").unwrap();
 //! let zero = tm.mk_integer(0);
 //!
-//! let gt = tm.mk_term(Kind::Gt, &[x.clone(), zero]);
-//! solver.assert_formula(gt);
+//! let gt = tm.mk_term(Kind::Gt, &[x.clone(), zero]).unwrap();
+//! solver.assert_formula(gt).unwrap();
 //!
-//! let result = solver.check_sat();
+//! let result = solver.check_sat().unwrap();
 //! assert!(result.is_sat());
 //!
-//! let x_val = solver.get_value(x);
+//! let x_val = solver.get_value(x).unwrap();
 //! println!("x = {x_val}");
 //! ```
 
 mod datatype;
+mod error;
 mod ffi;
 mod grammar;
 mod op;
@@ -51,10 +52,11 @@ pub use cvc5_sys::{
 pub use datatype::{
     Datatype, DatatypeConstructor, DatatypeConstructorDecl, DatatypeDecl, DatatypeSelector,
 };
+pub use error::{Error, Result, clear_error, has_error, last_error};
 pub use grammar::Grammar;
 pub use op::Op;
 pub use proof::Proof;
-pub use result::Result;
+pub use result::SatResult;
 pub use solver::{OptionInfo, OptionInfoKind, Solver};
 pub use sort::Sort;
 pub use statistics::{Stat, Statistics};

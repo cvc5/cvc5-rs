@@ -1,3 +1,4 @@
+use crate::ffi::non_null;
 use cvc5_sys::*;
 use std::fmt;
 use std::marker::PhantomData;
@@ -23,7 +24,7 @@ impl Drop for SynthResult<'_> {
 impl<'tm> SynthResult<'tm> {
     pub(crate) fn from_raw(raw: cvc5_sys::SynthResult) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "SynthResult"),
+            inner: non_null(raw, "SynthResult"),
             _phantom: PhantomData,
         }
     }

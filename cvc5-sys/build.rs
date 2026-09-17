@@ -57,7 +57,7 @@ fn main() {
     }
 
     #[cfg(feature = "static")]
-    for lib in &["cadical", "picpoly", "picpolyxx", "gmp"] {
+    for lib in &["cadical", "picpoly", "picpolyxx", "mpfr", "gmp"] {
         link_with(lib);
     }
 
@@ -252,45 +252,6 @@ fn check_cvc5_version(cvc5_dir: &Path, expected: &str) {
     println!("cargo:rerun-if-changed={}", version_file.display());
 }
 
-/// Patch `cmake/FindPoly.cmake` in the cvc5 source tree so the
-/// `-Wno-deprecated-literal-operator` flag is always passed to the
-/// Poly-EP ExternalProject, not only for WASM builds. This fixes a
-/// build failure on Apple Clang 21+ (macOS 26+) where `gmpxx.h`
-/// user-defined literal operators trigger `-Werror`.
-///
-/// The patch is idempotent: if the file was already patched (or doesn't
-/// exist), it is a no-op.
-#[cfg(feature = "static")]
-fn patch_find_poly_cmake(cvc5_dir: &Path) {
-    let cmake_file = cvc5_dir.join("cmake/FindPoly.cmake");
-    if !cmake_file.exists() {
-        return;
-    }
-    let content = fs::read_to_string(&cmake_file).expect("Failed to read FindPoly.cmake");
-
-    // The upstream file conditionally sets POLY_CXX_FLAGS only for WASM:
-    //
-    //   set(POLY_CXX_FLAGS "")
-    //   if(NOT(WASM STREQUAL "OFF"))
-    //     set(POLY_CXX_FLAGS -DCMAKE_CXX_FLAGS=-Wno-error=deprecated-literal-operator)
-    //   endif()
-    //
-    // Replace with an unconditional assignment using the strong form of
-    // the flag (-Wno- instead of -Wno-error=), which suppresses the
-    // warning entirely regardless of -Werror ordering.
-    let old = r#"set(POLY_CXX_FLAGS "")
-  if(NOT(WASM STREQUAL "OFF"))
-    set(POLY_CXX_FLAGS -DCMAKE_CXX_FLAGS=-Wno-error=deprecated-literal-operator)
-  endif()"#;
-    let new = r#"set(POLY_CXX_FLAGS -DCMAKE_CXX_FLAGS=-Wno-deprecated-literal-operator)"#;
-
-    if content.contains(old) {
-        let patched = content.replace(old, new);
-        fs::write(&cmake_file, patched).expect("Failed to write FindPoly.cmake");
-        eprintln!("Patched FindPoly.cmake: unconditional -Wno-deprecated-literal-operator");
-    }
-}
-
 // return (include path, lib path) if exist
 
 #[cfg(unix)]
@@ -321,17 +282,6 @@ fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
     );
 
     let build_dir = cvc5_dir.join("build");
-
-    // Patch FindPoly.cmake to fix the deprecated-literal-operator build
-    // failure on Apple Clang 21+ (macOS 26+). The existing cmake file
-    // uses -Wno-error=deprecated-literal-operator (the weak form), which
-    // only prevents -Werror from promoting the warning. But libpoly's
-    // CMakeLists.txt adds -Werror via target_compile_options, which
-    // appears after CMAKE_CXX_FLAGS on the command line, overriding the
-    // weak form. The strong form -Wno-deprecated-literal-operator
-    // suppresses the warning entirely, so -Werror has nothing to promote.
-    // See https://github.com/cvc5/cvc5-rs/issues/56
-    patch_find_poly_cmake(&cvc5_dir);
 
     let status = Command::new("bash")
         .arg(&configure)

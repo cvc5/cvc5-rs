@@ -33,6 +33,8 @@ use cvc5_sys::parser::*;
 use std::ffi::CString;
 use std::fmt;
 
+use crate::error::Result;
+use crate::ffi::{checked, cstr_or_empty, cstr_to_string, non_null, raw_slice};
 use crate::{Solver, Sort, Term, TermManager};
 
 /// Manages symbols for the parser.
@@ -81,8 +83,10 @@ impl<'tm> SymbolManager<'tm> {
     /// # Panics
     ///
     /// The underlying C API asserts that the logic has been set.
-    pub fn get_logic(&self) -> &str {
-        unsafe { crate::ffi::cstr_or_empty(sm_get_logic(self.ptr())) }
+    pub fn get_logic(&self) -> Result<&str> {
+        let p = unsafe { sm_get_logic(self.ptr()) };
+        let p = checked(p, "get_logic")?;
+        Ok(unsafe { cstr_or_empty(p) })
     }
 
     /// Get the sorts declared via `declare-sort` commands.
@@ -91,7 +95,7 @@ impl<'tm> SymbolManager<'tm> {
     pub fn get_declared_sorts(&self) -> Vec<Sort<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { sm_get_declared_sorts(self.ptr(), &mut size) };
-        unsafe { crate::ffi::raw_slice(ptr, size) }
+        unsafe { raw_slice(ptr, size) }
             .iter()
             .map(|&p| Sort::from_raw(p))
             .collect()
@@ -103,7 +107,7 @@ impl<'tm> SymbolManager<'tm> {
     pub fn get_declared_terms(&self) -> Vec<Term<'tm>> {
         let mut size = 0usize;
         let ptr = unsafe { sm_get_declared_terms(self.ptr(), &mut size) };
-        unsafe { crate::ffi::raw_slice(ptr, size) }
+        unsafe { raw_slice(ptr, size) }
             .iter()
             .map(|&p| Term::from_raw(p))
             .collect()
@@ -117,15 +121,16 @@ impl<'tm> SymbolManager<'tm> {
         let mut terms: *mut cvc5_sys::Term = std::ptr::null_mut();
         let mut names: *mut *const std::os::raw::c_char = std::ptr::null_mut();
         unsafe { sm_get_named_terms(self.ptr(), &mut size, &mut terms, &mut names) };
-        let terms = unsafe { crate::ffi::raw_slice(terms, size) };
-        let names = unsafe { crate::ffi::raw_slice(names, size) };
+        // Out-params are only written on success; on failure they keep the
+        // null/zero initializers above.
+        let terms = unsafe { raw_slice(terms, size) };
+        let names = unsafe { raw_slice(names, size) };
         terms
             .iter()
             .zip(names)
             .map(|(&t, &n)| {
                 let t = Term::from_raw(t);
-                let n =
-                    unsafe { crate::ffi::cstr_to_string(n, "SymbolManager::get_named_terms name") };
+                let n = unsafe { cstr_to_string(n, "SymbolManager::get_named_terms name") };
                 (t, n)
             })
             .collect()
@@ -152,7 +157,7 @@ pub struct Command<'p> {
 impl<'p> Command<'p> {
     pub(crate) fn from_raw(raw: cvc5_sys::parser::Command) -> Self {
         Self {
-            inner: crate::ffi::non_null(raw, "Command"),
+            inner: non_null(raw, "Command"),
             _phantom: std::marker::PhantomData,
         }
     }
@@ -170,17 +175,15 @@ impl<'p> Command<'p> {
     ///
     /// Returns any output produced by the command (e.g. `sat`, `unsat`,
     /// model output, etc.).
-    pub fn invoke(&self, solver: &Solver<'_>, sm: &SymbolManager) -> String {
-        unsafe {
-            std::ffi::CStr::from_ptr(cmd_invoke(self.inner, solver.inner, sm.ptr()))
-                .to_string_lossy()
-                .into_owned()
-        }
+    pub fn invoke(&self, solver: &Solver<'_>, sm: &SymbolManager) -> Result<String> {
+        let p = unsafe { cmd_invoke(self.inner, solver.inner, sm.ptr()) };
+        let p = checked(p, "invoke")?;
+        Ok(unsafe { cstr_or_empty(p) }.to_owned())
     }
 
     /// Get the name of this command (e.g. `"assert"`, `"check-sat"`).
     pub fn name(&self) -> &str {
-        unsafe { crate::ffi::cstr_or_empty(cmd_get_name(self.inner)) }
+        unsafe { cstr_or_empty(cmd_get_name(self.inner)) }
     }
 }
 
@@ -242,10 +245,7 @@ impl<'s, 'tm> InputParser<'s, 'tm> {
     /// the parser. If both have their logic set, the logics must be the same.
     pub fn new(solver: &'s Solver<'tm>, sm: &'s SymbolManager<'tm>) -> Self {
         Self {
-            inner: crate::ffi::non_null(
-                unsafe { parser_new(solver.inner, sm.ptr()) },
-                "InputParser",
-            ),
+            inner: non_null(unsafe { parser_new(solver.inner, sm.ptr()) }, "InputParser"),
             solver,
             sm,
         }
@@ -266,9 +266,10 @@ impl<'s, 'tm> InputParser<'s, 'tm> {
     /// - `lang` — the input language (e.g.
     ///   [`SmtLib26`](cvc5_sys::InputLanguage::SmtLib26)).
     /// - `filename` — path to the file.
-    pub fn set_file_input(&mut self, lang: InputLanguage, filename: &str) {
+    pub fn set_file_input(&mut self, lang: InputLanguage, filename: &str) -> Result<()> {
         let f = CString::new(filename).unwrap();
-        unsafe { parser_set_file_input(self.inner, lang, f.as_ptr()) }
+        unsafe { parser_set_file_input(self.inner, lang, f.as_ptr()) };
+        checked((), "set_file_input")
     }
 
     /// Configure a concrete string as the input source.
@@ -276,10 +277,11 @@ impl<'s, 'tm> InputParser<'s, 'tm> {
     /// - `lang` — the input language.
     /// - `input` — the input string to parse.
     /// - `name` — a name used in error messages (e.g. `"<stdin>"`).
-    pub fn set_str_input(&mut self, lang: InputLanguage, input: &str, name: &str) {
+    pub fn set_str_input(&mut self, lang: InputLanguage, input: &str, name: &str) -> Result<()> {
         let i = CString::new(input).unwrap();
         let n = CString::new(name).unwrap();
-        unsafe { parser_set_str_input(self.inner, lang, i.as_ptr(), n.as_ptr()) }
+        unsafe { parser_set_str_input(self.inner, lang, i.as_ptr(), n.as_ptr()) };
+        checked((), "set_str_input")
     }
 
     /// Configure incremental string input mode.
@@ -289,17 +291,19 @@ impl<'s, 'tm> InputParser<'s, 'tm> {
     ///
     /// - `lang` — the input language.
     /// - `name` — a name used in error messages.
-    pub fn set_inc_str_input(&mut self, lang: InputLanguage, name: &str) {
+    pub fn set_inc_str_input(&mut self, lang: InputLanguage, name: &str) -> Result<()> {
         let n = CString::new(name).unwrap();
-        unsafe { parser_set_inc_str_input(self.inner, lang, n.as_ptr()) }
+        unsafe { parser_set_inc_str_input(self.inner, lang, n.as_ptr()) };
+        checked((), "set_inc_str_input")
     }
 
     /// Append a string to the incremental input stream.
     ///
     /// Must be called after [`set_inc_str_input`](InputParser::set_inc_str_input).
-    pub fn append_inc_str_input(&mut self, input: &str) {
+    pub fn append_inc_str_input(&mut self, input: &str) -> Result<()> {
         let i = CString::new(input).unwrap();
-        unsafe { parser_append_inc_str_input(self.inner, i.as_ptr()) }
+        unsafe { parser_append_inc_str_input(self.inner, i.as_ptr()) };
+        checked((), "append_inc_str_input")
     }
 
     /// Parse and return the next command.
