@@ -12,7 +12,7 @@ use cvc5::{Kind, Solver, TermManager};
 #[test]
 fn second_check_sat_without_incremental_is_err() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("incremental", "false").unwrap();
 
@@ -30,7 +30,7 @@ fn second_check_sat_without_incremental_is_err() {
 #[test]
 fn get_value_without_models_is_err() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-models", "false").unwrap();
 
@@ -49,7 +49,7 @@ fn get_value_without_models_is_err() {
 #[test]
 fn unknown_option_is_err() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     assert!(solver.set_option("no-such-option-here", "true").is_err());
     assert!(solver.get_option("no-such-option-here").is_err());
 }
@@ -68,7 +68,7 @@ fn get_logic_before_set_is_err() {
 #[test]
 fn unsat_core_without_option_is_err() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
 
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
@@ -88,7 +88,7 @@ fn unsat_core_without_option_is_err() {
 #[test]
 fn error_state_is_queryable_and_clearable() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
 
     assert!(solver.set_option("definitely-not-an-option", "1").is_err());
     assert!(cvc5::has_error());
@@ -104,7 +104,7 @@ fn error_state_is_queryable_and_clearable() {
 #[test]
 fn success_leaves_no_error() {
     let tm = TermManager::new();
-    let mut solver = Solver::new(&tm);
+    let solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     assert!(!cvc5::has_error());
     assert_eq!(cvc5::last_error(), None);

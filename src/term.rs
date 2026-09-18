@@ -1,6 +1,5 @@
 use cvc5_sys::*;
 use std::fmt;
-use std::marker::PhantomData;
 
 use crate::error::Result;
 use crate::ffi::{checked, cstr_or_empty, non_null, raw_slice, wrap};
@@ -10,46 +9,41 @@ use crate::{Op, Sort};
 ///
 /// Terms are the main building blocks for assertions, queries, and models.
 ///
-/// # Lifetime
+/// # Ownership
 ///
-/// A `Term` holds a borrowed pointer into its
-/// [`TermManager`](crate::TermManager)'s allocation table; it does **not** keep
-/// that manager alive. `'tm` is what forbids the term from outliving it, so this
-/// does not compile:
+/// A `Term` owns a reference to the [`TermManager`](crate::TermManager) that
+/// created it, so it may outlive the `TermManager` binding. Since cvc5 1.4.0
+/// `cvc5_term_manager_delete` only drops the caller's handle; the arena itself
+/// is freed once the last object it allocated has been released.
 ///
-/// ```compile_fail,E0597
+/// ```
 /// use cvc5::TermManager;
 /// let t = {
 ///     let tm = TermManager::new();
 ///     tm.mk_true()
 /// };
-/// println!("{t}");
+/// assert!(t.boolean_value().unwrap());
 /// ```
-///
-/// Dropping `'tm` would make that program compile and then read freed memory,
-/// because `cvc5_term_manager_delete` frees every term the manager allocated.
-pub struct Term<'tm> {
+pub struct Term {
     pub(crate) inner: cvc5_sys::Term,
-    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for Term<'_> {
+impl Clone for Term {
     fn clone(&self) -> Self {
         Self::from_raw(unsafe { term_copy(self.inner) })
     }
 }
 
-impl Drop for Term<'_> {
+impl Drop for Term {
     fn drop(&mut self) {
         unsafe { term_release(self.inner) }
     }
 }
 
-impl<'tm> Term<'tm> {
+impl Term {
     pub(crate) fn from_raw(raw: cvc5_sys::Term) -> Self {
         Self {
             inner: non_null(raw, "Term"),
-            _phantom: PhantomData,
         }
     }
 
@@ -59,7 +53,7 @@ impl<'tm> Term<'tm> {
     }
 
     /// Create a copy of this term (increments the internal reference count).
-    pub fn copy(&self) -> Term<'tm> {
+    pub fn copy(&self) -> Term {
         Term::from_raw(unsafe { term_copy(self.inner) })
     }
 
@@ -69,7 +63,7 @@ impl<'tm> Term<'tm> {
     }
 
     /// Get the sort of this term.
-    pub fn sort(&self) -> Sort<'tm> {
+    pub fn sort(&self) -> Sort {
         Sort::from_raw(unsafe { term_get_sort(self.inner) })
     }
 
@@ -84,7 +78,7 @@ impl<'tm> Term<'tm> {
     }
 
     /// Get the child at the given index.
-    pub fn child(&self, index: usize) -> Term<'tm> {
+    pub fn child(&self, index: usize) -> Term {
         Term::from_raw(unsafe { term_get_child(self.inner, index) })
     }
 
@@ -110,19 +104,19 @@ impl<'tm> Term<'tm> {
     }
 
     /// Get the operator associated with this term.
-    pub fn op(&self) -> Result<Op<'tm>> {
+    pub fn op(&self) -> Result<Op> {
         let raw = unsafe { term_get_op(self.inner) };
         wrap(raw, "op")
     }
 
     /// Substitute `t` with `replacement` in this term.
-    pub fn substitute_term(&self, t: Term, replacement: Term) -> Result<Term<'tm>> {
+    pub fn substitute_term(&self, t: Term, replacement: Term) -> Result<Term> {
         let raw = unsafe { term_substitute_term(self.inner, t.inner, replacement.inner) };
         wrap(raw, "substitute_term")
     }
 
     /// Simultaneously substitute `terms` with `replacements` in this term.
-    pub fn substitute_terms(&self, terms: &[Term], replacements: &[Term]) -> Result<Term<'tm>> {
+    pub fn substitute_terms(&self, terms: &[Term], replacements: &[Term]) -> Result<Term> {
         let t: Vec<cvc5_sys::Term> = terms.iter().map(|t| t.inner).collect();
         let r: Vec<cvc5_sys::Term> = replacements.iter().map(|t| t.inner).collect();
         let raw = unsafe { term_substitute_terms(self.inner, t.len(), t.as_ptr(), r.as_ptr()) };
@@ -278,7 +272,7 @@ impl<'tm> Term<'tm> {
         unsafe { term_is_const_array(self.inner) }
     }
     /// Get the base (default) value of a constant array.
-    pub fn const_array_base(&self) -> Result<Term<'tm>> {
+    pub fn const_array_base(&self) -> Result<Term> {
         let raw = unsafe { term_get_const_array_base(self.inner) };
         wrap(raw, "const_array_base")
     }
@@ -321,7 +315,7 @@ impl<'tm> Term<'tm> {
         unsafe { term_is_tuple_value(self.inner) }
     }
     /// Get the elements of a tuple value.
-    pub fn tuple_value(&self) -> Result<Vec<Term<'tm>>> {
+    pub fn tuple_value(&self) -> Result<Vec<Term>> {
         let mut size = 0usize;
         let ptr = unsafe { term_get_tuple_value(self.inner, &mut size) };
         let ptr = checked(ptr, "tuple_value")?;
@@ -366,7 +360,7 @@ impl<'tm> Term<'tm> {
         unsafe { term_is_fp_value(self.inner) }
     }
     /// Get the floating-point value as `(exponent_width, significand_width, bit_vector_value)`.
-    pub fn fp_value(&self) -> Result<(u32, u32, Term<'tm>)> {
+    pub fn fp_value(&self) -> Result<(u32, u32, Term)> {
         let (mut ew, mut sw) = (0u32, 0u32);
         let mut val = std::ptr::null_mut();
         unsafe { term_get_fp_value(self.inner, &mut ew, &mut sw, &mut val) };
@@ -379,7 +373,7 @@ impl<'tm> Term<'tm> {
         unsafe { term_is_set_value(self.inner) }
     }
     /// Get the elements of a set value.
-    pub fn set_value(&self) -> Result<Vec<Term<'tm>>> {
+    pub fn set_value(&self) -> Result<Vec<Term>> {
         let mut size = 0usize;
         let ptr = unsafe { term_get_set_value(self.inner, &mut size) };
         let ptr = checked(ptr, "set_value")?;
@@ -394,7 +388,7 @@ impl<'tm> Term<'tm> {
         unsafe { term_is_sequence_value(self.inner) }
     }
     /// Get the elements of a sequence value.
-    pub fn sequence_value(&self) -> Result<Vec<Term<'tm>>> {
+    pub fn sequence_value(&self) -> Result<Vec<Term>> {
         let mut size = 0usize;
         let ptr = unsafe { term_get_sequence_value(self.inner, &mut size) };
         let ptr = checked(ptr, "sequence_value")?;
@@ -409,7 +403,7 @@ impl<'tm> Term<'tm> {
         unsafe { term_is_cardinality_constraint(self.inner) }
     }
     /// Get the sort and upper bound of a cardinality constraint.
-    pub fn cardinality_constraint(&self) -> Result<(Sort<'tm>, u32)> {
+    pub fn cardinality_constraint(&self) -> Result<(Sort, u32)> {
         let mut sort = std::ptr::null_mut();
         let mut upper = 0u32;
         unsafe { term_get_cardinality_constraint(self.inner, &mut sort, &mut upper) };
@@ -422,18 +416,18 @@ impl<'tm> Term<'tm> {
         unsafe { term_is_real_algebraic_number(self.inner) }
     }
     /// Get the defining polynomial of a real algebraic number in terms of variable `v`.
-    pub fn real_algebraic_number_defining_polynomial(&self, v: Term) -> Result<Term<'tm>> {
+    pub fn real_algebraic_number_defining_polynomial(&self, v: Term) -> Result<Term> {
         let raw =
             unsafe { term_get_real_algebraic_number_defining_polynomial(self.inner, v.inner) };
         wrap(raw, "real_algebraic_number_defining_polynomial")
     }
     /// Get the lower bound of the isolating interval of a real algebraic number.
-    pub fn real_algebraic_number_lower_bound(&self) -> Result<Term<'tm>> {
+    pub fn real_algebraic_number_lower_bound(&self) -> Result<Term> {
         let raw = unsafe { term_get_real_algebraic_number_lower_bound(self.inner) };
         wrap(raw, "real_algebraic_number_lower_bound")
     }
     /// Get the upper bound of the isolating interval of a real algebraic number.
-    pub fn real_algebraic_number_upper_bound(&self) -> Result<Term<'tm>> {
+    pub fn real_algebraic_number_upper_bound(&self) -> Result<Term> {
         let raw = unsafe { term_get_real_algebraic_number_upper_bound(self.inner) };
         wrap(raw, "real_algebraic_number_upper_bound")
     }
@@ -448,7 +442,7 @@ impl<'tm> Term<'tm> {
         checked(v, "skolem_id")
     }
     /// Get the indices of this Skolem term.
-    pub fn skolem_indices(&self) -> Result<Vec<Term<'tm>>> {
+    pub fn skolem_indices(&self) -> Result<Vec<Term>> {
         let mut size = 0usize;
         let ptr = unsafe { term_get_skolem_indices(self.inner, &mut size) };
         let ptr = checked(ptr, "skolem_indices")?;
@@ -459,7 +453,7 @@ impl<'tm> Term<'tm> {
     }
 }
 
-impl fmt::Display for Term<'_> {
+impl fmt::Display for Term {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { term_to_string(self.inner) };
         let cs = unsafe { std::ffi::CStr::from_ptr(s) };
@@ -467,34 +461,34 @@ impl fmt::Display for Term<'_> {
     }
 }
 
-impl fmt::Debug for Term<'_> {
+impl fmt::Debug for Term {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Term({self})")
     }
 }
 
-impl PartialEq for Term<'_> {
+impl PartialEq for Term {
     fn eq(&self, other: &Self) -> bool {
         unsafe { term_is_equal(self.inner, other.inner) }
     }
 }
 
-impl Eq for Term<'_> {}
+impl Eq for Term {}
 
-impl PartialOrd for Term<'_> {
+impl PartialOrd for Term {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for Term<'_> {
+impl Ord for Term {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         let c = unsafe { term_compare(self.inner, other.inner) };
         c.cmp(&0)
     }
 }
 
-impl std::hash::Hash for Term<'_> {
+impl std::hash::Hash for Term {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { term_hash(self.inner) }.hash(state);
     }

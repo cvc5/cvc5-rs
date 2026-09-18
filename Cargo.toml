@@ -4,7 +4,7 @@ resolver = "3"
 
 [package]
 name = "cvc5"
-version = "0.5.1"
+version = "0.6.0"
 edition = "2024"
 readme = "README.md"
 license = "BSD-3-Clause"
@@ -20,7 +20,7 @@ parser = ["cvc5-sys/parser"]
 static = ["cvc5-sys/static"]
 
 [dependencies]
-cvc5-sys = { path = "cvc5-sys", version = "=0.5.0" }
+cvc5-sys = { path = "cvc5-sys", version = "=0.6.0" }
 
 [package.metadata.docs.rs]
 features = ["parser", "static"]
