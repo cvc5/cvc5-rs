@@ -17,15 +17,24 @@ algebraic datatypes, and more.
 
 ## Version Correspondence
 
-| `cvc5` Version  | `cvc5-sys` Version | `cvc5` Crate Version |
-|-----------------|--------------------|----------------------|
-| &gt;= 1.3.1 < 1.3.5 | &gt;= 0.4 < 0.5    | &gt;= 0.4 < 0.6      |
+| cvc5 Version       | `cvc5-sys` Crate | `cvc5` Crate     |
+|--------------------|------------------|------------------|
+| &gt;= 1.4.0           | &gt;= 0.6           | &gt;= 0.6           |
+| &gt;= 1.3.1 &lt; 1.3.5   | &gt;= 0.4 &lt; 0.5     | &gt;= 0.4 &lt; 0.6     |
 
-Warnings: 0.4.x includes known memory issues from cvc5. 0.5 fixes them but is incompatible with 0.4.
+Notes:
+
+- **0.6 requires cvc5 &gt;= 1.4.0** and is incompatible with earlier cvc5 releases. cvc5 1.4.0
+  reference counts the objects its C API hands out, which lets 0.6 drop nearly all lifetime
+  parameters: a `Term`, `Sort`, `Statistics`, `SatResult`, `Proof` and so on may now outlive the
+  `TermManager` or `Solver` that produced it. 1.4.0 also made `configure.sh`'s build type a
+  required argument, so older cvc5 will not build with 0.6's build script.
+- 0.4.x inherits known memory issues from cvc5 (objects could be freed while still referenced).
+  0.5 fixes them by binding wrapper lifetimes to the owning arena, but is incompatible with 0.4.
 
 ## Prerequisites
 
-- cvc5 1.3.1 (included as a git submodule in `cvc5-sys/cvc5`; built automatically by `cvc5-sys` when the `static` feature is enabled)
+- cvc5 &gt;= 1.4.0 (pinned as a git submodule in `cvc5-sys/cvc5`; built automatically by `cvc5-sys` when the `static` feature is enabled)
 
 If building from source using the `static` feature, install:
 
@@ -48,14 +57,14 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cvc5 = "0.4"
+cvc5 = "0.6"
 ```
 
 Enable the `static` feature to statically link cvc5 and build it from source automatically:
 
 ```toml
 [dependencies]
-cvc5 = { version = "0.4", features = ["static"] }
+cvc5 = { version = "0.6", features = ["static"] }
 ```
 
 Without the `static` feature, cvc5 must be installed on the system or a path to shared library must be specified by
@@ -66,7 +75,7 @@ Enable the `parser` feature for SMT-LIB parsing support:
 
 ```toml
 [dependencies]
-cvc5 = { version = "0.4", features = ["static", "parser"] }
+cvc5 = { version = "0.6", features = ["static", "parser"] }
 ```
 
 An application can set `CVC5_DIR` in its `.cargo/config.toml` to point to a local cvc5 checkout

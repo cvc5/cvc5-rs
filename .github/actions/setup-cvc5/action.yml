@@ -40,7 +40,7 @@ runs:
       shell: bash
       run: |
         cd cvc5-sys/cvc5
-        ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
+        ./configure.sh unrestricted --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
         cd build
         make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
         make install
@@ -58,7 +58,7 @@ runs:
       shell: bash
       run: |
         cd cvc5-sys/cvc5
-        ./configure.sh --name=build-dynamic --auto-download --prefix=$(pwd)/build-dynamic/install -DBUILD_GMP=1
+        ./configure.sh unrestricted --name=build-dynamic --auto-download --prefix=$(pwd)/build-dynamic/install -DBUILD_GMP=1
         cd build-dynamic
         make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
         make install
