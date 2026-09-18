@@ -43,7 +43,7 @@ impl Statistics {
     ///
     /// - `internal` — include internal (non-public) statistics.
     /// - `dflt` — include statistics that still have their default value.
-    pub fn iter_init(&self, internal: bool, dflt: bool) {
+    pub fn iter_init(&mut self, internal: bool, dflt: bool) {
         unsafe { stats_iter_init(self.inner, internal, dflt) }
     }
 
@@ -51,7 +51,7 @@ impl Statistics {
     ///
     /// Fails if [`iter_init`](Self::iter_init) has not been called: cvc5 checks
     /// `d_iter != nullptr` and reports "iterator not initialized".
-    pub fn iter_has_next(&self) -> Result<bool> {
+    pub fn iter_has_next(&mut self) -> Result<bool> {
         let v = unsafe { stats_iter_has_next(self.inner) };
         checked(v, "iter_has_next")
     }
@@ -60,7 +60,7 @@ impl Statistics {
     ///
     /// Fails if [`iter_init`](Self::iter_init) has not been called, as
     /// [`iter_has_next`](Self::iter_has_next).
-    pub fn iter_next(&self) -> Result<(String, Stat)> {
+    pub fn iter_next(&mut self) -> Result<(String, Stat)> {
         let mut name: *const std::os::raw::c_char = std::ptr::null();
         let s = unsafe { stats_iter_next(self.inner, &mut name) };
         // `name` is only written on success, so gate on the error state before
@@ -72,7 +72,7 @@ impl Statistics {
     }
 
     /// Advance the iterator and return only the next [`Stat`], ignoring the name.
-    pub fn iter_next_stat(&self) -> Result<Stat> {
+    pub fn iter_next_stat(&mut self) -> Result<Stat> {
         Ok(self.iter_next()?.1)
     }
 }

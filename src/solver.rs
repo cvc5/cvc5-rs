@@ -198,7 +198,7 @@ impl Solver {
     /// Set the logic for this solver (e.g. `"QF_LIA"`).
     ///
     /// Fails if the logic is already set or is not a recognized logic.
-    pub fn set_logic(&self, logic: &str) -> Result<()> {
+    pub fn set_logic(&mut self, logic: &str) -> Result<()> {
         let c = CString::new(logic).unwrap();
         unsafe { set_logic(self.inner, c.as_ptr()) };
         checked((), "set_logic")
@@ -222,7 +222,7 @@ impl Solver {
     ///
     /// Fails on an unrecognized option, an invalid value, or if the option
     /// cannot be set at this point in the session.
-    pub fn set_option(&self, option: &str, value: &str) -> Result<()> {
+    pub fn set_option(&mut self, option: &str, value: &str) -> Result<()> {
         let o = CString::new(option).unwrap();
         let v = CString::new(value).unwrap();
         unsafe { set_option(self.inner, o.as_ptr(), v.as_ptr()) };
@@ -250,7 +250,7 @@ impl Solver {
     }
 
     /// Set solver information (SMT-LIB `set-info`).
-    pub fn set_info(&self, keyword: &str, value: &str) -> Result<()> {
+    pub fn set_info(&mut self, keyword: &str, value: &str) -> Result<()> {
         let k = CString::new(keyword).unwrap();
         let v = CString::new(value).unwrap();
         unsafe { set_info(self.inner, k.as_ptr(), v.as_ptr()) };
@@ -268,7 +268,7 @@ impl Solver {
     // ── Assertions & checking ──────────────────────────────────────
 
     /// Assert a formula to the solver.
-    pub fn assert_formula(&self, term: Term) -> Result<()> {
+    pub fn assert_formula(&mut self, term: Term) -> Result<()> {
         unsafe { assert_formula(self.inner, term.inner) };
         checked((), "assert_formula")
     }
@@ -276,7 +276,7 @@ impl Solver {
     /// Check satisfiability of the current assertions.
     ///
     /// Fails on a second query unless incremental solving is enabled.
-    pub fn check_sat(&self) -> Result<SatResult> {
+    pub fn check_sat(&mut self) -> Result<SatResult> {
         let raw = unsafe { check_sat(self.inner) };
         let raw = checked(raw, "check_sat")?;
         Ok(SatResult::from_raw(raw))
@@ -285,7 +285,7 @@ impl Solver {
     /// Check satisfiability under the given assumptions.
     ///
     /// Fails on a second query unless incremental solving is enabled.
-    pub fn check_sat_assuming(&self, assumptions: &[Term]) -> Result<SatResult> {
+    pub fn check_sat_assuming(&mut self, assumptions: &[Term]) -> Result<SatResult> {
         let raw: Vec<cvc5_sys::Term> = assumptions.iter().map(|t| t.inner).collect();
         let res = unsafe { check_sat_assuming(self.inner, raw.len(), raw.as_ptr()) };
         let res = checked(res, "check_sat_assuming")?;
@@ -372,13 +372,13 @@ impl Solver {
     /// Block the current model using the given mode.
     ///
     /// Fails unless model generation is enabled.
-    pub fn block_model(&self, mode: cvc5_sys::BlockModelsMode) -> Result<()> {
+    pub fn block_model(&mut self, mode: cvc5_sys::BlockModelsMode) -> Result<()> {
         unsafe { block_model(self.inner, mode) };
         checked((), "block_model")
     }
 
     /// Block the current model values for the given terms.
-    pub fn block_model_values(&self, terms: &[Term]) -> Result<()> {
+    pub fn block_model_values(&mut self, terms: &[Term]) -> Result<()> {
         let raw: Vec<cvc5_sys::Term> = terms.iter().map(|t| t.inner).collect();
         unsafe { block_model_values(self.inner, raw.len(), raw.as_ptr()) };
         checked((), "block_model_values")
@@ -387,7 +387,7 @@ impl Solver {
     // ── Declarations ───────────────────────────────────────────────
 
     /// Declare a function (SMT-LIB `declare-fun`).
-    pub fn declare_fun(&self, name: &str, domain: &[Sort], codomain: Sort) -> Result<Term> {
+    pub fn declare_fun(&mut self, name: &str, domain: &[Sort], codomain: Sort) -> Result<Term> {
         let c = CString::new(name).unwrap();
         let raw: Vec<cvc5_sys::Sort> = domain.iter().map(|s| s.inner).collect();
         let raw = unsafe {
@@ -404,13 +404,13 @@ impl Solver {
     }
 
     /// Declare an uninterpreted sort (SMT-LIB `declare-sort`).
-    pub fn declare_sort(&self, name: &str, arity: u32) -> Sort {
+    pub fn declare_sort(&mut self, name: &str, arity: u32) -> Sort {
         let c = CString::new(name).unwrap();
         Sort::from_raw(unsafe { declare_sort(self.inner, c.as_ptr(), arity, true) })
     }
 
     /// Declare a datatype from constructor declarations.
-    pub fn declare_dt(&self, symbol: &str, ctors: &[DatatypeConstructorDecl]) -> Result<Sort> {
+    pub fn declare_dt(&mut self, symbol: &str, ctors: &[DatatypeConstructorDecl]) -> Result<Sort> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<cvc5_sys::DatatypeConstructorDecl> = ctors.iter().map(|d| d.inner).collect();
         let raw = unsafe { declare_dt(self.inner, c.as_ptr(), raw.len(), raw.as_ptr()) };
@@ -421,7 +421,7 @@ impl Solver {
 
     /// Define a function (SMT-LIB `define-fun`).
     pub fn define_fun(
-        &self,
+        &mut self,
         symbol: &str,
         vars: &[Term],
         sort: Sort,
@@ -446,7 +446,7 @@ impl Solver {
 
     /// Define a recursive function (SMT-LIB `define-fun-rec`).
     pub fn define_fun_rec(
-        &self,
+        &mut self,
         symbol: &str,
         vars: &[Term],
         sort: Sort,
@@ -471,7 +471,7 @@ impl Solver {
 
     /// Define a recursive function from a previously declared constant.
     pub fn define_fun_rec_from_const(
-        &self,
+        &mut self,
         fun: Term,
         vars: &[Term],
         term: Term,
@@ -494,17 +494,17 @@ impl Solver {
     // ── Scope management ───────────────────────────────────────────
 
     /// Push `n` assertion scope levels.
-    pub fn push(&self, n: u32) -> Result<()> {
+    pub fn push(&mut self, n: u32) -> Result<()> {
         unsafe { push(self.inner, n) };
         checked((), "push")
     }
     /// Pop `n` assertion scope levels.
-    pub fn pop(&self, n: u32) -> Result<()> {
+    pub fn pop(&mut self, n: u32) -> Result<()> {
         unsafe { pop(self.inner, n) };
         checked((), "pop")
     }
     /// Remove all assertions and reset the scope.
-    pub fn reset_assertions(&self) {
+    pub fn reset_assertions(&mut self) {
         unsafe { reset_assertions(self.inner) }
     }
 
@@ -615,7 +615,7 @@ impl Solver {
     // ── Timeout core ───────────────────────────────────────────────
 
     /// Get a timeout core: a minimal subset of assertions causing a timeout.
-    pub fn get_timeout_core(&self) -> Result<(SatResult, Vec<Term>)> {
+    pub fn get_timeout_core(&mut self) -> Result<(SatResult, Vec<Term>)> {
         let mut result: cvc5_sys::Result = std::ptr::null_mut();
         let mut size = 0usize;
         let ptr = unsafe { get_timeout_core(self.inner, &mut result, &mut size) };
@@ -629,7 +629,7 @@ impl Solver {
 
     /// Get a timeout core under the given assumptions.
     pub fn get_timeout_core_assuming(
-        &self,
+        &mut self,
         assumptions: &[Term],
     ) -> Result<(SatResult, Vec<Term>)> {
         let raw: Vec<cvc5_sys::Term> = assumptions.iter().map(|t| t.inner).collect();
@@ -649,13 +649,13 @@ impl Solver {
     // ── Quantifier elimination ─────────────────────────────────────
 
     /// Perform quantifier elimination on the given formula.
-    pub fn get_quantifier_elimination(&self, q: Term) -> Result<Term> {
+    pub fn get_quantifier_elimination(&mut self, q: Term) -> Result<Term> {
         let raw = unsafe { get_quantifier_elimination(self.inner, q.inner) };
         wrap(raw, "get_quantifier_elimination")
     }
 
     /// Perform partial quantifier elimination, returning a single disjunct.
-    pub fn get_quantifier_elimination_disjunct(&self, q: Term) -> Result<Term> {
+    pub fn get_quantifier_elimination_disjunct(&mut self, q: Term) -> Result<Term> {
         let raw = unsafe { get_quantifier_elimination_disjunct(self.inner, q.inner) };
         wrap(raw, "get_quantifier_elimination_disjunct")
     }
@@ -663,7 +663,7 @@ impl Solver {
     // ── Separation logic ───────────────────────────────────────────
 
     /// Declare the heap sorts for separation logic.
-    pub fn declare_sep_heap(&self, loc: Sort, data: Sort) -> Result<()> {
+    pub fn declare_sep_heap(&mut self, loc: Sort, data: Sort) -> Result<()> {
         unsafe { declare_sep_heap(self.inner, loc.inner, data.inner) };
         checked((), "declare_sep_heap")
     }
@@ -683,7 +683,7 @@ impl Solver {
     // ── Pools ──────────────────────────────────────────────────────
 
     /// Declare a term pool with the given initial values.
-    pub fn declare_pool(&self, symbol: &str, sort: Sort, init_value: &[Term]) -> Result<Term> {
+    pub fn declare_pool(&mut self, symbol: &str, sort: Sort, init_value: &[Term]) -> Result<Term> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<cvc5_sys::Term> = init_value.iter().map(|t| t.inner).collect();
         let raw =
@@ -696,7 +696,7 @@ impl Solver {
     /// Compute an interpolant for the given conjecture.
     ///
     /// Returns `None` if no interpolant exists.
-    pub fn get_interpolant(&self, conj: Term) -> Result<Option<Term>> {
+    pub fn get_interpolant(&mut self, conj: Term) -> Result<Option<Term>> {
         let raw = unsafe { get_interpolant(self.inner, conj.inner) };
         let raw = checked(raw, "get_interpolant")?;
         Ok((!raw.is_null()).then(|| Term::from_raw(raw)))
@@ -706,7 +706,7 @@ impl Solver {
     ///
     /// Returns `None` if no interpolant exists.
     pub fn get_interpolant_with_grammar(
-        &self,
+        &mut self,
         conj: Term,
         grammar: &Grammar,
     ) -> Result<Option<Term>> {
@@ -718,7 +718,7 @@ impl Solver {
     /// Get the next interpolant (after a previous `get_interpolant` call).
     ///
     /// Returns `None` if no further interpolant can be found.
-    pub fn get_interpolant_next(&self) -> Result<Option<Term>> {
+    pub fn get_interpolant_next(&mut self) -> Result<Option<Term>> {
         let raw = unsafe { get_interpolant_next(self.inner) };
         let raw = checked(raw, "get_interpolant_next")?;
         Ok((!raw.is_null()).then(|| Term::from_raw(raw)))
@@ -729,7 +729,7 @@ impl Solver {
     /// Compute an abduct for the given conjecture.
     ///
     /// Returns `None` if no abduct can be found.
-    pub fn get_abduct(&self, conj: Term) -> Result<Option<Term>> {
+    pub fn get_abduct(&mut self, conj: Term) -> Result<Option<Term>> {
         let raw = unsafe { get_abduct(self.inner, conj.inner) };
         let raw = checked(raw, "get_abduct")?;
         Ok((!raw.is_null()).then(|| Term::from_raw(raw)))
@@ -738,7 +738,11 @@ impl Solver {
     /// Compute an abduct constrained by the given grammar.
     ///
     /// Returns `None` if no abduct can be found.
-    pub fn get_abduct_with_grammar(&self, conj: Term, grammar: &Grammar) -> Result<Option<Term>> {
+    pub fn get_abduct_with_grammar(
+        &mut self,
+        conj: Term,
+        grammar: &Grammar,
+    ) -> Result<Option<Term>> {
         let raw = unsafe { get_abduct_with_grammar(self.inner, conj.inner, grammar.inner) };
         let raw = checked(raw, "get_abduct_with_grammar")?;
         Ok((!raw.is_null()).then(|| Term::from_raw(raw)))
@@ -747,7 +751,7 @@ impl Solver {
     /// Get the next abduct (after a previous `get_abduct` call).
     ///
     /// Returns `None` if no further abduct can be found.
-    pub fn get_abduct_next(&self) -> Result<Option<Term>> {
+    pub fn get_abduct_next(&mut self) -> Result<Option<Term>> {
         let raw = unsafe { get_abduct_next(self.inner) };
         let raw = checked(raw, "get_abduct_next")?;
         Ok((!raw.is_null()).then(|| Term::from_raw(raw)))
@@ -765,7 +769,7 @@ impl Solver {
     // ── SyGuS ──────────────────────────────────────────────────────
 
     /// Declare a SyGuS variable.
-    pub fn declare_sygus_var(&self, symbol: &str, sort: Sort) -> Result<Term> {
+    pub fn declare_sygus_var(&mut self, symbol: &str, sort: Sort) -> Result<Term> {
         let c = CString::new(symbol).unwrap();
         let raw = unsafe { declare_sygus_var(self.inner, c.as_ptr(), sort.inner) };
         wrap(raw, "declare_sygus_var")
@@ -780,7 +784,7 @@ impl Solver {
     }
 
     /// Declare a function to synthesize (SyGuS `synth-fun`).
-    pub fn synth_fun(&self, symbol: &str, bound_vars: &[Term], sort: Sort) -> Result<Term> {
+    pub fn synth_fun(&mut self, symbol: &str, bound_vars: &[Term], sort: Sort) -> Result<Term> {
         let c = CString::new(symbol).unwrap();
         let raw: Vec<cvc5_sys::Term> = bound_vars.iter().map(|t| t.inner).collect();
         let raw = unsafe { synth_fun(self.inner, c.as_ptr(), raw.len(), raw.as_ptr(), sort.inner) };
@@ -789,7 +793,7 @@ impl Solver {
 
     /// Declare a function to synthesize with a grammar constraint.
     pub fn synth_fun_with_grammar(
-        &self,
+        &mut self,
         symbol: &str,
         bound_vars: &[Term],
         sort: Sort,
@@ -811,7 +815,7 @@ impl Solver {
     }
 
     /// Add a SyGuS constraint.
-    pub fn add_sygus_constraint(&self, term: Term) -> Result<()> {
+    pub fn add_sygus_constraint(&mut self, term: Term) -> Result<()> {
         unsafe { add_sygus_constraint(self.inner, term.inner) };
         checked((), "add_sygus_constraint")
     }
@@ -827,7 +831,7 @@ impl Solver {
     }
 
     /// Add a SyGuS assumption.
-    pub fn add_sygus_assume(&self, term: Term) -> Result<()> {
+    pub fn add_sygus_assume(&mut self, term: Term) -> Result<()> {
         unsafe { add_sygus_assume(self.inner, term.inner) };
         checked((), "add_sygus_assume")
     }
@@ -844,7 +848,7 @@ impl Solver {
 
     /// Add a SyGuS invariant constraint.
     pub fn add_sygus_inv_constraint(
-        &self,
+        &mut self,
         inv: Term,
         pre: Term,
         trans: Term,
@@ -857,13 +861,13 @@ impl Solver {
     }
 
     /// Check for a synthesis solution.
-    pub fn check_synth(&self) -> Result<SynthResult> {
+    pub fn check_synth(&mut self) -> Result<SynthResult> {
         let raw = unsafe { check_synth(self.inner) };
         wrap(raw, "check_synth")
     }
 
     /// Get the next synthesis solution.
-    pub fn check_synth_next(&self) -> Result<SynthResult> {
+    pub fn check_synth_next(&mut self) -> Result<SynthResult> {
         let raw = unsafe { check_synth_next(self.inner) };
         wrap(raw, "check_synth_next")
     }
@@ -899,7 +903,7 @@ impl Solver {
     /// Find a synthesis target of the given type.
     ///
     /// Returns `None` if the call failed.
-    pub fn find_synth(&self, target: cvc5_sys::FindSynthTarget) -> Result<Option<Term>> {
+    pub fn find_synth(&mut self, target: cvc5_sys::FindSynthTarget) -> Result<Option<Term>> {
         let raw = unsafe { find_synth(self.inner, target) };
         let raw = checked(raw, "find_synth")?;
         Ok((!raw.is_null()).then(|| Term::from_raw(raw)))
@@ -909,7 +913,7 @@ impl Solver {
     ///
     /// Returns `None` if the call failed.
     pub fn find_synth_with_grammar(
-        &self,
+        &mut self,
         target: cvc5_sys::FindSynthTarget,
         grammar: &Grammar,
     ) -> Result<Option<Term>> {
@@ -921,7 +925,7 @@ impl Solver {
     /// Get the next synthesis target.
     ///
     /// Returns `None` if the call failed.
-    pub fn find_synth_next(&self) -> Option<Term> {
+    pub fn find_synth_next(&mut self) -> Option<Term> {
         let raw = unsafe { find_synth_next(self.inner) };
         (!raw.is_null()).then(|| Term::from_raw(raw))
     }
@@ -930,7 +934,7 @@ impl Solver {
 
     /// Define mutually recursive functions.
     pub fn define_funs_rec(
-        &self,
+        &mut self,
         funs: &[Term],
         vars: &[&[Term]],
         terms: &[Term],
@@ -964,7 +968,7 @@ impl Solver {
     /// Redirect solver output for the given tag to a file.
     /// Fails on an unrecognized output tag: `Solver::getOutput` converts the
     /// underlying `OptionException` into `CVC5ApiException("invalid output tag")`.
-    pub fn get_output(&self, tag: &str, filename: &str) -> Result<()> {
+    pub fn get_output(&mut self, tag: &str, filename: &str) -> Result<()> {
         let t = CString::new(tag).unwrap();
         let f = CString::new(filename).unwrap();
         unsafe { get_output(self.inner, t.as_ptr(), f.as_ptr()) };
@@ -972,7 +976,7 @@ impl Solver {
     }
 
     /// Close a previously opened output file.
-    pub fn close_output(&self, filename: &str) {
+    pub fn close_output(&mut self, filename: &str) {
         let f = CString::new(filename).unwrap();
         unsafe { close_output(self.inner, f.as_ptr()) }
     }
@@ -1011,7 +1015,7 @@ impl Solver {
     // ── Plugin ─────────────────────────────────────────────────────
 
     /// Add a plugin to the solver.
-    pub fn add_plugin(&self, plugin: &mut cvc5_sys::Plugin) {
+    pub fn add_plugin(&mut self, plugin: &mut cvc5_sys::Plugin) {
         unsafe { add_plugin(self.inner, plugin) }
     }
 

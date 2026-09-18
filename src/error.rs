@@ -9,7 +9,7 @@
 //! ```no_run
 //! use cvc5::{Solver, TermManager};
 //!
-//! let tm = TermManager::new();
+//! let mut tm = TermManager::new();
 //! let mut solver = Solver::new(&tm);
 //! solver.set_logic("QF_LIA").unwrap();
 //!

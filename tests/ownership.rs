@@ -30,7 +30,7 @@ use cvc5::{InputParser, Kind, Solver, SymbolManager, TermManager};
 #[test]
 fn terms_and_sorts_outlive_the_term_manager() {
     let (t, s) = {
-        let tm = TermManager::new();
+        let mut tm = TermManager::new();
         let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
         let zero = tm.mk_integer(0);
         (tm.mk_term(Kind::Gt, &[x, zero]).unwrap(), tm.integer_sort())
@@ -45,7 +45,7 @@ fn terms_and_sorts_outlive_the_term_manager() {
 #[test]
 fn ops_and_datatypes_outlive_the_term_manager() {
     let (op, sort) = {
-        let tm = TermManager::new();
+        let mut tm = TermManager::new();
         let op = tm
             .mk_op(Kind::BitvectorExtract, &[3, 0])
             .expect("extract op");
@@ -65,13 +65,13 @@ fn ops_and_datatypes_outlive_the_term_manager() {
 
 #[test]
 fn statistics_outlive_the_term_manager() {
-    let (stats, one) = {
+    let (mut stats, one) = {
         let tm = TermManager::new();
-        let solver = Solver::new(&tm);
+        let mut solver = Solver::new(&tm);
         solver.set_option("stats", "true").unwrap();
         solver.set_logic("QF_LIA").unwrap();
         assert!(solver.check_sat().unwrap().is_sat());
-        let stats = solver.get_statistics();
+        let mut stats = solver.get_statistics();
         stats.iter_init(true, true);
         let one = stats.iter_next().unwrap();
         (stats, one)
@@ -87,9 +87,9 @@ fn statistics_outlive_the_term_manager() {
 
 #[test]
 fn sat_result_outlives_the_solver() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let r = {
-        let solver = Solver::new(&tm);
+        let mut solver = Solver::new(&tm);
         solver.set_logic("QF_LIA").unwrap();
         let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
         let zero = tm.mk_integer(0);
@@ -107,9 +107,9 @@ fn sat_result_outlives_the_solver() {
 
 #[test]
 fn proof_outlives_the_solver() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let (proofs, children) = {
-        let solver = Solver::new(&tm);
+        let mut solver = Solver::new(&tm);
         solver.set_logic("QF_UF").unwrap();
         solver.set_option("produce-proofs", "true").unwrap();
         let b = tm.boolean_sort();
@@ -137,9 +137,9 @@ fn proof_outlives_the_solver() {
 
 #[test]
 fn synth_result_and_grammar_outlive_the_solver() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let (sr, g) = {
-        let solver = Solver::new(&tm);
+        let mut solver = Solver::new(&tm);
         solver.set_option("sygus", "true").unwrap();
         let int = tm.integer_sort();
         let start = tm.mk_var(int.clone(), "start").unwrap();
@@ -163,11 +163,11 @@ fn synth_result_and_grammar_outlive_the_solver() {
 #[test]
 fn commands_outlive_the_parser() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
-    let sm = SymbolManager::new(&tm);
+    let mut solver = Solver::new(&tm);
+    let mut sm = SymbolManager::new(&tm);
 
     let cmds: Vec<_> = {
-        let mut parser = InputParser::new(&solver, &sm);
+        let mut parser = InputParser::new(&mut solver, &mut sm);
         parser
             .set_str_input(
                 cvc5_sys::InputLanguage::SmtLib26,
@@ -187,7 +187,7 @@ fn commands_outlive_the_parser() {
     assert_eq!(cmds[0].name(), "set-logic");
     // Invoking after the parser is gone: the command holds the parser alive.
     for c in &cmds {
-        c.invoke(&solver, &sm).unwrap();
+        c.invoke(&mut solver, &mut sm).unwrap();
     }
 }
 
@@ -195,7 +195,7 @@ fn commands_outlive_the_parser() {
 
 #[test]
 fn solver_and_symbol_manager_outlive_the_term_manager() {
-    let (solver, sm) = {
+    let (mut solver, sm) = {
         let tm = TermManager::new();
         (Solver::new(&tm), SymbolManager::new(&tm))
     };
@@ -208,7 +208,7 @@ fn solver_and_symbol_manager_outlive_the_term_manager() {
 /// whichever order that happens in.
 #[test]
 fn arena_survives_arbitrary_drop_order() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let a = tm.mk_true();
     let b = tm.mk_false();
     drop(a);
@@ -225,7 +225,7 @@ fn arena_survives_arbitrary_drop_order() {
 #[test]
 fn arenas_are_reclaimed_across_many_generations() {
     for _ in 0..200 {
-        let tm = TermManager::new();
+        let mut tm = TermManager::new();
         let terms: Vec<_> = (0..50).map(|i| tm.mk_integer(i)).collect();
         drop(tm);
         assert_eq!(terms[49].int64_value().unwrap(), 49);

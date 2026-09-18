@@ -19,7 +19,7 @@ use crate::ffi::{checked, cstr_or_empty, non_null, raw_slice, wrap};
 /// ```
 /// use cvc5::TermManager;
 /// let s = {
-///     let tm = TermManager::new();
+///     let mut tm = TermManager::new();
 ///     tm.boolean_sort()
 /// };
 /// assert!(s.is_boolean());

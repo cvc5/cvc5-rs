@@ -6,8 +6,12 @@ use cvc5::{
 /// Helper: create a TermManager + Solver pair with common setup.
 macro_rules! setup {
     ($tm:ident, $solver:ident, $logic:expr) => {
-        let $tm = TermManager::new();
-        let $solver = Solver::new(&$tm);
+        // Both are `mut` because most callers mutate them; the ones that only
+        // read would otherwise each need their own `#[allow]`.
+        #[allow(unused_mut)]
+        let mut $tm = TermManager::new();
+        #[allow(unused_mut)]
+        let mut $solver = Solver::new(&$tm);
         $solver.set_logic($logic).unwrap();
         $solver.set_option("produce-models", "true").unwrap();
     };
@@ -116,8 +120,8 @@ fn qf_lra_sat() {
 
 #[test]
 fn boolean_sat() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_UF").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -170,8 +174,8 @@ fn push_pop() {
 
 #[test]
 fn check_sat_assuming() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver
         .set_option("produce-unsat-assumptions", "true")
         .unwrap();
@@ -199,8 +203,8 @@ fn check_sat_assuming() {
 
 #[test]
 fn unsat_core() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_UF").unwrap();
     solver.set_option("produce-unsat-cores", "true").unwrap();
 
@@ -272,7 +276,7 @@ fn simple_datatype() {
 #[test]
 fn solver_config() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
 
     assert!(solver.is_logic_set());
@@ -299,7 +303,7 @@ fn result_display() {
 fn result_full_api() {
     // sat result
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     let sat = solver.check_sat().unwrap();
     assert!(sat.is_sat());
@@ -319,8 +323,8 @@ fn result_full_api() {
     set.insert(sat2);
 
     // unsat result — compare with sat
-    let tm2 = TermManager::new();
-    let solver2 = Solver::new(&tm2);
+    let mut tm2 = TermManager::new();
+    let mut solver2 = Solver::new(&tm2);
     solver2.set_logic("QF_LIA").unwrap();
     let b = tm2.boolean_sort();
     let a = tm2.mk_const(b.clone(), "a").unwrap();
@@ -333,8 +337,8 @@ fn result_full_api() {
     assert_ne!(sat, unsat);
 
     // unknown result
-    let tm3 = TermManager::new();
-    let solver3 = Solver::new(&tm3);
+    let mut tm3 = TermManager::new();
+    let mut solver3 = Solver::new(&tm3);
     solver3.set_logic("QF_NIA").unwrap();
     solver3.set_option("tlimit-per", "1").unwrap();
     let int = tm3.integer_sort();
@@ -343,15 +347,10 @@ fn result_full_api() {
     let z = tm3.mk_const(int, "z").unwrap();
     // Fermat-like: x^3 + y^3 = z^3, x,y,z > 1 — likely times out
     let two = tm3.mk_integer(2);
-    let x3 = tm3
-        .mk_term(Kind::Pow, &[x.clone(), tm3.mk_integer(3)])
-        .unwrap();
-    let y3 = tm3
-        .mk_term(Kind::Pow, &[y.clone(), tm3.mk_integer(3)])
-        .unwrap();
-    let z3 = tm3
-        .mk_term(Kind::Pow, &[z.clone(), tm3.mk_integer(3)])
-        .unwrap();
+    let three = tm3.mk_integer(3);
+    let x3 = tm3.mk_term(Kind::Pow, &[x.clone(), three.clone()]).unwrap();
+    let y3 = tm3.mk_term(Kind::Pow, &[y.clone(), three.clone()]).unwrap();
+    let z3 = tm3.mk_term(Kind::Pow, &[z.clone(), three]).unwrap();
     let sum = tm3.mk_term(Kind::Add, &[x3, y3]).unwrap();
     solver3
         .assert_formula(tm3.mk_term(Kind::Equal, &[sum, z3]).unwrap())
@@ -377,9 +376,9 @@ fn result_full_api() {
 
 #[test]
 fn multiple_solvers() {
-    let tm = TermManager::new();
-    let s1 = Solver::new(&tm);
-    let s2 = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut s1 = Solver::new(&tm);
+    let mut s2 = Solver::new(&tm);
 
     s1.set_logic("QF_LIA").unwrap();
     s2.set_logic("QF_LIA").unwrap();
@@ -402,7 +401,7 @@ fn multiple_solvers() {
 
 #[test]
 fn op_bv_extract() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let op = tm.mk_op(Kind::BitvectorExtract, &[3, 1]).unwrap();
     assert_eq!(op.kind(), Kind::BitvectorExtract);
     assert!(op.is_indexed());
@@ -434,8 +433,8 @@ fn op_bv_extract() {
 
 #[test]
 fn proof_basic() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_UF").unwrap();
     solver.set_option("produce-proofs", "true").unwrap();
 
@@ -477,8 +476,8 @@ fn proof_basic() {
 
 #[test]
 fn statistics_basic() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     let int = tm.integer_sort();
     let x = tm.mk_const(int, "x").unwrap();
@@ -486,7 +485,7 @@ fn statistics_basic() {
     let gt = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
     solver.assert_formula(gt).unwrap();
     solver.check_sat().unwrap();
-    let stats = solver.get_statistics();
+    let mut stats = solver.get_statistics();
     let display = format!("{stats}");
     assert!(!display.is_empty());
     let debug = format!("{stats:?}");
@@ -512,8 +511,8 @@ fn statistics_basic() {
 
 #[test]
 fn synth_result_basic() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("LIA").unwrap();
     solver.set_option("sygus", "true").unwrap();
 
@@ -555,8 +554,8 @@ fn synth_result_basic() {
 
 #[test]
 fn grammar_basic() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("LIA").unwrap();
     solver.set_option("sygus", "true").unwrap();
 
@@ -595,7 +594,7 @@ fn grammar_basic() {
 
 #[test]
 fn sort_type_predicates() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
 
     assert!(tm.boolean_sort().is_boolean());
     assert!(!tm.boolean_sort().is_integer());
@@ -654,7 +653,7 @@ fn sort_type_predicates() {
 
 #[test]
 fn sort_bv_size() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     assert_eq!(tm.mk_bv_sort(1).unwrap().bv_size().unwrap(), 1);
     assert_eq!(tm.mk_bv_sort(64).unwrap().bv_size().unwrap(), 64);
 }
@@ -663,7 +662,7 @@ fn sort_bv_size() {
 
 #[test]
 fn sort_fp_sizes() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let fp = tm.mk_fp_sort(8, 24).unwrap();
     assert_eq!(fp.fp_exponent_size().unwrap(), 8);
     assert_eq!(fp.fp_significand_size().unwrap(), 24);
@@ -673,7 +672,7 @@ fn sort_fp_sizes() {
 
 #[test]
 fn sort_ff_size() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let ff = tm.mk_ff_sort("7", 10).unwrap();
     assert_eq!(ff.ff_size().unwrap(), "7");
 }
@@ -682,7 +681,7 @@ fn sort_ff_size() {
 
 #[test]
 fn sort_array_accessors() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let idx = tm.integer_sort();
     let elem = tm.boolean_sort();
     let arr = tm.mk_array_sort(idx.clone(), elem.clone()).unwrap();
@@ -694,7 +693,7 @@ fn sort_array_accessors() {
 
 #[test]
 fn sort_collection_element_sorts() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let int = tm.integer_sort();
 
     assert_eq!(
@@ -724,7 +723,7 @@ fn sort_collection_element_sorts() {
 
 #[test]
 fn sort_tuple_accessors() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let int = tm.integer_sort();
     let bool_s = tm.boolean_sort();
     let tup = tm.mk_tuple_sort(&[int.clone(), bool_s.clone()]).unwrap();
@@ -739,7 +738,7 @@ fn sort_tuple_accessors() {
 
 #[test]
 fn sort_nullable_element() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let int = tm.integer_sort();
     let nullable = tm.mk_nullable_sort(int.clone()).unwrap();
     assert_eq!(nullable.nullable_element_sort().unwrap(), int);
@@ -749,7 +748,7 @@ fn sort_nullable_element() {
 
 #[test]
 fn sort_fun_accessors() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let int = tm.integer_sort();
     let bool_s = tm.boolean_sort();
     let fun = tm
@@ -766,8 +765,8 @@ fn sort_fun_accessors() {
 
 #[test]
 fn sort_dt_accessors() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("ALL").unwrap();
 
     // Pair(fst: Int, snd: Bool)
@@ -808,7 +807,7 @@ fn sort_dt_accessors() {
 
 #[test]
 fn sort_uninterpreted() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let u = tm.mk_uninterpreted_sort("U");
     assert!(u.is_uninterpreted_sort());
     assert!(u.has_symbol());
@@ -820,7 +819,7 @@ fn sort_uninterpreted() {
 
 #[test]
 fn sort_uninterpreted_sort_constructor() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let usc = tm
         .mk_uninterpreted_sort_constructor_sort(2, "List")
         .unwrap();
@@ -904,7 +903,7 @@ fn sort_kind() {
 
 #[test]
 fn sort_substitute() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let p = tm.mk_param_sort("T");
     let arr = tm.mk_array_sort(p.clone(), p.clone()).unwrap();
     let subst = arr.substitute(p.clone(), tm.integer_sort()).unwrap();
@@ -917,7 +916,7 @@ fn sort_substitute() {
 
 #[test]
 fn sort_substitute_sorts() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let t = tm.mk_param_sort("T");
     let u = tm.mk_param_sort("U");
     let arr = tm.mk_array_sort(t.clone(), u.clone()).unwrap();
@@ -932,7 +931,7 @@ fn sort_substitute_sorts() {
 
 #[test]
 fn sort_record() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let rec = tm
         .mk_record_sort(&["x", "y"], &[tm.integer_sort(), tm.boolean_sort()])
         .unwrap();
@@ -944,7 +943,7 @@ fn sort_record() {
 
 #[test]
 fn sort_abstract() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let abs = tm.mk_abstract_sort(SortKind::BitvectorSort).unwrap();
     assert!(abs.is_abstract());
     assert_eq!(abs.abstract_kind().unwrap(), SortKind::BitvectorSort);
@@ -974,8 +973,8 @@ fn sort_builtin_no_symbol() {
 
 #[test]
 fn dt_properties() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("ALL").unwrap();
 
     let color_sort = solver
@@ -1002,8 +1001,8 @@ fn dt_properties() {
 
 #[test]
 fn dt_copy_eq_hash_display() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("ALL").unwrap();
 
     let sort = solver
@@ -1028,8 +1027,8 @@ fn dt_copy_eq_hash_display() {
 
 #[test]
 fn dt_constructor_by_name() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("ALL").unwrap();
 
     let sort = solver
@@ -1046,8 +1045,8 @@ fn dt_constructor_by_name() {
 
 #[test]
 fn dt_selector_by_name_on_datatype() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("ALL").unwrap();
 
     let mut cons = tm.mk_dt_cons_decl("Wrap");
@@ -1064,8 +1063,8 @@ fn dt_selector_by_name_on_datatype() {
 
 #[test]
 fn dt_constructor_api() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("ALL").unwrap();
 
     let mut cons = tm.mk_dt_cons_decl("Pair");
@@ -1113,8 +1112,8 @@ fn dt_constructor_api() {
 
 #[test]
 fn dt_selector_api() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("ALL").unwrap();
 
     let mut cons = tm.mk_dt_cons_decl("Box");
@@ -1158,7 +1157,7 @@ fn dt_selector_api() {
 
 #[test]
 fn dt_decl_manual() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
 
     let mut decl = tm.mk_dt_decl("Maybe", false);
     assert_eq!(decl.name(), "Maybe");
@@ -1202,7 +1201,7 @@ fn dt_decl_manual() {
 
 #[test]
 fn dt_cons_decl_traits() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let c1 = tm.mk_dt_cons_decl("Foo");
     let c2 = c1.clone();
     assert_eq!(c1, c2);
@@ -1222,7 +1221,7 @@ fn dt_cons_decl_traits() {
 
 #[test]
 fn dt_recursive_self_selector() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
 
     let nil = tm.mk_dt_cons_decl("Nil");
     let mut cons = tm.mk_dt_cons_decl("Cons");
@@ -1249,7 +1248,7 @@ fn dt_recursive_self_selector() {
 
 #[test]
 fn dt_mutual_recursion() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
 
     // Tree = Leaf(Int) | Node(Forest)
     // Forest = Empty | Cons(Tree, Forest)
@@ -1284,7 +1283,7 @@ fn dt_mutual_recursion() {
 
 #[test]
 fn dt_parametric() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
 
     let t = tm.mk_param_sort("T");
     let mut decl = tm
@@ -1320,7 +1319,7 @@ fn dt_parametric() {
 
 #[test]
 fn dt_tuple() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let tup_sort = tm
         .mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()])
         .unwrap();
@@ -1334,7 +1333,7 @@ fn dt_tuple() {
 
 #[test]
 fn dt_record() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let rec_sort = tm
         .mk_record_sort(&["x", "y"], &[tm.integer_sort(), tm.boolean_sort()])
         .unwrap();
@@ -1349,8 +1348,8 @@ fn dt_record() {
 
 #[test]
 fn dt_solving_with_selectors() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("ALL").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -1406,7 +1405,7 @@ fn dt_solving_with_selectors() {
 
 #[test]
 fn term_kind_sort_id() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     assert_eq!(x.kind(), Kind::Constant);
     assert!(x.sort().is_integer());
@@ -1424,7 +1423,7 @@ fn term_kind_sort_id() {
 
 #[test]
 fn term_children() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
     let add = tm.mk_term(Kind::Add, &[x.clone(), y.clone()]).unwrap();
@@ -1437,7 +1436,7 @@ fn term_children() {
 
 #[test]
 fn term_symbol() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     assert!(x.has_symbol());
     assert_eq!(x.symbol().unwrap(), "x");
@@ -1450,7 +1449,7 @@ fn term_symbol() {
 
 #[test]
 fn term_op() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let bv8 = tm.mk_bv_sort(8).unwrap();
     let x = tm.mk_const(bv8, "x").unwrap();
     let op = tm.mk_op(Kind::BitvectorExtract, &[3, 0]).unwrap();
@@ -1467,7 +1466,7 @@ fn term_op() {
 
 #[test]
 fn term_copy_eq_diseq() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let x2 = x.copy();
     assert_eq!(x, x2);
@@ -1485,7 +1484,7 @@ fn term_copy_eq_diseq() {
 
 #[test]
 fn term_display_debug() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let s = format!("{x}");
     assert!(s.contains("x"));
@@ -1497,7 +1496,7 @@ fn term_display_debug() {
 
 #[test]
 fn term_hash() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let mut set = std::collections::HashSet::new();
     set.insert(x.clone());
@@ -1513,7 +1512,7 @@ fn term_hash() {
 
 #[test]
 fn term_ord() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
     let cmp1 = x.cmp(&y);
@@ -1526,7 +1525,7 @@ fn term_ord() {
 
 #[test]
 fn term_boolean_value() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let t = tm.mk_true();
     assert!(t.is_boolean_value());
     assert!(t.boolean_value().unwrap());
@@ -1543,7 +1542,7 @@ fn term_boolean_value() {
 
 #[test]
 fn term_integer_values() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
 
     let pos = tm.mk_integer(42);
     assert!(pos.is_int32_value());
@@ -1574,7 +1573,7 @@ fn term_integer_values() {
 
 #[test]
 fn term_integer_from_str() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let big = tm.mk_integer_from_str("999999999999999999").unwrap();
     assert!(big.is_integer_value());
     assert_eq!(big.integer_value().unwrap(), "999999999999999999");
@@ -1584,7 +1583,7 @@ fn term_integer_from_str() {
 
 #[test]
 fn term_real_values() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
 
     let half = tm.mk_real_from_rational(1, 2).unwrap();
     assert!(half.is_real_value());
@@ -1612,7 +1611,7 @@ fn term_real_values() {
 
 #[test]
 fn term_bv_value() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let bv = tm.mk_bv(8, 0xAB).unwrap();
     assert!(bv.is_bv_value());
     assert_eq!(bv.bv_value(10).unwrap(), "171"); // 0xAB = 171
@@ -1628,7 +1627,7 @@ fn term_bv_value() {
 
 #[test]
 fn term_string_value() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let s = tm.mk_string("hello", false);
     assert!(s.is_string_value());
     let chars = s.u32string_value().unwrap();
@@ -1640,7 +1639,7 @@ fn term_string_value() {
 
 #[test]
 fn term_fp_special_values() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
 
     let pos_inf = tm.mk_fp_pos_inf(8, 24).unwrap();
     assert!(pos_inf.is_fp_pos_inf());
@@ -1664,7 +1663,7 @@ fn term_fp_special_values() {
 
 #[test]
 fn term_fp_value() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let pos_zero = tm.mk_fp_pos_zero(8, 24).unwrap();
     assert!(pos_zero.is_fp_value());
     let (ew, sw, bv) = pos_zero.fp_value().unwrap();
@@ -1677,7 +1676,7 @@ fn term_fp_value() {
 
 #[test]
 fn term_rm_value() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let rne = tm.mk_rm(RoundingMode::RoundNearestTiesToEven);
     assert!(rne.is_rm_value());
     assert_eq!(
@@ -1690,7 +1689,7 @@ fn term_rm_value() {
 
 #[test]
 fn term_const_array() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let arr_sort = tm
         .mk_array_sort(tm.integer_sort(), tm.integer_sort())
         .unwrap();
@@ -1704,7 +1703,7 @@ fn term_const_array() {
 
 #[test]
 fn term_ff_value() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let ff_sort = tm.mk_ff_sort("7", 10).unwrap();
     let elem = tm.mk_ff_elem("3", ff_sort, 10).unwrap();
     assert!(elem.is_ff_value());
@@ -1716,19 +1715,18 @@ fn term_ff_value() {
 
 #[test]
 fn term_tuple_value() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("ALL").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
-    let tup = tm.mk_tuple(&[tm.mk_integer(1), tm.mk_true()]).unwrap();
-    let t = tm
-        .mk_const(
-            tm.mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()])
-                .unwrap(),
-            "t",
-        )
+    let one = tm.mk_integer(1);
+    let tru = tm.mk_true();
+    let tup = tm.mk_tuple(&[one, tru]).unwrap();
+    let tup_sort = tm
+        .mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()])
         .unwrap();
+    let t = tm.mk_const(tup_sort, "t").unwrap();
     solver
         .assert_formula(tm.mk_term(Kind::Equal, &[t.clone(), tup]).unwrap())
         .unwrap();
@@ -1744,8 +1742,8 @@ fn term_tuple_value() {
 
 #[test]
 fn term_set_value() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("ALL").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -1774,8 +1772,8 @@ fn term_set_value() {
 
 #[test]
 fn term_sequence_value() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("ALL").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -1800,7 +1798,7 @@ fn term_sequence_value() {
 
 #[test]
 fn term_substitute_term() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
     let zero = tm.mk_integer(0);
@@ -1817,7 +1815,7 @@ fn term_substitute_term() {
 
 #[test]
 fn term_substitute_terms() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
     let a = tm.mk_const(tm.integer_sort(), "a").unwrap();
@@ -1835,8 +1833,8 @@ fn term_substitute_terms() {
 
 #[test]
 fn term_uninterpreted_sort_value() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_UF").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -1854,7 +1852,7 @@ fn term_uninterpreted_sort_value() {
 
 #[test]
 fn term_cardinality_constraint() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let u = tm.mk_uninterpreted_sort("U");
     let cc = tm.mk_cardinality_constraint(u.clone(), 3).unwrap();
     assert!(cc.is_cardinality_constraint());
@@ -1867,17 +1865,15 @@ fn term_cardinality_constraint() {
 
 #[test]
 fn term_empty_collections() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let int = tm.integer_sort();
 
-    let es = tm
-        .mk_empty_set(tm.mk_set_sort(int.clone()).unwrap())
-        .unwrap();
+    let set_sort = tm.mk_set_sort(int.clone()).unwrap();
+    let es = tm.mk_empty_set(set_sort).unwrap();
     assert!(es.sort().is_set());
 
-    let eb = tm
-        .mk_empty_bag(tm.mk_bag_sort(int.clone()).unwrap())
-        .unwrap();
+    let bag_sort = tm.mk_bag_sort(int.clone()).unwrap();
+    let eb = tm.mk_empty_bag(bag_sort).unwrap();
     assert!(eb.sort().is_bag());
 
     let eseq = tm.mk_empty_sequence(int).unwrap();
@@ -1888,7 +1884,7 @@ fn term_empty_collections() {
 
 #[test]
 fn term_regexp_constants() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let all = tm.mk_regexp_all();
     assert!(all.sort().is_regexp());
     let allchar = tm.mk_regexp_allchar();
@@ -1901,10 +1897,9 @@ fn term_regexp_constants() {
 
 #[test]
 fn term_universe_set() {
-    let tm = TermManager::new();
-    let us = tm
-        .mk_universe_set(tm.mk_set_sort(tm.integer_sort()).unwrap())
-        .unwrap();
+    let mut tm = TermManager::new();
+    let set_sort = tm.mk_set_sort(tm.integer_sort()).unwrap();
+    let us = tm.mk_universe_set(set_sort).unwrap();
     assert!(us.sort().is_set());
 }
 
@@ -1912,7 +1907,7 @@ fn term_universe_set() {
 
 #[test]
 fn term_pi() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let pi = tm.mk_pi();
     assert!(pi.sort().is_real());
 }
@@ -1921,7 +1916,7 @@ fn term_pi() {
 
 #[test]
 fn term_skolem() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let id = SkolemId::Purify;
     let n = tm.get_num_idxs_for_skolem_id(id);
     assert!(n > 0);
@@ -1938,11 +1933,12 @@ fn term_skolem() {
 
 #[test]
 fn term_nullable() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let int = tm.integer_sort();
     let ns = tm.mk_nullable_sort(int.clone()).unwrap();
 
-    let some = tm.mk_nullable_some(tm.mk_integer(42)).unwrap();
+    let fortytwo = tm.mk_integer(42);
+    let some = tm.mk_nullable_some(fortytwo).unwrap();
     assert!(some.sort().is_nullable());
 
     let null = tm.mk_nullable_null(ns).unwrap();
@@ -1962,7 +1958,7 @@ fn term_nullable() {
 
 #[test]
 fn term_fp_from_ieee() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let sign = tm.mk_bv(1, 0).unwrap();
     let exp = tm.mk_bv(8, 0).unwrap();
     let sig = tm.mk_bv(23, 0).unwrap();
@@ -1975,7 +1971,7 @@ fn term_fp_from_ieee() {
 
 #[test]
 fn term_fp_from_bv() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let bv = tm.mk_bv(32, 0).unwrap();
     let fp = tm.mk_fp(8, 24, bv).unwrap();
     assert!(fp.sort().is_fp());
@@ -1994,7 +1990,7 @@ fn tm_default() {
 
 #[test]
 fn tm_mk_op_from_str() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let op = tm.mk_op_from_str(Kind::Divisible, "3").unwrap();
     assert_eq!(op.kind(), Kind::Divisible);
     assert!(op.is_indexed());
@@ -2010,7 +2006,7 @@ fn tm_mk_op_from_str() {
 
 #[test]
 fn tm_sep_terms() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let emp = tm.mk_sep_emp();
     assert!(emp.sort().is_boolean());
 
@@ -2022,7 +2018,7 @@ fn tm_sep_terms() {
 
 #[test]
 fn tm_mk_string_from_char32() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     // "AB" as null-terminated char32 array
     let chars: Vec<u32> = vec![0x41, 0x42, 0];
     let s = tm.mk_string_from_char32(&chars).unwrap();
@@ -2037,9 +2033,11 @@ fn tm_mk_string_from_char32() {
 
 #[test]
 fn tm_mk_nullable_lift() {
-    let tm = TermManager::new();
-    let a = tm.mk_nullable_some(tm.mk_integer(1)).unwrap();
-    let b = tm.mk_nullable_some(tm.mk_integer(2)).unwrap();
+    let mut tm = TermManager::new();
+    let one = tm.mk_integer(1);
+    let a = tm.mk_nullable_some(one).unwrap();
+    let two = tm.mk_integer(2);
+    let b = tm.mk_nullable_some(two).unwrap();
     let lifted = tm.mk_nullable_lift(Kind::Add, &[a, b]).unwrap();
     assert!(lifted.sort().is_nullable());
 }
@@ -2048,7 +2046,7 @@ fn tm_mk_nullable_lift() {
 
 #[test]
 fn tm_mk_var() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let v = tm.mk_var(tm.integer_sort(), "v").unwrap();
     assert_eq!(v.kind(), Kind::Variable);
     assert!(v.has_symbol());
@@ -2060,7 +2058,7 @@ fn tm_mk_var() {
 
 #[test]
 fn tm_mk_const() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let c = tm.mk_const(tm.boolean_sort(), "p").unwrap();
     assert_eq!(c.kind(), Kind::Constant);
     assert!(c.has_symbol());
@@ -2082,7 +2080,7 @@ fn tm_print_stats_safe() {
 
 #[test]
 fn tm_mk_string_escape() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let s1 = tm.mk_string("hello", false);
     let s2 = tm.mk_string("hello", true);
     // both should produce string values
@@ -2094,7 +2092,7 @@ fn tm_mk_string_escape() {
 
 #[test]
 fn tm_mk_bv_from_str_bases() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let from_bin = tm.mk_bv_from_str(8, "11111111", 2).unwrap();
     let from_dec = tm.mk_bv_from_str(8, "255", 10).unwrap();
     let from_hex = tm.mk_bv_from_str(8, "ff", 16).unwrap();
@@ -2108,7 +2106,7 @@ fn tm_mk_bv_from_str_bases() {
 #[test]
 fn tm_all_rounding_modes() {
     use RoundingMode::*;
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     for rm in [
         RoundNearestTiesToEven,
         RoundTowardPositive,
@@ -2131,7 +2129,7 @@ fn tm_all_rounding_modes() {
 #[test]
 fn solver_set_get_info() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     solver.set_info("source", "test-suite").unwrap();
     let info = solver.get_info("name").unwrap();
     assert!(!info.is_empty());
@@ -2166,9 +2164,9 @@ fn solver_option_info() {
 #[test]
 fn solver_simplify() {
     setup!(tm, solver, "QF_LIA");
-    let t = tm
-        .mk_term(Kind::And, &[tm.mk_true(), tm.mk_true()])
-        .unwrap();
+    let t1 = tm.mk_true();
+    let t2 = tm.mk_true();
+    let t = tm.mk_term(Kind::And, &[t1, t2]).unwrap();
     let simplified = solver.simplify(t, false).unwrap();
     assert!(simplified.is_boolean_value());
     assert!(simplified.boolean_value().unwrap());
@@ -2216,8 +2214,8 @@ fn solver_get_values() {
 
 #[test]
 fn solver_reset_assertions() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_option("produce-models", "true").unwrap();
     solver.set_logic("QF_LIA").unwrap();
     let int = tm.integer_sort();
@@ -2276,8 +2274,8 @@ fn solver_define_fun() {
 
 #[test]
 fn solver_define_fun_rec() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("UFLIA").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -2294,8 +2292,8 @@ fn solver_define_fun_rec() {
 
 #[test]
 fn solver_define_fun_rec_from_const() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("UFLIA").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -2315,8 +2313,8 @@ fn solver_define_fun_rec_from_const() {
 
 #[test]
 fn solver_define_funs_rec() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("UFLIA").unwrap();
 
     let int = tm.integer_sort();
@@ -2340,8 +2338,8 @@ fn solver_define_funs_rec() {
 
 #[test]
 fn solver_get_model() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_UF").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -2356,8 +2354,8 @@ fn solver_get_model() {
 
 #[test]
 fn solver_block_model() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -2381,8 +2379,8 @@ fn solver_block_model() {
 
 #[test]
 fn solver_block_model_values() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -2408,8 +2406,8 @@ fn solver_block_model_values() {
 
 #[test]
 fn solver_model_domain_elements() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_UF").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -2426,8 +2424,8 @@ fn solver_model_domain_elements() {
 
 #[test]
 fn solver_is_model_core_symbol() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-models", "true").unwrap();
     solver.set_option("model-cores", "simple").unwrap();
@@ -2450,8 +2448,8 @@ fn solver_is_model_core_symbol() {
 
 #[test]
 fn solver_unsat_core_lemmas() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_UF").unwrap();
     solver.set_option("produce-unsat-cores", "true").unwrap();
     solver.set_option("produce-proofs", "true").unwrap();
@@ -2473,8 +2471,8 @@ fn solver_unsat_core_lemmas() {
 
 #[test]
 fn solver_proof_to_string() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_UF").unwrap();
     solver.set_option("produce-proofs", "true").unwrap();
 
@@ -2500,8 +2498,8 @@ fn solver_proof_to_string() {
 
 #[test]
 fn solver_get_learned_literals() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-models", "true").unwrap();
     solver
@@ -2526,8 +2524,8 @@ fn solver_get_learned_literals() {
 
 #[test]
 fn solver_get_difficulty() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-difficulty", "true").unwrap();
 
@@ -2558,8 +2556,8 @@ fn solver_declare_pool() {
 
 #[test]
 fn solver_get_interpolant() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-interpolants", "true").unwrap();
 
@@ -2584,8 +2582,8 @@ fn solver_get_interpolant() {
 
 #[test]
 fn solver_get_abduct() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-abducts", "true").unwrap();
 
@@ -2602,8 +2600,8 @@ fn solver_get_abduct() {
 
 #[test]
 fn solver_sygus_var_and_queries() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("LIA").unwrap();
     solver.set_option("sygus", "true").unwrap();
 
@@ -2633,8 +2631,8 @@ fn solver_sygus_var_and_queries() {
 
 #[test]
 fn solver_get_synth_solutions() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("LIA").unwrap();
     solver.set_option("sygus", "true").unwrap();
 
@@ -2678,8 +2676,8 @@ fn solver_print_stats_safe() {
 
 #[test]
 fn solver_sep_logic() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_ALL").unwrap();
     solver.set_option("produce-models", "true").unwrap();
     solver.set_option("incremental", "false").unwrap();
@@ -2704,8 +2702,8 @@ fn solver_sep_logic() {
 
 #[test]
 fn solver_get_instantiations() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("UFLIA").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -2724,7 +2722,8 @@ fn solver_get_instantiations() {
 
     let c = tm.mk_const(int, "c").unwrap();
     let fc = tm.mk_term(Kind::ApplyUf, &[f, c]).unwrap();
-    let neg = tm.mk_term(Kind::Lt, &[fc, tm.mk_integer(0)]).unwrap();
+    let zero = tm.mk_integer(0);
+    let neg = tm.mk_term(Kind::Lt, &[fc, zero]).unwrap();
     solver.assert_formula(neg).unwrap();
 
     let result = solver.check_sat().unwrap();
@@ -2743,8 +2742,8 @@ fn solver_get_instantiations() {
 
 #[test]
 fn solver_check_synth_next() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("LIA").unwrap();
     solver.set_option("sygus", "true").unwrap();
     solver.set_option("incremental", "true").unwrap();
@@ -2764,8 +2763,8 @@ fn solver_check_synth_next() {
 
 #[test]
 fn solver_get_interpolant_with_grammar() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-interpolants", "true").unwrap();
 
@@ -2796,8 +2795,8 @@ fn solver_get_interpolant_with_grammar() {
 
 #[test]
 fn solver_get_abduct_with_grammar() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-abducts", "true").unwrap();
 
@@ -2821,8 +2820,8 @@ fn solver_get_abduct_with_grammar() {
 
 #[test]
 fn solver_quantifier_elimination() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("LIA").unwrap();
 
     let int = tm.integer_sort();
@@ -2831,15 +2830,9 @@ fn solver_quantifier_elimination() {
     let zero = tm.mk_integer(0);
 
     // exists x. (x > 0 AND y = x)  =>  y > 0
-    let body = tm
-        .mk_term(
-            Kind::And,
-            &[
-                tm.mk_term(Kind::Gt, &[x.clone(), zero]).unwrap(),
-                tm.mk_term(Kind::Equal, &[y, x.clone()]).unwrap(),
-            ],
-        )
-        .unwrap();
+    let gt = tm.mk_term(Kind::Gt, &[x.clone(), zero]).unwrap();
+    let eq = tm.mk_term(Kind::Equal, &[y, x.clone()]).unwrap();
+    let body = tm.mk_term(Kind::And, &[gt, eq]).unwrap();
     let bound = tm.mk_term(Kind::VariableList, &[x]).unwrap();
     let exists = tm.mk_term(Kind::Exists, &[bound, body]).unwrap();
 
@@ -2855,7 +2848,7 @@ fn solver_quantifier_elimination() {
 #[test]
 fn solver_output_file() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     let path = "/tmp/cvc5_rs_test_output.txt";
     solver.get_output("inst", path).unwrap();
     solver.close_output(path);
@@ -2868,8 +2861,8 @@ fn solver_output_file() {
 
 #[test]
 fn solver_get_timeout_core() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-unsat-cores", "true").unwrap();
     solver.set_option("timeout-core-timeout", "100").unwrap();
@@ -2893,8 +2886,8 @@ fn solver_get_timeout_core() {
 
 #[test]
 fn solver_get_timeout_core_assuming() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-unsat-cores", "true").unwrap();
     solver.set_option("timeout-core-timeout", "100").unwrap();
@@ -2915,8 +2908,8 @@ fn solver_get_timeout_core_assuming() {
 
 #[test]
 fn solver_get_interpolant_next() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-interpolants", "true").unwrap();
     solver.set_option("incremental", "true").unwrap();
@@ -2944,8 +2937,8 @@ fn solver_get_interpolant_next() {
 
 #[test]
 fn solver_get_abduct_next() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-abducts", "true").unwrap();
     solver.set_option("incremental", "true").unwrap();

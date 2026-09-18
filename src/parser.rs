@@ -7,25 +7,26 @@
 //! ```rust
 //! use cvc5::{TermManager, Solver, InputParser, SymbolManager, InputLanguage};
 //!
-//! let tm = TermManager::new();
-//! let solver = Solver::new(&tm);
-//! let sm = SymbolManager::new(&tm);
+//! let mut tm = TermManager::new();
+//! let mut solver = Solver::new(&tm);
+//! let mut sm = SymbolManager::new(&tm);
 //!
-//! let mut parser = InputParser::new(&solver, &sm);
+//! // The parser mutates both as it parses, so it borrows both exclusively.
+//! let mut parser = InputParser::new(&mut solver, &mut sm);
 //! parser.set_str_input(
 //!     InputLanguage::SmtLib26,
 //!     "(set-logic QF_LIA)(declare-const x Int)(assert (> x 0))(check-sat)",
 //!     "example",
-//! );
+//! )?;
 //!
 //! while !parser.done() {
-//!     // SAFETY: each command is used before the next is parsed.
 //!     match parser.next_command() {
-//!         Ok(Some(cmd)) => { cmd.invoke(parser.get_solver(), &sm); }
+//!         Ok(Some(cmd)) => { parser.invoke(&cmd)?; }
 //!         Ok(None) => break,
 //!         Err(e) => panic!("parse error: {e}"),
 //!     }
 //! }
+//! # Ok::<(), cvc5::Error>(())
 //! ```
 
 use cvc5_sys::InputLanguage;
@@ -182,7 +183,11 @@ impl Command {
     ///
     /// Returns any output produced by the command (e.g. `sat`, `unsat`,
     /// model output, etc.).
-    pub fn invoke(&self, solver: &Solver, sm: &SymbolManager) -> Result<String> {
+    /// Both the solver and the symbol manager are mutated: a command may declare
+    /// symbols, assert formulas or run a check. While an [`InputParser`] is alive
+    /// it holds both exclusively, so use [`InputParser::invoke`] inside a parse
+    /// loop and this method only once the parser has been dropped.
+    pub fn invoke(&self, solver: &mut Solver, sm: &mut SymbolManager) -> Result<String> {
         let p = unsafe { cmd_invoke(self.inner, solver.inner, sm.ptr()) };
         let p = checked(p, "invoke")?;
         Ok(unsafe { cstr_or_empty(p) }.to_owned())
@@ -234,18 +239,32 @@ impl fmt::Debug for Command {
 ///
 /// ```compile_fail,E0597
 /// use cvc5::{InputParser, Solver, SymbolManager, TermManager};
-/// let tm = TermManager::new();
-/// let sm = SymbolManager::new(&tm);
+/// let mut tm = TermManager::new();
+/// let mut sm = SymbolManager::new(&tm);
 /// let parser = {
-///     let solver = Solver::new(&tm);
-///     InputParser::new(&solver, &sm)
+///     let mut solver = Solver::new(&tm);
+///     InputParser::new(&mut solver, &mut sm)
 /// };
+/// let _ = parser.done();
+/// ```
+///
+/// The borrow is **exclusive**, because parsing mutates both: each command may
+/// declare symbols, assert formulas or run a check. Reaching around the parser
+/// to touch the solver it is driving is therefore rejected:
+///
+/// ```compile_fail,E0499
+/// use cvc5::{InputParser, Solver, SymbolManager, TermManager};
+/// let mut tm = TermManager::new();
+/// let mut sm = SymbolManager::new(&tm);
+/// let mut solver = Solver::new(&tm);
+/// let mut parser = InputParser::new(&mut solver, &mut sm);
+/// solver.set_logic("QF_LIA").unwrap();   // solver is exclusively borrowed
 /// let _ = parser.done();
 /// ```
 pub struct InputParser<'s> {
     inner: *mut cvc5_sys::parser::InputParser,
-    solver: &'s Solver,
-    sm: &'s SymbolManager,
+    solver: &'s mut Solver,
+    sm: &'s mut SymbolManager,
 }
 
 impl<'s> InputParser<'s> {
@@ -253,7 +272,7 @@ impl<'s> InputParser<'s> {
     ///
     /// Both the solver and the symbol manager are borrowed, so both must outlive
     /// the parser. If both have their logic set, the logics must be the same.
-    pub fn new(solver: &'s Solver, sm: &'s SymbolManager) -> Self {
+    pub fn new(solver: &'s mut Solver, sm: &'s mut SymbolManager) -> Self {
         Self {
             inner: non_null(unsafe { parser_new(solver.inner, sm.ptr()) }, "InputParser"),
             solver,
@@ -261,13 +280,33 @@ impl<'s> InputParser<'s> {
         }
     }
 
+    /// Execute a command against the solver and symbol manager this parser
+    /// borrows.
+    ///
+    /// The parser holds both exclusively, so this is how a command is invoked
+    /// from inside a parse loop; [`Command::invoke`] is for after the parser is
+    /// gone.
+    pub fn invoke(&mut self, cmd: &Command) -> Result<String> {
+        cmd.invoke(self.solver, self.sm)
+    }
+
     /// Return the solver associated with this parser.
-    pub fn get_solver(&self) -> &'s Solver {
+    pub fn get_solver(&self) -> &Solver {
+        self.solver
+    }
+
+    /// Mutable access to the solver this parser borrows.
+    pub fn get_solver_mut(&mut self) -> &mut Solver {
         self.solver
     }
 
     /// Get the symbol manager associated with this parser.
-    pub fn get_symbol_manager(&self) -> &'s SymbolManager {
+    pub fn get_symbol_manager(&self) -> &SymbolManager {
+        self.sm
+    }
+
+    /// Mutable access to the symbol manager this parser borrows.
+    pub fn get_symbol_manager_mut(&mut self) -> &mut SymbolManager {
         self.sm
     }
 
@@ -325,7 +364,7 @@ impl<'s> InputParser<'s> {
     ///
     /// If no logic has been set, the first command that requires one will
     /// initialize the logic to `"ALL"`.
-    pub fn next_command(&self) -> Result<Option<Command>> {
+    pub fn next_command(&mut self) -> Result<Option<Command>> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
         let cmd = unsafe { parser_next_command(self.inner, &mut error_msg) };
         // The parser reports failures through this out-param rather than the
@@ -350,7 +389,7 @@ impl<'s> InputParser<'s> {
     /// - `Err(e)` — a parse error, with cvc5's message.
     ///
     /// The logic must be set before calling this method.
-    pub fn next_term(&self) -> Result<Option<Term>> {
+    pub fn next_term(&mut self) -> Result<Option<Term>> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
         let term = unsafe { parser_next_term(self.inner, &mut error_msg) };
         // As `next_command`: the error arrives via the out-param.

@@ -7,8 +7,8 @@
 //! ```rust
 //! use cvc5::{TermManager, Solver, Kind};
 //!
-//! let tm = TermManager::new();
-//! let solver = Solver::new(&tm);
+//! let mut tm = TermManager::new();
+//! let mut solver = Solver::new(&tm);
 //!
 //! solver.set_logic("QF_LIA").unwrap();
 //! solver.set_option("produce-models", "true").unwrap();

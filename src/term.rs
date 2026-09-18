@@ -19,7 +19,7 @@ use crate::{Op, Sort};
 /// ```
 /// use cvc5::TermManager;
 /// let t = {
-///     let tm = TermManager::new();
+///     let mut tm = TermManager::new();
 ///     tm.mk_true()
 /// };
 /// assert!(t.boolean_value().unwrap());

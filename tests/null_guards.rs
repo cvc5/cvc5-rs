@@ -33,7 +33,7 @@ use cvc5::{Kind, LearnedLitType, Solver, TermManager};
 /// Observed: 1 NULL arrival.
 #[test]
 fn empty_tuple_sort_element_sorts() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let unit = tm.mk_tuple_sort(&[]).unwrap();
     assert_eq!(unit.tuple_element_sorts().unwrap().len(), 0);
 }
@@ -42,13 +42,14 @@ fn empty_tuple_sort_element_sorts() {
 /// Observed: 1 NULL arrival.
 #[test]
 fn empty_tuple_value() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_UFDT").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
     let unit = tm.mk_tuple(&[]).unwrap();
-    let c = tm.mk_const(tm.mk_tuple_sort(&[]).unwrap(), "u").unwrap();
+    let unit_sort = tm.mk_tuple_sort(&[]).unwrap();
+    let c = tm.mk_const(unit_sort, "u").unwrap();
     solver
         .assert_formula(tm.mk_term(Kind::Equal, &[c.clone(), unit]).unwrap())
         .unwrap();
@@ -63,8 +64,8 @@ fn empty_tuple_value() {
 /// Observed: 1 NULL arrival.
 #[test]
 fn empty_set_value() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_UFLIAFS").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
@@ -86,7 +87,7 @@ fn empty_set_value() {
 #[test]
 fn get_values_empty_slice() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-models", "true").unwrap();
     assert!(solver.check_sat().unwrap().is_sat());
@@ -98,7 +99,7 @@ fn get_values_empty_slice() {
 #[test]
 fn empty_sygus_constraints_and_assumptions() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     solver.set_option("sygus", "true").unwrap();
     assert_eq!(solver.get_sygus_constraints().len(), 0);
     assert_eq!(solver.get_sygus_assumptions().len(), 0);
@@ -109,7 +110,7 @@ fn empty_sygus_constraints_and_assumptions() {
 #[test]
 fn no_assertions() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     assert_eq!(solver.get_assertions().len(), 0);
 }
@@ -119,7 +120,7 @@ fn no_assertions() {
 #[test]
 fn empty_learned_literals() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver
         .set_option("produce-learned-literals", "true")
@@ -155,8 +156,8 @@ fn option_info_without_aliases() {
 /// Guarded in `Solver::get_interpolant`, not in `raw_slice`.
 #[test]
 fn absent_interpolant_is_none() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-interpolants", "true").unwrap();
     solver.set_option("incremental", "true").unwrap();
@@ -192,7 +193,7 @@ fn synth_solutions_empty_input_is_short_circuited() {
 /// terminates the process before returning. That guard is for post-1.3.4.
 #[test]
 fn symbol_roundtrip() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     assert!(x.has_symbol());
     assert_eq!(x.symbol().unwrap(), "x");
@@ -217,8 +218,8 @@ fn option_names_still_populated() {
 /// swallowing results.
 #[test]
 fn non_empty_array_getter_still_works() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
 
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
@@ -226,9 +227,9 @@ fn non_empty_array_getter_still_works() {
     solver
         .assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap())
         .unwrap();
-    solver
-        .assert_formula(tm.mk_term(Kind::Lt, &[x, tm.mk_integer(10)]).unwrap())
-        .unwrap();
+    let ten = tm.mk_integer(10);
+    let lt = tm.mk_term(Kind::Lt, &[x, ten]).unwrap();
+    solver.assert_formula(lt).unwrap();
     assert_eq!(solver.get_assertions().len(), 2);
 
     let tup = tm

@@ -12,7 +12,7 @@ use cvc5::{Kind, Solver, TermManager};
 #[test]
 fn second_check_sat_without_incremental_is_err() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("incremental", "false").unwrap();
 
@@ -29,8 +29,8 @@ fn second_check_sat_without_incremental_is_err() {
 /// bogus term.
 #[test]
 fn get_value_without_models_is_err() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-models", "false").unwrap();
 
@@ -49,7 +49,7 @@ fn get_value_without_models_is_err() {
 #[test]
 fn unknown_option_is_err() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     assert!(solver.set_option("no-such-option-here", "true").is_err());
     assert!(solver.get_option("no-such-option-here").is_err());
 }
@@ -67,8 +67,8 @@ fn get_logic_before_set_is_err() {
 /// returning an empty vector.
 #[test]
 fn unsat_core_without_option_is_err() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
 
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
@@ -88,7 +88,7 @@ fn unsat_core_without_option_is_err() {
 #[test]
 fn error_state_is_queryable_and_clearable() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
 
     assert!(solver.set_option("definitely-not-an-option", "1").is_err());
     assert!(cvc5::has_error());
@@ -104,7 +104,7 @@ fn error_state_is_queryable_and_clearable() {
 #[test]
 fn success_leaves_no_error() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     assert!(!cvc5::has_error());
     assert_eq!(cvc5::last_error(), None);
@@ -121,7 +121,7 @@ fn success_leaves_no_error() {
 #[test]
 fn unknown_output_tag_is_err() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     assert!(solver.is_output_on("definitely-not-a-tag").is_err());
     let err = solver
         .get_output("definitely-not-a-tag", "/dev/null")
@@ -134,7 +134,7 @@ fn unknown_output_tag_is_err() {
 /// `Term::operator[]` checks `index < getNumChildren()`.
 #[test]
 fn term_child_out_of_bounds_is_err() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
     let zero = tm.mk_integer(0);
     let gt = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
@@ -149,12 +149,12 @@ fn term_child_out_of_bounds_is_err() {
 #[test]
 fn statistics_iterator_requires_init() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     solver.set_option("stats", "true").unwrap();
     solver.set_logic("QF_LIA").unwrap();
     assert!(solver.check_sat().unwrap().is_sat());
 
-    let stats = solver.get_statistics();
+    let mut stats = solver.get_statistics();
     // Before iter_init: both iterator entry points fail.
     assert!(stats.iter_has_next().is_err());
     assert!(stats.iter_next().is_err());
@@ -169,7 +169,7 @@ fn statistics_iterator_requires_init() {
 /// `*_by_name` lookups are fallible.
 #[test]
 fn datatype_lookup_by_unknown_name_is_err() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let mut decl = tm.mk_dt_decl("Color", false);
     let c = tm.mk_dt_cons_decl("red");
     decl.add_constructor(&c).unwrap();
@@ -190,9 +190,9 @@ fn parse_error_uses_the_crate_error_type() {
     use cvc5::{InputParser, SymbolManager};
 
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
-    let sm = SymbolManager::new(&tm);
-    let mut parser = InputParser::new(&solver, &sm);
+    let mut solver = Solver::new(&tm);
+    let mut sm = SymbolManager::new(&tm);
+    let mut parser = InputParser::new(&mut solver, &mut sm);
     parser
         .set_str_input(
             cvc5_sys::InputLanguage::SmtLib26,
@@ -205,9 +205,9 @@ fn parse_error_uses_the_crate_error_type() {
     assert!(!err.message().is_empty(), "message: {err}");
 
     // And a well-formed input still parses, so the guard is not blanket-failing.
-    let solver2 = Solver::new(&tm);
-    let sm2 = SymbolManager::new(&tm);
-    let mut ok = InputParser::new(&solver2, &sm2);
+    let mut solver2 = Solver::new(&tm);
+    let mut sm2 = SymbolManager::new(&tm);
+    let mut ok = InputParser::new(&mut solver2, &mut sm2);
     ok.set_str_input(
         cvc5_sys::InputLanguage::SmtLib26,
         "(set-logic QF_LIA)",

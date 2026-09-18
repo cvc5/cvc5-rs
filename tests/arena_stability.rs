@@ -15,8 +15,8 @@ use cvc5::{Kind, Solver, TermManager};
 // std::vector, so the second export reallocated and invalidated the first Stat.
 #[test]
 fn many_live_stat_handles_stay_valid() {
-    let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut tm = TermManager::new();
+    let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("stats", "true").unwrap();
     let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
@@ -26,7 +26,7 @@ fn many_live_stat_handles_stay_valid() {
         .unwrap();
     assert!(solver.check_sat().unwrap().is_sat());
 
-    let stats = solver.get_statistics();
+    let mut stats = solver.get_statistics();
     stats.iter_init(true, true);
 
     // Hold every Stat live while continuing to export more.
@@ -48,7 +48,7 @@ fn many_live_stat_handles_stay_valid() {
 #[test]
 fn many_live_statistics_handles_stay_valid() {
     let tm = TermManager::new();
-    let solver = Solver::new(&tm);
+    let mut solver = Solver::new(&tm);
     solver.set_option("stats", "true").unwrap();
     let all: Vec<_> = (0..64).map(|_| solver.get_statistics()).collect();
     for s in &all {
