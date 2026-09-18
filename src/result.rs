@@ -14,9 +14,9 @@ use std::fmt;
 ///
 /// ```
 /// use cvc5::{Solver, TermManager};
-/// let tm = TermManager::new();
+/// let mut tm = TermManager::new();
 /// let r = {
-///     let solver = Solver::new(&tm);
+///     let mut solver = Solver::new(&tm);
 ///     solver.check_sat().unwrap()
 /// };
 /// assert!(r.is_sat());
