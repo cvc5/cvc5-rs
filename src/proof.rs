@@ -71,8 +71,8 @@ impl Proof {
     /// `cvc5_proof_t::export_proof` is inconsistent about who owns the
     /// reference it returns. While the producing solver is alive it delegates to
     /// `Cvc5::export_proof`, whose result is owned by the *solver*, so the caller
-    /// must take a reference of its own — which [`from_raw`](Self::from_raw)
-    /// does. Once that solver is gone it instead returns
+    /// must take a reference of its own, which this wrapper does on
+    /// construction. Once that solver is gone it instead returns
     /// `new cvc5_proof_t(nullptr, d_tm, proof)`, a reference owned by the
     /// *caller*, and the extra reference is never dropped.
     ///
