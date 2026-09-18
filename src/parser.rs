@@ -42,35 +42,32 @@ use crate::{Solver, Sort, Term, TermManager};
 /// Internally tracks a symbol table and meta-information from SMT-LIB inputs
 /// (named assertions, declared functions/sorts, etc.).
 ///
-/// Borrows the [`TermManager`] it was created from, and can be shared with an
-/// [`InputParser`] by reference so that parsed commands update the same table.
-pub struct SymbolManager<'tm> {
+/// Owns a reference to the [`TermManager`] it was created from, and can be
+/// shared with an [`InputParser`] by reference so that parsed commands update
+/// the same table.
+pub struct SymbolManager {
     inner: *mut cvc5_sys::parser::SymbolManager,
-    tm: &'tm TermManager,
 }
 
-impl Drop for SymbolManager<'_> {
+impl Drop for SymbolManager {
     fn drop(&mut self) {
         unsafe { symbol_manager_delete(self.inner) };
     }
 }
 
-impl<'tm> SymbolManager<'tm> {
+impl SymbolManager {
     /// Create a new symbol manager associated with the given term manager.
-    pub fn new(tm: &'tm TermManager) -> Self {
+    ///
+    /// The C wrapper takes its own reference to the term manager, so the
+    /// `SymbolManager` may outlive the [`TermManager`] binding.
+    pub fn new(tm: &TermManager) -> Self {
         Self {
-            inner: crate::ffi::non_null(unsafe { symbol_manager_new(tm.ptr()) }, "SymbolManager"),
-            tm,
+            inner: non_null(unsafe { symbol_manager_new(tm.ptr()) }, "SymbolManager"),
         }
     }
 
     pub(crate) fn ptr(&self) -> *mut cvc5_sys::parser::SymbolManager {
         self.inner
-    }
-
-    /// Return the underlying term manager.
-    pub fn term_manager(&self) -> &'tm TermManager {
-        self.tm
     }
 
     /// Return whether the logic has been set.
@@ -92,7 +89,7 @@ impl<'tm> SymbolManager<'tm> {
     /// Get the sorts declared via `declare-sort` commands.
     ///
     /// These are the sorts printed as part of a `get-model` response.
-    pub fn get_declared_sorts(&self) -> Vec<Sort<'tm>> {
+    pub fn get_declared_sorts(&self) -> Vec<Sort> {
         let mut size = 0usize;
         let ptr = unsafe { sm_get_declared_sorts(self.ptr(), &mut size) };
         unsafe { raw_slice(ptr, size) }
@@ -104,7 +101,7 @@ impl<'tm> SymbolManager<'tm> {
     /// Get the terms declared via `declare-fun` and `declare-const` commands.
     ///
     /// These are the terms printed in a `get-model` response.
-    pub fn get_declared_terms(&self) -> Vec<Term<'tm>> {
+    pub fn get_declared_terms(&self) -> Vec<Term> {
         let mut size = 0usize;
         let ptr = unsafe { sm_get_declared_terms(self.ptr(), &mut size) };
         unsafe { raw_slice(ptr, size) }
@@ -116,7 +113,7 @@ impl<'tm> SymbolManager<'tm> {
     /// Get terms that have been given names via the `:named` attribute.
     ///
     /// Returns a list of `(term, name)` pairs.
-    pub fn get_named_terms(&self) -> Vec<(Term<'tm>, String)> {
+    pub fn get_named_terms(&self) -> Vec<(Term, String)> {
         let mut size = 0usize;
         let mut terms: *mut cvc5_sys::Term = std::ptr::null_mut();
         let mut names: *mut *const std::os::raw::c_char = std::ptr::null_mut();
@@ -146,19 +143,29 @@ impl<'tm> SymbolManager<'tm> {
 /// Commands are produced by [`InputParser::next_command`] and can be executed
 /// on a solver and symbol manager via [`Command::invoke`].
 ///
-/// The lifetime parameter is bound to the [`InputParser`] that produced this
-/// command: commands live in `Cvc5InputParser::d_alloc_cmds`, which
-/// `cvc5_parser_delete` frees.
-pub struct Command<'p> {
+/// A command owns a reference to the [`InputParser`] that produced it (commands
+/// live in `Cvc5InputParser::d_alloc_cmds`), so it stays valid even after that
+/// parser has been dropped.
+pub struct Command {
     pub(crate) inner: cvc5_sys::parser::Command,
-    pub(crate) _phantom: std::marker::PhantomData<&'p ()>,
 }
 
-impl<'p> Command<'p> {
+impl Clone for Command {
+    fn clone(&self) -> Self {
+        Self::from_raw(unsafe { cmd_copy(self.inner) })
+    }
+}
+
+impl Drop for Command {
+    fn drop(&mut self) {
+        unsafe { cmd_release(self.inner) }
+    }
+}
+
+impl Command {
     pub(crate) fn from_raw(raw: cvc5_sys::parser::Command) -> Self {
         Self {
             inner: non_null(raw, "Command"),
-            _phantom: std::marker::PhantomData,
         }
     }
 
@@ -175,7 +182,7 @@ impl<'p> Command<'p> {
     ///
     /// Returns any output produced by the command (e.g. `sat`, `unsat`,
     /// model output, etc.).
-    pub fn invoke(&self, solver: &Solver<'_>, sm: &SymbolManager) -> Result<String> {
+    pub fn invoke(&self, solver: &Solver, sm: &SymbolManager) -> Result<String> {
         let p = unsafe { cmd_invoke(self.inner, solver.inner, sm.ptr()) };
         let p = checked(p, "invoke")?;
         Ok(unsafe { cstr_or_empty(p) }.to_owned())
@@ -187,7 +194,7 @@ impl<'p> Command<'p> {
     }
 }
 
-impl fmt::Display for Command<'_> {
+impl fmt::Display for Command {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { cmd_to_string(self.inner) };
         let cs = unsafe { std::ffi::CStr::from_ptr(s) };
@@ -195,7 +202,7 @@ impl fmt::Display for Command<'_> {
     }
 }
 
-impl fmt::Debug for Command<'_> {
+impl fmt::Debug for Command {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Command({self})")
     }
@@ -216,11 +223,14 @@ impl fmt::Debug for Command<'_> {
 /// Then call [`next_command`](InputParser::next_command) or
 /// [`next_term`](InputParser::next_term) in a loop until
 /// [`done`](InputParser::done) returns `true`.
-/// # Lifetimes
+/// # Lifetime
 ///
 /// `'s` is the borrow of the [`Solver`] and [`SymbolManager`] this parser reads
-/// and writes; both must outlive it. `'tm` is the term manager they belong to.
-/// So a parser cannot escape the scope of the solver it was built from:
+/// and writes; both must outlive it. This is the one lifetime the crate still
+/// needs: `Cvc5InputParser` stores a bare `Cvc5*` and `Cvc5SymbolManager*` and
+/// takes no reference on either, so unlike every other wrapper it cannot keep
+/// its owners alive. A parser therefore cannot escape the scope of the solver it
+/// was built from:
 ///
 /// ```compile_fail,E0597
 /// use cvc5::{InputParser, Solver, SymbolManager, TermManager};
@@ -232,18 +242,18 @@ impl fmt::Debug for Command<'_> {
 /// };
 /// let _ = parser.done();
 /// ```
-pub struct InputParser<'s, 'tm> {
+pub struct InputParser<'s> {
     inner: *mut cvc5_sys::parser::InputParser,
-    solver: &'s Solver<'tm>,
-    sm: &'s SymbolManager<'tm>,
+    solver: &'s Solver,
+    sm: &'s SymbolManager,
 }
 
-impl<'s, 'tm> InputParser<'s, 'tm> {
+impl<'s> InputParser<'s> {
     /// Create a new input parser.
     ///
     /// Both the solver and the symbol manager are borrowed, so both must outlive
     /// the parser. If both have their logic set, the logics must be the same.
-    pub fn new(solver: &'s Solver<'tm>, sm: &'s SymbolManager<'tm>) -> Self {
+    pub fn new(solver: &'s Solver, sm: &'s SymbolManager) -> Self {
         Self {
             inner: non_null(unsafe { parser_new(solver.inner, sm.ptr()) }, "InputParser"),
             solver,
@@ -252,12 +262,12 @@ impl<'s, 'tm> InputParser<'s, 'tm> {
     }
 
     /// Return the solver associated with this parser.
-    pub fn get_solver(&self) -> &'s Solver<'tm> {
+    pub fn get_solver(&self) -> &'s Solver {
         self.solver
     }
 
     /// Get the symbol manager associated with this parser.
-    pub fn get_symbol_manager(&self) -> &'s SymbolManager<'tm> {
+    pub fn get_symbol_manager(&self) -> &'s SymbolManager {
         self.sm
     }
 
@@ -315,17 +325,7 @@ impl<'s, 'tm> InputParser<'s, 'tm> {
     ///
     /// If no logic has been set, the first command that requires one will
     /// initialize the logic to `"ALL"`.
-    /// # Safety
-    ///
-    /// The returned [`Command`] points into a `std::vector` owned by the parser,
-    /// and the C API hands out a pointer to its last element. Each further call
-    /// to `next_command` may grow that vector and invalidate every `Command`
-    /// returned earlier — the second call is already enough. Commands therefore
-    /// cannot be collected; invoke or inspect each one before parsing the next.
-    ///
-    /// Tracked upstream as cvc5/cvc5#12898; this becomes safe once those arenas
-    /// use `std::deque`.
-    pub unsafe fn next_command<'p>(&'p self) -> std::result::Result<Option<Command<'p>>, String> {
+    pub fn next_command(&self) -> std::result::Result<Option<Command>, String> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
         let cmd = unsafe { parser_next_command(self.inner, &mut error_msg) };
         if !error_msg.is_null() {
@@ -349,7 +349,7 @@ impl<'s, 'tm> InputParser<'s, 'tm> {
     /// - `Err(msg)` — a parse error with the error message.
     ///
     /// The logic must be set before calling this method.
-    pub fn next_term(&mut self) -> std::result::Result<Option<Term<'tm>>, String> {
+    pub fn next_term(&self) -> std::result::Result<Option<Term>, String> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
         let term = unsafe { parser_next_term(self.inner, &mut error_msg) };
         if !error_msg.is_null() {
@@ -371,7 +371,7 @@ impl<'s, 'tm> InputParser<'s, 'tm> {
     }
 }
 
-impl Drop for InputParser<'_, '_> {
+impl Drop for InputParser<'_> {
     fn drop(&mut self) {
         unsafe { parser_delete(self.inner) }
     }

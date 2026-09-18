@@ -1448,7 +1448,7 @@ unsafe extern "C" {
     pub fn result_copy(result: Result) -> Result;
 }
 unsafe extern "C" {
-    #[doc = " Release copy of result, decrements reference counter of `result`.\n\n @param result The result to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    #[doc = " Release copy of result, decrements reference counter of `result`.\n\n @param result The result to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released.\n @note A result is released together with the solver that created it. To use\n       a result after that solver has been deleted, keep a reference to it\n       via `cvc5_result_copy()` and release that reference when done. The\n       same applies to synthesis results, proofs and grammars."]
     #[link_name = "\u{1}cvc5_result_release"]
     pub fn result_release(result: Result);
 }
@@ -1543,7 +1543,7 @@ unsafe extern "C" {
     pub fn synth_result_copy(result: SynthResult) -> SynthResult;
 }
 unsafe extern "C" {
-    #[doc = " Release copy of synthesis result, decrements reference counter of `result`.\n\n @param result The result to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    #[doc = " Release copy of synthesis result, decrements reference counter of `result`.\n\n @note A synthesis result is released together with the solver that created\n       it. To use it after that solver has been deleted, keep a reference to\n       it via `cvc5_synth_result_copy()`.\n\n @param result The result to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
     #[link_name = "\u{1}cvc5_synth_result_release"]
     pub fn synth_result_release(result: SynthResult);
 }
@@ -2650,7 +2650,7 @@ unsafe extern "C" {
     pub fn grammar_copy(grammar: Grammar) -> Grammar;
 }
 unsafe extern "C" {
-    #[doc = " Release copy of grammar, decrements reference counter of `grammar`.\n\n @param grammar The grammar to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    #[doc = " Release copy of grammar, decrements reference counter of `grammar`.\n\n @note A grammar is released together with the solver that created it. To\n       use it afterwards, keep a reference to it via `cvc5_grammar_copy()`.\n\n @param grammar The grammar to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
     #[link_name = "\u{1}cvc5_grammar_release"]
     pub fn grammar_release(grammar: Grammar);
 }
@@ -2660,12 +2660,12 @@ unsafe extern "C" {
     pub fn term_manager_new() -> *mut TermManager;
 }
 unsafe extern "C" {
-    #[doc = " Delete a cvc5 term manager instance.\n @param tm The term manager instance."]
+    #[doc = " Delete a cvc5 term manager instance.\n\n Objects created via the term manager (sorts, terms, operators, datatypes,\n ...), as well as the statistics of solver instances associated with the\n term manager, are managed by the term manager. They keep the term manager\n alive and thus remain valid after the term manager has been deleted, until\n they are released via the corresponding `cvc5_*_release()` function. The\n memory of the term manager (and of the objects it manages) is only freed once\n the term manager has been deleted and all of its managed objects have been\n released, either individually or all at once via\n `cvc5_term_manager_release()`.\n\n @note Consequently, if managed objects are still alive when this function is\n       called, it does not free the term manager: it only drops the handle\n       held by the user, and the term manager is freed later, when the last\n       of its managed objects is released. To free everything right away,\n       call `cvc5_term_manager_release()` before this function.\n\n @param tm The term manager instance."]
     #[link_name = "\u{1}cvc5_term_manager_delete"]
     pub fn term_manager_delete(tm: *mut TermManager);
 }
 unsafe extern "C" {
-    #[doc = " Release all managed references.\n\n This will free all memory used by any managed objects allocated by the\n term manager.\n\n @note This invalidates all managed objects created by the term manager.\n\n @param tm The term manager instance."]
+    #[doc = " Release all managed references.\n\n This will free all memory used by any managed objects created via the term\n manager or via a solver instance associated with the term manager.\n\n @note This invalidates all managed objects created via the term manager and\n       its associated solver instances.\n\n @param tm The term manager instance."]
     #[link_name = "\u{1}cvc5_term_manager_release"]
     pub fn term_manager_release(tm: *mut TermManager);
 }
@@ -3519,7 +3519,7 @@ unsafe extern "C" {
     pub fn proof_copy(proof: Proof) -> Proof;
 }
 unsafe extern "C" {
-    #[doc = " Release copy of proof, decrements reference counter of `proof`.\n\n @param proof The proof to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    #[doc = " Release copy of proof, decrements reference counter of `proof`.\n\n @note A proof is released together with the solver that created it. To use\n       it afterwards, keep a reference to it via `cvc5_proof_copy()`.\n\n @param proof The proof to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
     #[link_name = "\u{1}cvc5_proof_release"]
     pub fn proof_release(proof: Proof);
 }
@@ -3584,6 +3584,16 @@ unsafe extern "C" {
     pub fn stat_to_string(stat: Stat) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
+    #[doc = " Make copy of statistic, increases reference counter of `stat`.\n\n @param stat The statistic to copy.\n @return The same statistic with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    #[link_name = "\u{1}cvc5_stat_copy"]
+    pub fn stat_copy(stat: Stat) -> Stat;
+}
+unsafe extern "C" {
+    #[doc = " Release copy of statistic, decrements reference counter of `stat`.\n\n @param stat The statistic to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    #[link_name = "\u{1}cvc5_stat_release"]
+    pub fn stat_release(stat: Stat);
+}
+unsafe extern "C" {
     #[doc = " Initialize iteration over the statistics values.\n By default, only entries that are public and have been set\n are visible while the others are skipped.\n @param stat The statistics.\n @param internal If set to true, internal statistics are shown as well.\n @param dflt     If set to true, defaulted statistics are shown as well."]
     #[link_name = "\u{1}cvc5_stats_iter_init"]
     pub fn stats_iter_init(stat: Statistics, internal: bool, dflt: bool);
@@ -3609,17 +3619,27 @@ unsafe extern "C" {
     pub fn stats_to_string(stat: Statistics) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
+    #[doc = " Make copy of statistics object, increases reference counter of `stat`.\n\n @param stat The statistics object to copy.\n @return The same statistics object with its reference count increased by\n         one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    #[link_name = "\u{1}cvc5_stats_copy"]
+    pub fn stats_copy(stat: Statistics) -> Statistics;
+}
+unsafe extern "C" {
+    #[doc = " Release copy of statistics object, decrements reference counter of `stat`.\n\n @param stat The statistics object to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    #[link_name = "\u{1}cvc5_stats_release"]
+    pub fn stats_release(stat: Statistics);
+}
+unsafe extern "C" {
     #[doc = " Construct a new instance of a cvc5 solver.\n @param tm The associated term manager instance.\n @return The cvc5 solver instance."]
     #[link_name = "\u{1}cvc5_new"]
     pub fn new(tm: *mut TermManager) -> *mut Solver;
 }
 unsafe extern "C" {
-    #[doc = " Delete a cvc5 solver instance.\n @param cvc5 The solver instance."]
+    #[doc = " Delete a cvc5 solver instance.\n\n Statistics created via the solver are managed by the associated term manager\n and remain valid after the solver instance has been deleted, until they are\n released, either individually via `cvc5_stats_release()` resp.\n `cvc5_stat_release()`, or all at once via `cvc5_term_manager_release()`\n (see `cvc5_term_manager_delete()`).\n\n Results (`Cvc5Result`), synthesis results (`Cvc5SynthResult`), proofs\n (`Cvc5Proof`) and grammars (`Cvc5Grammar`) are managed by the solver:\n deleting it drops one reference to each such object it created, which frees\n those the user did not keep a reference to. An object the user kept a\n reference to (via the corresponding `cvc5_*_copy()` function) outlives the\n solver, as in the C++ API, and is freed by its final release. Proofs\n additionally keep the term manager alive, since querying them creates new\n terms and proofs.\n\n @note A solver instance keeps its associated term manager alive. Solver and\n       term manager instances may thus be deleted in any order.\n\n @param cvc5 The solver instance."]
     #[link_name = "\u{1}cvc5_delete"]
     pub fn delete(cvc5: *mut Solver);
 }
 unsafe extern "C" {
-    #[doc = " Get the associated term manager of a cvc5 solver instance.\n @param cvc5 The solver instance.\n @return The term manager."]
+    #[doc = " Get the associated term manager of a cvc5 solver instance.\n\n @note The returned term manager is kept alive by the solver instance and can\n       be used as long as the solver instance has not been deleted.\n\n @param cvc5 The solver instance.\n @return The term manager."]
     #[link_name = "\u{1}cvc5_get_tm"]
     pub fn get_tm(cvc5: *mut Solver) -> *mut TermManager;
 }

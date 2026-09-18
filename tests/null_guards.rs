@@ -142,7 +142,7 @@ fn option_info_without_aliases() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
     let info = solver.get_option_info("incremental").unwrap();
-    assert_eq!(info.name().as_ref(), "incremental");
+    assert_eq!(info.name(), "incremental");
     assert_eq!(info.aliases().len(), 0);
     assert_eq!(info.no_supports().len(), 0);
     let _ = info.kind();
