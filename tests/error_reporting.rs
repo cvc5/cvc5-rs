@@ -180,3 +180,39 @@ fn datatype_lookup_by_unknown_name_is_err() {
     assert!(dt.constructor_by_name("chartreuse").is_err());
     assert!(dt.selector("nope").is_err());
 }
+
+/// The parser is the one part of the C API that reports failures through a
+/// `const char**` out-param rather than the thread-local error state. It still
+/// surfaces as the crate's [`cvc5::Error`], so `?` composes with everything else.
+#[cfg(feature = "parser")]
+#[test]
+fn parse_error_uses_the_crate_error_type() {
+    use cvc5::{InputParser, SymbolManager};
+
+    let tm = TermManager::new();
+    let solver = Solver::new(&tm);
+    let sm = SymbolManager::new(&tm);
+    let mut parser = InputParser::new(&solver, &sm);
+    parser
+        .set_str_input(
+            cvc5_sys::InputLanguage::SmtLib26,
+            "(this-is-not-a-command",
+            "in",
+        )
+        .unwrap();
+
+    let err: cvc5::Error = parser.next_command().expect_err("malformed input");
+    assert!(!err.message().is_empty(), "message: {err}");
+
+    // And a well-formed input still parses, so the guard is not blanket-failing.
+    let solver2 = Solver::new(&tm);
+    let sm2 = SymbolManager::new(&tm);
+    let mut ok = InputParser::new(&solver2, &sm2);
+    ok.set_str_input(
+        cvc5_sys::InputLanguage::SmtLib26,
+        "(set-logic QF_LIA)",
+        "in",
+    )
+    .unwrap();
+    assert!(ok.next_command().unwrap().is_some());
+}

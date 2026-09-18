@@ -45,6 +45,16 @@ impl Error {
         &self.message
     }
 
+    /// Build an [`Error`] from a message cvc5 reported out-of-band.
+    ///
+    /// The parser is the one part of the C API that does not use the
+    /// thread-local error state: `cvc5_parser_next_command` and
+    /// `cvc5_parser_next_term` write the parse error to a `const char**`
+    /// out-param instead.
+    pub(crate) fn from_message(message: String) -> Self {
+        Self { message }
+    }
+
     /// Build an [`Error`] from the current thread-local error state, falling
     /// back to a generic message if cvc5 recorded none.
     pub(crate) fn from_state(what: &str) -> Self {
