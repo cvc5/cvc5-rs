@@ -1,40 +1,45 @@
 use cvc5_sys::*;
 use std::fmt;
-use std::marker::PhantomData;
 
 use crate::Term;
+use crate::error::Result;
+use crate::ffi::{checked, non_null};
 
 /// A cvc5 grammar for syntax-guided synthesis (SyGuS).
 ///
 /// Grammars constrain the space of candidate solutions in synthesis queries.
-pub struct Grammar<'tm> {
+pub struct Grammar {
     pub(crate) inner: cvc5_sys::Grammar,
-    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for Grammar<'_> {
+impl Clone for Grammar {
     fn clone(&self) -> Self {
-        Self::from_raw(unsafe { grammar_copy(self.inner) })
+        Self::from_raw(self.inner)
     }
 }
 
-impl Drop for Grammar<'_> {
+impl Drop for Grammar {
     fn drop(&mut self) {
         unsafe { grammar_release(self.inner) }
     }
 }
 
-impl<'tm> Grammar<'tm> {
+impl Grammar {
+    /// Wrap a raw grammar, taking a reference of our own.
+    ///
+    /// The single reference on an exported grammar belongs to the
+    /// [`Solver`](crate::Solver) that made it, and `~Cvc5` drops that reference.
+    /// Holding one ourselves is what lets this outlive the solver: the C object
+    /// detaches (its solver back-pointer is nulled) instead of being freed.
     pub(crate) fn from_raw(raw: cvc5_sys::Grammar) -> Self {
-        Self {
-            inner: crate::ffi::non_null(raw, "Grammar"),
-            _phantom: PhantomData,
-        }
+        let inner = non_null(raw, "Grammar");
+        unsafe { grammar_copy(inner) };
+        Self { inner }
     }
 
     /// Create a copy of this grammar (increments the internal reference count).
-    pub fn copy(&self) -> Grammar<'tm> {
-        Grammar::from_raw(unsafe { grammar_copy(self.inner) })
+    pub fn copy(&self) -> Grammar {
+        Grammar::from_raw(self.inner)
     }
 
     /// Check disequality with another grammar.
@@ -43,28 +48,32 @@ impl<'tm> Grammar<'tm> {
     }
 
     /// Add a rule to the given non-terminal symbol.
-    pub fn add_rule(&mut self, symbol: Term, rule: Term) {
-        unsafe { grammar_add_rule(self.inner, symbol.inner, rule.inner) }
+    pub fn add_rule(&mut self, symbol: Term, rule: Term) -> Result<()> {
+        unsafe { grammar_add_rule(self.inner, symbol.inner, rule.inner) };
+        checked((), "add_rule")
     }
 
     /// Add rules to the given non-terminal symbol.
-    pub fn add_rules(&mut self, symbol: Term, rules: &[Term]) {
+    pub fn add_rules(&mut self, symbol: Term, rules: &[Term]) -> Result<()> {
         let raw: Vec<cvc5_sys::Term> = rules.iter().map(|t| t.inner).collect();
-        unsafe { grammar_add_rules(self.inner, symbol.inner, raw.len(), raw.as_ptr()) }
+        unsafe { grammar_add_rules(self.inner, symbol.inner, raw.len(), raw.as_ptr()) };
+        checked((), "add_rules")
     }
 
     /// Allow the symbol to be an arbitrary constant.
-    pub fn add_any_constant(&mut self, symbol: Term) {
-        unsafe { grammar_add_any_constant(self.inner, symbol.inner) }
+    pub fn add_any_constant(&mut self, symbol: Term) -> Result<()> {
+        unsafe { grammar_add_any_constant(self.inner, symbol.inner) };
+        checked((), "add_any_constant")
     }
 
     /// Allow the symbol to be any input variable.
-    pub fn add_any_variable(&mut self, symbol: Term) {
-        unsafe { grammar_add_any_variable(self.inner, symbol.inner) }
+    pub fn add_any_variable(&mut self, symbol: Term) -> Result<()> {
+        unsafe { grammar_add_any_variable(self.inner, symbol.inner) };
+        checked((), "add_any_variable")
     }
 }
 
-impl fmt::Display for Grammar<'_> {
+impl fmt::Display for Grammar {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { grammar_to_string(self.inner) };
         let cs = unsafe { std::ffi::CStr::from_ptr(s) };
@@ -72,21 +81,21 @@ impl fmt::Display for Grammar<'_> {
     }
 }
 
-impl PartialEq for Grammar<'_> {
+impl PartialEq for Grammar {
     fn eq(&self, other: &Self) -> bool {
         unsafe { grammar_is_equal(self.inner, other.inner) }
     }
 }
 
-impl Eq for Grammar<'_> {}
+impl Eq for Grammar {}
 
-impl std::hash::Hash for Grammar<'_> {
+impl std::hash::Hash for Grammar {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { grammar_hash(self.inner) }.hash(state);
     }
 }
 
-impl fmt::Debug for Grammar<'_> {
+impl fmt::Debug for Grammar {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Grammar({self})")
     }

@@ -22,42 +22,6 @@ runs:
       shell: bash
       run: brew install cmake
 
-    - name: Patch FindPoly.cmake for Apple Clang 21+
-      shell: bash
-      run: |
-        python3 - cvc5-sys/cvc5/cmake/FindPoly.cmake <<'PY'
-        import pathlib, sys
-
-        path = pathlib.Path(sys.argv[1])
-        if not path.exists():
-            sys.exit(f"error: {path} does not exist")
-        text = path.read_text()
-
-        OLD = (
-            '  set(POLY_CXX_FLAGS "")\n'
-            '  if(NOT(WASM STREQUAL "OFF"))\n'
-            '    set(POLY_CXX_FLAGS -DCMAKE_CXX_FLAGS='
-            '-Wno-error=deprecated-literal-operator)\n'
-            '  endif()'
-        )
-        NEW = '  set(POLY_CXX_FLAGS -DCMAKE_CXX_FLAGS=-Wno-deprecated-literal-operator)'
-
-        if NEW in text:
-            print("already patched; nothing to do")
-        elif OLD in text:
-            path.write_text(text.replace(OLD, NEW))
-            print("patched: POLY_CXX_FLAGS is now set unconditionally")
-        elif "check_cxx_compiler_flag(-Wno-error=deprecated-literal-operator" in text:
-            print("upstream compiler-flag test present; no patch needed")
-        else:
-            sys.exit(
-                "error: FindPoly.cmake matches none of the known forms, so the "
-                "Apple Clang 21+ workaround was NOT applied. Re-check this patch "
-                "after bumping the cvc5 submodule. "
-                "See https://github.com/cvc5/cvc5-rs/issues/56"
-            )
-        PY
-
     - name: Resolve cvc5 revision
       id: cvc5rev
       shell: bash
@@ -76,7 +40,7 @@ runs:
       shell: bash
       run: |
         cd cvc5-sys/cvc5
-        ./configure.sh --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
+        ./configure.sh unrestricted --static --auto-download --prefix=$(pwd)/build/install -DBUILD_GMP=1
         cd build
         make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
         make install
@@ -94,7 +58,7 @@ runs:
       shell: bash
       run: |
         cd cvc5-sys/cvc5
-        ./configure.sh --name=build-dynamic --auto-download --prefix=$(pwd)/build-dynamic/install -DBUILD_GMP=1
+        ./configure.sh unrestricted --name=build-dynamic --auto-download --prefix=$(pwd)/build-dynamic/install -DBUILD_GMP=1
         cd build-dynamic
         make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
         make install

@@ -1,31 +1,53 @@
+use crate::ffi::non_null;
 use cvc5_sys::*;
 use std::fmt;
-use std::marker::PhantomData;
 
 /// The result of a satisfiability check.
-pub struct Result<'tm> {
+///
+/// # Ownership
+///
+/// A result is allocated by the [`Solver`](crate::Solver) rather than the
+/// [`TermManager`](crate::TermManager), and the solver is not reference counted.
+/// This wrapper therefore takes a reference of its own, which makes `~Cvc5`
+/// *detach* the result instead of freeing it — so a `SatResult` outlives the
+/// solver that produced it:
+///
+/// ```
+/// use cvc5::{Solver, TermManager};
+/// let mut tm = TermManager::new();
+/// let r = {
+///     let mut solver = Solver::new(&tm);
+///     solver.check_sat().unwrap()
+/// };
+/// assert!(r.is_sat());
+/// ```
+pub struct SatResult {
     pub(crate) inner: cvc5_sys::Result,
-    pub(crate) _phantom: PhantomData<&'tm ()>,
 }
 
-impl Clone for Result<'_> {
+impl Clone for SatResult {
     fn clone(&self) -> Self {
-        Self::from_raw(unsafe { result_copy(self.inner) })
+        Self::from_raw(self.inner)
     }
 }
 
-impl Drop for Result<'_> {
+impl Drop for SatResult {
     fn drop(&mut self) {
         unsafe { result_release(self.inner) }
     }
 }
 
-impl<'tm> Result<'tm> {
+impl SatResult {
+    /// Wrap a raw result, taking a reference of our own.
+    ///
+    /// The single reference on an exported result belongs to the
+    /// [`Solver`](crate::Solver) that made it, and `~Cvc5` drops that reference.
+    /// Holding one ourselves is what lets this outlive the solver: the C object
+    /// detaches (its solver back-pointer is nulled) instead of being freed.
     pub(crate) fn from_raw(raw: cvc5_sys::Result) -> Self {
-        Self {
-            inner: crate::ffi::non_null(raw, "Result"),
-            _phantom: PhantomData,
-        }
+        let inner = non_null(raw, "SatResult");
+        unsafe { result_copy(inner) };
+        Self { inner }
     }
 
     /// Return `true` if this is a null (uninitialized) result.
@@ -34,12 +56,12 @@ impl<'tm> Result<'tm> {
     }
 
     /// Create a copy of this result (increments the internal reference count).
-    pub fn copy(&self) -> Result<'tm> {
-        Result::from_raw(unsafe { result_copy(self.inner) })
+    pub fn copy(&self) -> SatResult {
+        SatResult::from_raw(self.inner)
     }
 
     /// Check disequality with another result.
-    pub fn is_disequal(&self, other: &Result) -> bool {
+    pub fn is_disequal(&self, other: &SatResult) -> bool {
         unsafe { result_is_disequal(self.inner, other.inner) }
     }
 
@@ -64,7 +86,7 @@ impl<'tm> Result<'tm> {
     }
 }
 
-impl fmt::Display for Result<'_> {
+impl fmt::Display for SatResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { result_to_string(self.inner) };
         let cs = unsafe { std::ffi::CStr::from_ptr(s) };
@@ -72,21 +94,21 @@ impl fmt::Display for Result<'_> {
     }
 }
 
-impl fmt::Debug for Result<'_> {
+impl fmt::Debug for SatResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Result({self})")
+        write!(f, "SatResult({self})")
     }
 }
 
-impl PartialEq for Result<'_> {
+impl PartialEq for SatResult {
     fn eq(&self, other: &Self) -> bool {
         unsafe { result_is_equal(self.inner, other.inner) }
     }
 }
 
-impl Eq for Result<'_> {}
+impl Eq for SatResult {}
 
-impl std::hash::Hash for Result<'_> {
+impl std::hash::Hash for SatResult {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { result_hash(self.inner) }.hash(state);
     }

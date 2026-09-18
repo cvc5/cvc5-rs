@@ -20,7 +20,7 @@ pub struct InputParser {
     _unused: [u8; 0],
 }
 unsafe extern "C" {
-    #[doc = " Construct a new instance of a cvc5 symbol manager.\n @param tm The associated term manager instance.\n @return The cvc5 symbol manager instance."]
+    #[doc = " Construct a new instance of a cvc5 symbol manager.\n\n @note A symbol manager keeps its associated term manager alive, i.e., it\n       remains usable after the term manager has been deleted via\n       `cvc5_term_manager_delete()`.\n\n @param tm The associated term manager instance.\n @return The cvc5 symbol manager instance."]
     #[link_name = "\u{1}cvc5_symbol_manager_new"]
     pub fn symbol_manager_new(tm: *mut TermManager) -> *mut SymbolManager;
 }
@@ -79,12 +79,22 @@ unsafe extern "C" {
     pub fn cmd_get_name(cmd: Command) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
+    #[doc = " Make copy of command, increases reference counter of `cmd`.\n\n @param cmd The command to copy.\n @return The same command with its reference count increased by one.\n\n @note This step is optional and allows users to manage resources in a more\n       fine-grained manner."]
+    #[link_name = "\u{1}cvc5_cmd_copy"]
+    pub fn cmd_copy(cmd: Command) -> Command;
+}
+unsafe extern "C" {
+    #[doc = " Release copy of command, decrements reference counter of `cmd`.\n\n @param cmd The command to release.\n\n @note This step is optional and allows users to release resources in a more\n       fine-grained manner. Further, any API function that returns a copy\n       that is owned by the callee of the function and thus, can be released."]
+    #[link_name = "\u{1}cvc5_cmd_release"]
+    pub fn cmd_release(cmd: Command);
+}
+unsafe extern "C" {
     #[doc = " Construct a new instance of a cvc5 input parser.\n @param cvc5 The associated solver instance.\n @param sm   The associated symbol manager instance, contains a symbol table\n             that maps symbols to terms and sorts. Must have a logic that is\n             compatible with the solver. May be NULL to start with and\n             initially empty symbol manager.\n @return The cvc5 symbol manager instance."]
     #[link_name = "\u{1}cvc5_parser_new"]
     pub fn parser_new(cvc5: *mut Solver, sm: *mut SymbolManager) -> *mut InputParser;
 }
 unsafe extern "C" {
-    #[doc = " Delete a cvc5 input parser instance.\n @param parser The input parser instance."]
+    #[doc = " Delete a cvc5 input parser instance.\n\n Command objects created via the parser are managed by the parser. They keep\n the parser alive and thus remain valid after the parser has been deleted,\n until they are released via `cvc5_cmd_release()`. The memory of the parser\n is only freed once it has been deleted and all of its commands have been\n released, either individually or all at once via `cvc5_parser_release()`.\n\n @note Consequently, if commands are still alive when this function is\n       called, it does not free the parser: it only drops the handle held by\n       the user, and the parser is freed later, when the last of its commands\n       is released. To free everything right away, call\n       `cvc5_parser_release()` before this function.\n\n Terms and sorts obtained via the parser are managed by the term manager and\n remain valid independently of the parser (see\n `cvc5_term_manager_delete()`).\n\n @note The parser must not be used after the solver or symbol manager\n       instances associated with it have been deleted.\n\n @param parser The input parser instance."]
     #[link_name = "\u{1}cvc5_parser_delete"]
     pub fn parser_delete(parser: *mut InputParser);
 }
