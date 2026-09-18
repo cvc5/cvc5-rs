@@ -31,8 +31,8 @@ fn many_live_stat_handles_stay_valid() {
 
     // Hold every Stat live while continuing to export more.
     let mut held = Vec::new();
-    while stats.iter_has_next() {
-        held.push(stats.iter_next());
+    while stats.iter_has_next().unwrap() {
+        held.push(stats.iter_next().unwrap());
     }
     assert!(held.len() > 1, "expected many stats, got {}", held.len());
 

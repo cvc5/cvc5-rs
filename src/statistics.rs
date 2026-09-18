@@ -48,25 +48,32 @@ impl Statistics {
     }
 
     /// Return `true` if the iterator has more elements.
-    pub fn iter_has_next(&self) -> bool {
-        unsafe { stats_iter_has_next(self.inner) }
+    ///
+    /// Fails if [`iter_init`](Self::iter_init) has not been called: cvc5 checks
+    /// `d_iter != nullptr` and reports "iterator not initialized".
+    pub fn iter_has_next(&self) -> Result<bool> {
+        let v = unsafe { stats_iter_has_next(self.inner) };
+        checked(v, "iter_has_next")
     }
 
     /// Advance the iterator and return the next `(name, stat)` pair.
-    pub fn iter_next(&self) -> (String, Stat) {
+    ///
+    /// Fails if [`iter_init`](Self::iter_init) has not been called, as
+    /// [`iter_has_next`](Self::iter_has_next).
+    pub fn iter_next(&self) -> Result<(String, Stat)> {
         let mut name: *const std::os::raw::c_char = std::ptr::null();
         let s = unsafe { stats_iter_next(self.inner, &mut name) };
-        // `name` is only written on success, so guard the stat pointer first:
-        // it gives the better panic message when the iterator is exhausted or
-        // uninitialized.
+        // `name` is only written on success, so gate on the error state before
+        // reading it.
+        let s = checked(s, "iter_next")?;
         let stat = Stat::from_raw(s);
         let n = unsafe { cstr_to_string(name, "Statistics::iter_next name") };
-        (n, stat)
+        Ok((n, stat))
     }
 
     /// Advance the iterator and return only the next [`Stat`], ignoring the name.
-    pub fn iter_next_stat(&self) -> Stat {
-        self.iter_next().1
+    pub fn iter_next_stat(&self) -> Result<Stat> {
+        Ok(self.iter_next()?.1)
     }
 }
 

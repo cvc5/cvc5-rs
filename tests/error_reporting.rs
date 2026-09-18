@@ -109,3 +109,74 @@ fn success_leaves_no_error() {
     assert!(!cvc5::has_error());
     assert_eq!(cvc5::last_error(), None);
 }
+
+// ── Failure paths for the tags added by the necessity audit ────────────────
+//
+// Each of these was previously an infallible signature. The audit found a
+// reachable `CVC5_API_CHECK` behind it; these drive that check so the `Result`
+// cannot be removed again without a test failing.
+
+/// `Solver::getOutput` converts an `OptionException` from an unknown tag into
+/// `CVC5ApiException("invalid output tag ...")`.
+#[test]
+fn unknown_output_tag_is_err() {
+    let tm = TermManager::new();
+    let solver = Solver::new(&tm);
+    assert!(solver.is_output_on("definitely-not-a-tag").is_err());
+    let err = solver
+        .get_output("definitely-not-a-tag", "/dev/null")
+        .expect_err("unknown output tag");
+    assert!(!err.message().is_empty());
+    // A real tag still works.
+    assert!(!solver.is_output_on("inst").unwrap());
+}
+
+/// `Term::operator[]` checks `index < getNumChildren()`.
+#[test]
+fn term_child_out_of_bounds_is_err() {
+    let tm = TermManager::new();
+    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let zero = tm.mk_integer(0);
+    let gt = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
+    assert_eq!(gt.num_children(), 2);
+    assert!(gt.child(0).is_ok());
+    assert!(gt.child(1).is_ok());
+    assert!(gt.child(2).is_err(), "index 2 is out of bounds");
+    assert!(gt.child(usize::MAX).is_err());
+}
+
+/// The statistics iterator reports "iterator not initialized" until `iter_init`.
+#[test]
+fn statistics_iterator_requires_init() {
+    let tm = TermManager::new();
+    let solver = Solver::new(&tm);
+    solver.set_option("stats", "true").unwrap();
+    solver.set_logic("QF_LIA").unwrap();
+    assert!(solver.check_sat().unwrap().is_sat());
+
+    let stats = solver.get_statistics();
+    // Before iter_init: both iterator entry points fail.
+    assert!(stats.iter_has_next().is_err());
+    assert!(stats.iter_next().is_err());
+    assert!(stats.iter_next_stat().is_err());
+
+    stats.iter_init(true, true);
+    assert!(stats.iter_has_next().unwrap());
+    assert!(stats.iter_next().is_ok());
+}
+
+/// A name that no constructor carries is a reachable failure, which is why the
+/// `*_by_name` lookups are fallible.
+#[test]
+fn datatype_lookup_by_unknown_name_is_err() {
+    let tm = TermManager::new();
+    let mut decl = tm.mk_dt_decl("Color", false);
+    let c = tm.mk_dt_cons_decl("red");
+    decl.add_constructor(&c).unwrap();
+    let sort = tm.mk_dt_sort(&decl).unwrap();
+    let dt = sort.datatype().unwrap();
+
+    assert!(dt.constructor_by_name("red").is_ok());
+    assert!(dt.constructor_by_name("chartreuse").is_err());
+    assert!(dt.selector("nope").is_err());
+}

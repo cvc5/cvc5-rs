@@ -78,8 +78,11 @@ impl Term {
     }
 
     /// Get the child at the given index.
-    pub fn child(&self, index: usize) -> Term {
-        Term::from_raw(unsafe { term_get_child(self.inner, index) })
+    /// Fails if `index` is out of bounds, or if this is an apply kind with no
+    /// operator (`CVC5_API_CHECK(index < getNumChildren())` in `Term::operator[]`).
+    pub fn child(&self, index: usize) -> Result<Term> {
+        let raw = unsafe { term_get_child(self.inner, index) };
+        wrap(raw, "child")
     }
 
     /// Return `true` if this term has a symbol (name).
