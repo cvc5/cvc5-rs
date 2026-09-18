@@ -20,7 +20,7 @@
 //!
 //! while !parser.done() {
 //!     // SAFETY: each command is used before the next is parsed.
-//!     match unsafe { parser.next_command() } {
+//!     match parser.next_command() {
 //!         Ok(Some(cmd)) => { cmd.invoke(parser.get_solver(), &sm); }
 //!         Ok(None) => break,
 //!         Err(e) => panic!("parse error: {e}"),
@@ -33,7 +33,7 @@ use cvc5_sys::parser::*;
 use std::ffi::CString;
 use std::fmt;
 
-use crate::error::Result;
+use crate::error::{Error, Result};
 use crate::ffi::{checked, cstr_or_empty, cstr_to_string, non_null, raw_slice};
 use crate::{Solver, Sort, Term, TermManager};
 
@@ -321,18 +321,19 @@ impl<'s> InputParser<'s> {
     /// Returns:
     /// - `Ok(Some(cmd))` — a successfully parsed command.
     /// - `Ok(None)` — no more commands (end of input).
-    /// - `Err(msg)` — a parse error with the error message.
+    /// - `Err(e)` — a parse error, with cvc5's message.
     ///
     /// If no logic has been set, the first command that requires one will
     /// initialize the logic to `"ALL"`.
-    pub fn next_command(&self) -> std::result::Result<Option<Command>, String> {
+    pub fn next_command(&self) -> Result<Option<Command>> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
         let cmd = unsafe { parser_next_command(self.inner, &mut error_msg) };
+        // The parser reports failures through this out-param rather than the
+        // thread-local error state, so check it instead of calling `checked`.
         if !error_msg.is_null() {
-            let msg = unsafe { std::ffi::CStr::from_ptr(error_msg) }
-                .to_string_lossy()
-                .into_owned();
-            return Err(msg);
+            return Err(Error::from_message(unsafe {
+                cstr_to_string(error_msg, "next_command error")
+            }));
         }
         if cmd.is_null() {
             Ok(None)
@@ -346,17 +347,17 @@ impl<'s> InputParser<'s> {
     /// Returns:
     /// - `Ok(Some(term))` — a successfully parsed term.
     /// - `Ok(None)` — no more terms (end of input).
-    /// - `Err(msg)` — a parse error with the error message.
+    /// - `Err(e)` — a parse error, with cvc5's message.
     ///
     /// The logic must be set before calling this method.
-    pub fn next_term(&self) -> std::result::Result<Option<Term>, String> {
+    pub fn next_term(&self) -> Result<Option<Term>> {
         let mut error_msg: *const std::os::raw::c_char = std::ptr::null();
         let term = unsafe { parser_next_term(self.inner, &mut error_msg) };
+        // As `next_command`: the error arrives via the out-param.
         if !error_msg.is_null() {
-            let msg = unsafe { std::ffi::CStr::from_ptr(error_msg) }
-                .to_string_lossy()
-                .into_owned();
-            return Err(msg);
+            return Err(Error::from_message(unsafe {
+                cstr_to_string(error_msg, "next_term error")
+            }));
         }
         if term.is_null() {
             Ok(None)
