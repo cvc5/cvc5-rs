@@ -254,6 +254,27 @@ fn check_cvc5_version(cvc5_dir: &Path, expected: &str) {
 
 // return (include path, lib path) if exist
 
+/// Pick the build type to pass to `configure.sh`, by asking the script itself.
+///
+/// Some cvc5 versions take an optional build type and default to `production`;
+/// newer ones require exactly one and reject `production` outright. Rather than
+/// keying off a version number, look at which types the vendored `configure.sh`
+/// actually accepts: if it offers `unrestricted` it is the newer style and the
+/// argument is mandatory, otherwise omit it and take the script's own default.
+///
+/// Override with `CVC5_BUILD_TYPE` to build e.g. `safe`, `stable` or `debug`.
+#[cfg(feature = "static")]
+fn configure_build_type(configure: &Path) -> Option<String> {
+    println!("cargo:rerun-if-env-changed=CVC5_BUILD_TYPE");
+    if let Ok(explicit) = env::var("CVC5_BUILD_TYPE") {
+        return (!explicit.is_empty()).then_some(explicit);
+    }
+    let script = fs::read_to_string(configure).unwrap_or_default();
+    script
+        .contains("unrestricted)")
+        .then(|| "unrestricted".to_string())
+}
+
 #[cfg(unix)]
 #[cfg(feature = "static")]
 fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
@@ -283,8 +304,12 @@ fn ensure_cvc5_built_and_install() -> (Option<PathBuf>, Option<PathBuf>) {
 
     let build_dir = cvc5_dir.join("build");
 
-    let status = Command::new("bash")
-        .arg(&configure)
+    let mut cmd = Command::new("bash");
+    cmd.arg(&configure);
+    if let Some(build_type) = configure_build_type(&configure) {
+        cmd.arg(build_type);
+    }
+    let status = cmd
         .arg("--static")
         .arg("--auto-download")
         .arg(format!("--prefix={}/install", build_dir.display()))
