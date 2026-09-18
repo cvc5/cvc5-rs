@@ -962,10 +962,13 @@ impl Solver {
     // ── Output ─────────────────────────────────────────────────────
 
     /// Redirect solver output for the given tag to a file.
-    pub fn get_output(&self, tag: &str, filename: &str) {
+    /// Fails on an unrecognized output tag: `Solver::getOutput` converts the
+    /// underlying `OptionException` into `CVC5ApiException("invalid output tag")`.
+    pub fn get_output(&self, tag: &str, filename: &str) -> Result<()> {
         let t = CString::new(tag).unwrap();
         let f = CString::new(filename).unwrap();
-        unsafe { get_output(self.inner, t.as_ptr(), f.as_ptr()) }
+        unsafe { get_output(self.inner, t.as_ptr(), f.as_ptr()) };
+        checked((), "get_output")
     }
 
     /// Close a previously opened output file.
@@ -982,9 +985,11 @@ impl Solver {
     // ── Statistics / output ────────────────────────────────────────
 
     /// Return `true` if the given output tag is enabled.
-    pub fn is_output_on(&self, tag: &str) -> bool {
+    /// Fails on an unrecognized output tag, as [`get_output`](Self::get_output).
+    pub fn is_output_on(&self, tag: &str) -> Result<bool> {
         let c = CString::new(tag).unwrap();
-        unsafe { is_output_on(self.inner, c.as_ptr()) }
+        let v = unsafe { is_output_on(self.inner, c.as_ptr()) };
+        checked(v, "is_output_on")
     }
 
     /// Get the solver statistics.

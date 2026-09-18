@@ -494,8 +494,8 @@ fn statistics_basic() {
 
     // iterate — after check_sat there must be at least one stat
     stats.iter_init(false, false);
-    assert!(stats.iter_has_next());
-    let (name, stat) = stats.iter_next();
+    assert!(stats.iter_has_next().unwrap());
+    let (name, stat) = stats.iter_next().unwrap();
     assert!(!name.is_empty());
     // iter_init(false, false) = skip internal, skip default → only changed non-internal stats
     assert!(!stat.is_internal());
@@ -1429,8 +1429,8 @@ fn term_children() {
     let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
     let add = tm.mk_term(Kind::Add, &[x.clone(), y.clone()]).unwrap();
     assert_eq!(add.num_children(), 2);
-    assert_eq!(add.child(0), x);
-    assert_eq!(add.child(1), y);
+    assert_eq!(add.child(0).unwrap(), x);
+    assert_eq!(add.child(1).unwrap(), y);
 }
 
 // ── Term: has_symbol, symbol ───────────────────────────────────────
@@ -1809,8 +1809,8 @@ fn term_substitute_term() {
     let gt = tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap();
     let subst = gt.substitute_term(x, y.clone()).unwrap();
     // result should be y > 0
-    assert_eq!(subst.child(0), y);
-    assert_eq!(subst.child(1), zero);
+    assert_eq!(subst.child(0).unwrap(), y);
+    assert_eq!(subst.child(1).unwrap(), zero);
 }
 
 // ── Term: substitute_terms (multiple) ──────────────────────────────
@@ -1827,8 +1827,8 @@ fn term_substitute_terms() {
     let subst = add
         .substitute_terms(&[x, y], &[a.clone(), b.clone()])
         .unwrap();
-    assert_eq!(subst.child(0), a);
-    assert_eq!(subst.child(1), b);
+    assert_eq!(subst.child(0).unwrap(), a);
+    assert_eq!(subst.child(1).unwrap(), b);
 }
 
 // ── Term: uninterpreted sort value ─────────────────────────────────
@@ -2660,7 +2660,7 @@ fn solver_is_output_on() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
     // by default, most output tags are off
-    assert!(!solver.is_output_on("inst"));
+    assert!(!solver.is_output_on("inst").unwrap());
 }
 
 // ── print_stats_safe ───────────────────────────────────────────────
@@ -2857,7 +2857,7 @@ fn solver_output_file() {
     let tm = TermManager::new();
     let solver = Solver::new(&tm);
     let path = "/tmp/cvc5_rs_test_output.txt";
-    solver.get_output("inst", path);
+    solver.get_output("inst", path).unwrap();
     solver.close_output(path);
     // get_output + close_output should not panic; verify solver still usable
     assert!(!solver.version().is_empty());

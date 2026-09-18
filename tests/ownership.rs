@@ -39,7 +39,7 @@ fn terms_and_sorts_outlive_the_term_manager() {
     assert_eq!(t.num_children(), 2);
     assert!(s.is_integer());
     // Deriving further objects from a detached term still works.
-    assert!(t.child(0).sort().is_integer());
+    assert!(t.child(0).unwrap().sort().is_integer());
 }
 
 #[test]
@@ -73,14 +73,14 @@ fn statistics_outlive_the_term_manager() {
         assert!(solver.check_sat().unwrap().is_sat());
         let stats = solver.get_statistics();
         stats.iter_init(true, true);
-        let one = stats.iter_next();
+        let one = stats.iter_next().unwrap();
         (stats, one)
     };
     assert!(!one.0.is_empty());
     let _ = format!("{}", one.1);
     // The iterator is still usable on the detached handle.
     stats.iter_init(true, true);
-    assert!(stats.iter_has_next());
+    assert!(stats.iter_has_next().unwrap());
 }
 
 // ── Solver-owned objects outlive the Solver ───────────────────────────────
