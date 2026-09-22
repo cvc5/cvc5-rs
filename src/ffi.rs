@@ -104,7 +104,7 @@ impl_from_raw! {
     crate::DatatypeConstructorDecl: cvc5_sys::DatatypeConstructorDecl,
     crate::Proof: cvc5_sys::Proof,
     crate::Grammar: cvc5_sys::Grammar,
-    crate::SatResult: cvc5_sys::Result,
+    crate::SmtResult: cvc5_sys::Result,
     crate::SynthResult: cvc5_sys::SynthResult,
     crate::Statistics: cvc5_sys::Statistics,
     crate::Stat: cvc5_sys::Stat,

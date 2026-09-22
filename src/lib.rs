@@ -35,7 +35,7 @@ mod op;
 #[cfg(feature = "parser")]
 mod parser;
 mod proof;
-mod result;
+mod smt_result;
 mod solver;
 mod sort;
 mod statistics;
@@ -56,7 +56,7 @@ pub use error::{Error, Result, clear_error, has_error, last_error};
 pub use grammar::Grammar;
 pub use op::Op;
 pub use proof::Proof;
-pub use result::SatResult;
+pub use smt_result::SmtResult;
 pub use solver::{OptionInfo, OptionInfoKind, Solver};
 pub use sort::Sort;
 pub use statistics::{Stat, Statistics};
