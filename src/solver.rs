@@ -5,7 +5,7 @@ use std::fmt;
 use crate::error::Result;
 use crate::ffi::{checked, cstr_or_empty, cstr_to_string, non_null, raw_slice, wrap};
 use crate::{
-    DatatypeConstructorDecl, Grammar, Proof, SatResult, Sort, Statistics, SynthResult, Term,
+    DatatypeConstructorDecl, Grammar, Proof, SmtResult, Sort, Statistics, SynthResult, Term,
     TermManager,
 };
 
@@ -276,20 +276,20 @@ impl Solver {
     /// Check satisfiability of the current assertions.
     ///
     /// Fails on a second query unless incremental solving is enabled.
-    pub fn check_sat(&mut self) -> Result<SatResult> {
+    pub fn check_sat(&mut self) -> Result<SmtResult> {
         let raw = unsafe { check_sat(self.inner) };
         let raw = checked(raw, "check_sat")?;
-        Ok(SatResult::from_raw(raw))
+        Ok(SmtResult::from_raw(raw))
     }
 
     /// Check satisfiability under the given assumptions.
     ///
     /// Fails on a second query unless incremental solving is enabled.
-    pub fn check_sat_assuming(&mut self, assumptions: &[Term]) -> Result<SatResult> {
+    pub fn check_sat_assuming(&mut self, assumptions: &[Term]) -> Result<SmtResult> {
         let raw: Vec<cvc5_sys::Term> = assumptions.iter().map(|t| t.inner).collect();
         let res = unsafe { check_sat_assuming(self.inner, raw.len(), raw.as_ptr()) };
         let res = checked(res, "check_sat_assuming")?;
-        Ok(SatResult::from_raw(res))
+        Ok(SmtResult::from_raw(res))
     }
 
     /// Get the list of asserted formulas.
@@ -615,7 +615,7 @@ impl Solver {
     // ── Timeout core ───────────────────────────────────────────────
 
     /// Get a timeout core: a minimal subset of assertions causing a timeout.
-    pub fn get_timeout_core(&mut self) -> Result<(SatResult, Vec<Term>)> {
+    pub fn get_timeout_core(&mut self) -> Result<(SmtResult, Vec<Term>)> {
         let mut result: cvc5_sys::Result = std::ptr::null_mut();
         let mut size = 0usize;
         let ptr = unsafe { get_timeout_core(self.inner, &mut result, &mut size) };
@@ -624,14 +624,14 @@ impl Solver {
             .iter()
             .map(|&p| Term::from_raw(p))
             .collect();
-        Ok((SatResult::from_raw(result), terms))
+        Ok((SmtResult::from_raw(result), terms))
     }
 
     /// Get a timeout core under the given assumptions.
     pub fn get_timeout_core_assuming(
         &mut self,
         assumptions: &[Term],
-    ) -> Result<(SatResult, Vec<Term>)> {
+    ) -> Result<(SmtResult, Vec<Term>)> {
         let raw: Vec<cvc5_sys::Term> = assumptions.iter().map(|t| t.inner).collect();
         let mut result: cvc5_sys::Result = std::ptr::null_mut();
         let mut rsize = 0usize;
@@ -643,7 +643,7 @@ impl Solver {
             .iter()
             .map(|&p| Term::from_raw(p))
             .collect();
-        Ok((SatResult::from_raw(result), terms))
+        Ok((SmtResult::from_raw(result), terms))
     }
 
     // ── Quantifier elimination ─────────────────────────────────────

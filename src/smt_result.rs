@@ -9,7 +9,7 @@ use std::fmt;
 /// A result is allocated by the [`Solver`](crate::Solver) rather than the
 /// [`TermManager`](crate::TermManager), and the solver is not reference counted.
 /// This wrapper therefore takes a reference of its own, which makes `~Cvc5`
-/// *detach* the result instead of freeing it — so a `SatResult` outlives the
+/// *detach* the result instead of freeing it — so a `SmtResult` outlives the
 /// solver that produced it:
 ///
 /// ```
@@ -21,23 +21,23 @@ use std::fmt;
 /// };
 /// assert!(r.is_sat());
 /// ```
-pub struct SatResult {
+pub struct SmtResult {
     pub(crate) inner: cvc5_sys::Result,
 }
 
-impl Clone for SatResult {
+impl Clone for SmtResult {
     fn clone(&self) -> Self {
         Self::from_raw(self.inner)
     }
 }
 
-impl Drop for SatResult {
+impl Drop for SmtResult {
     fn drop(&mut self) {
         unsafe { result_release(self.inner) }
     }
 }
 
-impl SatResult {
+impl SmtResult {
     /// Wrap a raw result, taking a reference of our own.
     ///
     /// The single reference on an exported result belongs to the
@@ -45,7 +45,7 @@ impl SatResult {
     /// Holding one ourselves is what lets this outlive the solver: the C object
     /// detaches (its solver back-pointer is nulled) instead of being freed.
     pub(crate) fn from_raw(raw: cvc5_sys::Result) -> Self {
-        let inner = non_null(raw, "SatResult");
+        let inner = non_null(raw, "SmtResult");
         unsafe { result_copy(inner) };
         Self { inner }
     }
@@ -56,12 +56,12 @@ impl SatResult {
     }
 
     /// Create a copy of this result (increments the internal reference count).
-    pub fn copy(&self) -> SatResult {
-        SatResult::from_raw(self.inner)
+    pub fn copy(&self) -> SmtResult {
+        SmtResult::from_raw(self.inner)
     }
 
     /// Check disequality with another result.
-    pub fn is_disequal(&self, other: &SatResult) -> bool {
+    pub fn is_disequal(&self, other: &SmtResult) -> bool {
         unsafe { result_is_disequal(self.inner, other.inner) }
     }
 
@@ -86,7 +86,7 @@ impl SatResult {
     }
 }
 
-impl fmt::Display for SatResult {
+impl fmt::Display for SmtResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = unsafe { result_to_string(self.inner) };
         let cs = unsafe { std::ffi::CStr::from_ptr(s) };
@@ -94,21 +94,21 @@ impl fmt::Display for SatResult {
     }
 }
 
-impl fmt::Debug for SatResult {
+impl fmt::Debug for SmtResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SatResult({self})")
+        write!(f, "SmtResult({self})")
     }
 }
 
-impl PartialEq for SatResult {
+impl PartialEq for SmtResult {
     fn eq(&self, other: &Self) -> bool {
         unsafe { result_is_equal(self.inner, other.inner) }
     }
 }
 
-impl Eq for SatResult {}
+impl Eq for SmtResult {}
 
-impl std::hash::Hash for SatResult {
+impl std::hash::Hash for SmtResult {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         unsafe { result_hash(self.inner) }.hash(state);
     }

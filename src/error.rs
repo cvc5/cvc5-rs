@@ -77,7 +77,7 @@ impl std::error::Error for Error {}
 /// Result of a fallible cvc5 call.
 ///
 /// Shadows [`std::result::Result`] within this crate's public API; the
-/// satisfiability verdict of a `check-sat` query is [`crate::SatResult`].
+/// satisfiability verdict of a `check-sat` query is [`crate::SmtResult`].
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Returns `true` if the most recent cvc5 call on this thread failed.

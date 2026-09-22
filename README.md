@@ -26,7 +26,7 @@ Notes:
 
 - **0.6 requires cvc5 &gt;= 1.4.0** and is incompatible with earlier cvc5 releases. cvc5 1.4.0
   reference counts the objects its C API hands out, which lets 0.6 drop nearly all lifetime
-  parameters: a `Term`, `Sort`, `Statistics`, `SatResult`, `Proof` and so on may now outlive the
+  parameters: a `Term`, `Sort`, `Statistics`, `SmtResult`, `Proof` and so on may now outlive the
   `TermManager` or `Solver` that produced it. 1.4.0 also made `configure.sh`'s build type a
   required argument, so older cvc5 will not build with 0.6's build script.
 - 0.4.x inherits known memory issues from cvc5 (objects could be freed while still referenced).
