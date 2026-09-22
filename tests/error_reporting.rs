@@ -34,7 +34,8 @@ fn get_value_without_models_is_err() {
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("produce-models", "false").unwrap();
 
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     let zero = tm.mk_integer(0);
     solver
         .assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero]).unwrap())
@@ -71,7 +72,8 @@ fn unsat_core_without_option_is_err() {
     let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
 
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     let zero = tm.mk_integer(0);
     solver
         .assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap())
@@ -135,7 +137,8 @@ fn unknown_output_tag_is_err() {
 #[test]
 fn term_child_out_of_bounds_is_err() {
     let mut tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     let zero = tm.mk_integer(0);
     let gt = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
     assert_eq!(gt.num_children(), 2);

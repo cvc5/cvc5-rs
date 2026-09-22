@@ -69,7 +69,8 @@ fn empty_set_value() {
     solver.set_logic("QF_UFLIAFS").unwrap();
     solver.set_option("produce-models", "true").unwrap();
 
-    let set_sort = tm.mk_set_sort(tm.integer_sort()).unwrap();
+    let integer_sort = tm.integer_sort();
+    let set_sort = tm.mk_set_sort(integer_sort).unwrap();
     let empty = tm.mk_empty_set(set_sort.clone()).unwrap();
     let c = tm.mk_const(set_sort, "s").unwrap();
     solver
@@ -162,7 +163,8 @@ fn absent_interpolant_is_none() {
     solver.set_option("produce-interpolants", "true").unwrap();
     solver.set_option("incremental", "true").unwrap();
 
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     let zero = tm.mk_integer(0);
     solver
         .assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap())
@@ -194,7 +196,8 @@ fn synth_solutions_empty_input_is_short_circuited() {
 #[test]
 fn symbol_roundtrip() {
     let mut tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     assert!(x.has_symbol());
     assert_eq!(x.symbol().unwrap(), "x");
 
@@ -222,7 +225,8 @@ fn non_empty_array_getter_still_works() {
     let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
 
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     let zero = tm.mk_integer(0);
     solver
         .assert_formula(tm.mk_term(Kind::Gt, &[x.clone(), zero.clone()]).unwrap())
@@ -232,8 +236,8 @@ fn non_empty_array_getter_still_works() {
     solver.assert_formula(lt).unwrap();
     assert_eq!(solver.get_assertions().len(), 2);
 
-    let tup = tm
-        .mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()])
-        .unwrap();
+    let int = tm.integer_sort();
+    let boolean = tm.boolean_sort();
+    let tup = tm.mk_tuple_sort(&[int, boolean]).unwrap();
     assert_eq!(tup.tuple_element_sorts().unwrap().len(), 2);
 }

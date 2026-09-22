@@ -305,7 +305,7 @@ impl Solver {
     // ── Simplification ─────────────────────────────────────────────
 
     /// Simplify a term. If `apply_subs` is true, apply learned substitutions.
-    pub fn simplify(&self, term: Term, apply_subs: bool) -> Result<Term> {
+    pub fn simplify(&mut self, term: Term, apply_subs: bool) -> Result<Term> {
         let raw = unsafe { simplify(self.inner, term.inner, apply_subs) };
         wrap(raw, "simplify")
     }
