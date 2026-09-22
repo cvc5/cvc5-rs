@@ -31,9 +31,11 @@ use cvc5::{InputParser, Kind, Solver, SymbolManager, TermManager};
 fn terms_and_sorts_outlive_the_term_manager() {
     let (t, s) = {
         let mut tm = TermManager::new();
-        let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+        let integer_sort = tm.integer_sort();
+        let x = tm.mk_const(integer_sort, "x").unwrap();
         let zero = tm.mk_integer(0);
-        (tm.mk_term(Kind::Gt, &[x, zero]).unwrap(), tm.integer_sort())
+        let integer_sort = tm.integer_sort();
+        (tm.mk_term(Kind::Gt, &[x, zero]).unwrap(), integer_sort)
     };
     assert_eq!(t.kind(), Kind::Gt);
     assert_eq!(t.num_children(), 2);
@@ -91,7 +93,8 @@ fn sat_result_outlives_the_solver() {
     let r = {
         let mut solver = Solver::new(&tm);
         solver.set_logic("QF_LIA").unwrap();
-        let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+        let integer_sort = tm.integer_sort();
+        let x = tm.mk_const(integer_sort, "x").unwrap();
         let zero = tm.mk_integer(0);
         solver
             .assert_formula(tm.mk_term(Kind::Gt, &[x, zero]).unwrap())

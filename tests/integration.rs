@@ -614,38 +614,43 @@ fn sort_type_predicates() {
     let fp32 = tm.mk_fp_sort(8, 24).unwrap();
     assert!(fp32.is_fp());
 
-    let arr = tm
-        .mk_array_sort(tm.integer_sort(), tm.boolean_sort())
-        .unwrap();
+    let int = tm.integer_sort();
+    let boolean = tm.boolean_sort();
+    let arr = tm.mk_array_sort(int, boolean).unwrap();
     assert!(arr.is_array());
     assert!(!arr.is_set());
 
-    let set = tm.mk_set_sort(tm.integer_sort()).unwrap();
+    let integer_sort = tm.integer_sort();
+    let set = tm.mk_set_sort(integer_sort).unwrap();
     assert!(set.is_set());
 
-    let bag = tm.mk_bag_sort(tm.integer_sort()).unwrap();
+    let integer_sort = tm.integer_sort();
+    let bag = tm.mk_bag_sort(integer_sort).unwrap();
     assert!(bag.is_bag());
 
-    let seq = tm.mk_sequence_sort(tm.integer_sort()).unwrap();
+    let integer_sort = tm.integer_sort();
+    let seq = tm.mk_sequence_sort(integer_sort).unwrap();
     assert!(seq.is_sequence());
 
-    let tup = tm
-        .mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()])
-        .unwrap();
+    let int = tm.integer_sort();
+    let boolean = tm.boolean_sort();
+    let tup = tm.mk_tuple_sort(&[int, boolean]).unwrap();
     assert!(tup.is_tuple());
 
-    let nullable = tm.mk_nullable_sort(tm.integer_sort()).unwrap();
+    let integer_sort = tm.integer_sort();
+    let nullable = tm.mk_nullable_sort(integer_sort).unwrap();
     assert!(nullable.is_nullable());
 
     let ff = tm.mk_ff_sort("7", 10).unwrap();
     assert!(ff.is_ff());
 
-    let fun = tm
-        .mk_fun_sort(&[tm.integer_sort()], tm.boolean_sort())
-        .unwrap();
+    let int = tm.integer_sort();
+    let boolean = tm.boolean_sort();
+    let fun = tm.mk_fun_sort(&[int], boolean).unwrap();
     assert!(fun.is_fun());
 
-    let pred = tm.mk_predicate_sort(&[tm.integer_sort()]).unwrap();
+    let integer_sort = tm.integer_sort();
+    let pred = tm.mk_predicate_sort(&[integer_sort]).unwrap();
     assert!(pred.is_predicate());
 }
 
@@ -840,7 +845,7 @@ fn sort_uninterpreted_sort_constructor() {
 
 #[test]
 fn sort_copy_eq_diseq() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let int = tm.integer_sort();
     let int2 = int.copy();
     assert_eq!(int, int2);
@@ -855,7 +860,7 @@ fn sort_copy_eq_diseq() {
 
 #[test]
 fn sort_display_debug() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let int = tm.integer_sort();
     let s = format!("{int}");
     assert!(!s.is_empty());
@@ -867,7 +872,7 @@ fn sort_display_debug() {
 
 #[test]
 fn sort_hash() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let mut set = std::collections::HashSet::new();
     set.insert(tm.integer_sort());
     set.insert(tm.integer_sort());
@@ -879,7 +884,7 @@ fn sort_hash() {
 
 #[test]
 fn sort_ord() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let int = tm.integer_sort();
     let bool_s = tm.boolean_sort();
     // Just verify Ord doesn't panic and is consistent
@@ -893,7 +898,7 @@ fn sort_ord() {
 
 #[test]
 fn sort_kind() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     assert_eq!(tm.boolean_sort().kind(), SortKind::BooleanSort);
     assert_eq!(tm.integer_sort().kind(), SortKind::IntegerSort);
     assert_eq!(tm.real_sort().kind(), SortKind::RealSort);
@@ -932,9 +937,9 @@ fn sort_substitute_sorts() {
 #[test]
 fn sort_record() {
     let mut tm = TermManager::new();
-    let rec = tm
-        .mk_record_sort(&["x", "y"], &[tm.integer_sort(), tm.boolean_sort()])
-        .unwrap();
+    let int = tm.integer_sort();
+    let boolean = tm.boolean_sort();
+    let rec = tm.mk_record_sort(&["x", "y"], &[int, boolean]).unwrap();
     assert!(rec.is_record());
     assert!(rec.is_dt()); // records are datatypes internally
 }
@@ -953,7 +958,7 @@ fn sort_abstract() {
 
 #[test]
 fn sort_clone() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     let int = tm.integer_sort();
     let cloned = int.clone();
     assert_eq!(int, cloned);
@@ -963,7 +968,7 @@ fn sort_clone() {
 
 #[test]
 fn sort_builtin_no_symbol() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     // Built-in sorts like Int/Bool don't have user-given symbols
     assert!(!tm.integer_sort().has_symbol());
     assert!(!tm.boolean_sort().has_symbol());
@@ -1320,9 +1325,9 @@ fn dt_parametric() {
 #[test]
 fn dt_tuple() {
     let mut tm = TermManager::new();
-    let tup_sort = tm
-        .mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()])
-        .unwrap();
+    let int = tm.integer_sort();
+    let boolean = tm.boolean_sort();
+    let tup_sort = tm.mk_tuple_sort(&[int, boolean]).unwrap();
     let dt = tup_sort.datatype().unwrap();
     assert!(dt.is_tuple());
     assert!(!dt.is_record());
@@ -1334,9 +1339,9 @@ fn dt_tuple() {
 #[test]
 fn dt_record() {
     let mut tm = TermManager::new();
-    let rec_sort = tm
-        .mk_record_sort(&["x", "y"], &[tm.integer_sort(), tm.boolean_sort()])
-        .unwrap();
+    let int = tm.integer_sort();
+    let boolean = tm.boolean_sort();
+    let rec_sort = tm.mk_record_sort(&["x", "y"], &[int, boolean]).unwrap();
     let dt = rec_sort.datatype().unwrap();
     assert!(dt.is_record());
     assert_eq!(dt.num_constructors(), 1);
@@ -1406,7 +1411,8 @@ fn dt_solving_with_selectors() {
 #[test]
 fn term_kind_sort_id() {
     let mut tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     assert_eq!(x.kind(), Kind::Constant);
     assert!(x.sort().is_integer());
     assert!(x.id() > 0);
@@ -1424,8 +1430,10 @@ fn term_kind_sort_id() {
 #[test]
 fn term_children() {
     let mut tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
-    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let y = tm.mk_const(integer_sort, "y").unwrap();
     let add = tm.mk_term(Kind::Add, &[x.clone(), y.clone()]).unwrap();
     assert_eq!(add.num_children(), 2);
     assert_eq!(add.child(0).unwrap(), x);
@@ -1437,7 +1445,8 @@ fn term_children() {
 #[test]
 fn term_symbol() {
     let mut tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     assert!(x.has_symbol());
     assert_eq!(x.symbol().unwrap(), "x");
 
@@ -1467,12 +1476,14 @@ fn term_op() {
 #[test]
 fn term_copy_eq_diseq() {
     let mut tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     let x2 = x.copy();
     assert_eq!(x, x2);
     assert!(!x.is_disequal(&x2));
 
-    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
+    let integer_sort = tm.integer_sort();
+    let y = tm.mk_const(integer_sort, "y").unwrap();
     assert_ne!(x, y);
     assert!(x.is_disequal(&y));
 
@@ -1485,7 +1496,8 @@ fn term_copy_eq_diseq() {
 #[test]
 fn term_display_debug() {
     let mut tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     let s = format!("{x}");
     assert!(s.contains("x"));
     let d = format!("{x:?}");
@@ -1497,13 +1509,15 @@ fn term_display_debug() {
 #[test]
 fn term_hash() {
     let mut tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     let mut set = std::collections::HashSet::new();
     set.insert(x.clone());
     set.insert(x.copy());
     assert_eq!(set.len(), 1);
 
-    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
+    let integer_sort = tm.integer_sort();
+    let y = tm.mk_const(integer_sort, "y").unwrap();
     set.insert(y);
     assert_eq!(set.len(), 2);
 }
@@ -1513,8 +1527,10 @@ fn term_hash() {
 #[test]
 fn term_ord() {
     let mut tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
-    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let y = tm.mk_const(integer_sort, "y").unwrap();
     let cmp1 = x.cmp(&y);
     let cmp2 = y.cmp(&x);
     assert_eq!(cmp1, cmp2.reverse());
@@ -1690,9 +1706,8 @@ fn term_rm_value() {
 #[test]
 fn term_const_array() {
     let mut tm = TermManager::new();
-    let arr_sort = tm
-        .mk_array_sort(tm.integer_sort(), tm.integer_sort())
-        .unwrap();
+    let int = tm.integer_sort();
+    let arr_sort = tm.mk_array_sort(int.clone(), int).unwrap();
     let zero = tm.mk_integer(0);
     let ca = tm.mk_const_array(arr_sort, zero.clone()).unwrap();
     assert!(ca.is_const_array());
@@ -1723,9 +1738,9 @@ fn term_tuple_value() {
     let one = tm.mk_integer(1);
     let tru = tm.mk_true();
     let tup = tm.mk_tuple(&[one, tru]).unwrap();
-    let tup_sort = tm
-        .mk_tuple_sort(&[tm.integer_sort(), tm.boolean_sort()])
-        .unwrap();
+    let int = tm.integer_sort();
+    let boolean = tm.boolean_sort();
+    let tup_sort = tm.mk_tuple_sort(&[int, boolean]).unwrap();
     let t = tm.mk_const(tup_sort, "t").unwrap();
     solver
         .assert_formula(tm.mk_term(Kind::Equal, &[t.clone(), tup]).unwrap())
@@ -1799,8 +1814,10 @@ fn term_sequence_value() {
 #[test]
 fn term_substitute_term() {
     let mut tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
-    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let y = tm.mk_const(integer_sort, "y").unwrap();
     let zero = tm.mk_integer(0);
 
     // x > 0, substitute x -> y
@@ -1816,10 +1833,14 @@ fn term_substitute_term() {
 #[test]
 fn term_substitute_terms() {
     let mut tm = TermManager::new();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
-    let y = tm.mk_const(tm.integer_sort(), "y").unwrap();
-    let a = tm.mk_const(tm.integer_sort(), "a").unwrap();
-    let b = tm.mk_const(tm.integer_sort(), "b").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let y = tm.mk_const(integer_sort, "y").unwrap();
+    let integer_sort = tm.integer_sort();
+    let a = tm.mk_const(integer_sort, "a").unwrap();
+    let integer_sort = tm.integer_sort();
+    let b = tm.mk_const(integer_sort, "b").unwrap();
 
     let add = tm.mk_term(Kind::Add, &[x.clone(), y.clone()]).unwrap();
     let subst = add
@@ -1898,7 +1919,8 @@ fn term_regexp_constants() {
 #[test]
 fn term_universe_set() {
     let mut tm = TermManager::new();
-    let set_sort = tm.mk_set_sort(tm.integer_sort()).unwrap();
+    let integer_sort = tm.integer_sort();
+    let set_sort = tm.mk_set_sort(integer_sort).unwrap();
     let us = tm.mk_universe_set(set_sort).unwrap();
     assert!(us.sort().is_set());
 }
@@ -1921,7 +1943,8 @@ fn term_skolem() {
     let n = tm.get_num_idxs_for_skolem_id(id);
     assert!(n > 0);
 
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     let sk = tm.mk_skolem(id, &[x]).unwrap();
     assert!(sk.is_skolem());
     assert_eq!(sk.skolem_id().unwrap(), id);
@@ -1981,7 +2004,7 @@ fn term_fp_from_bv() {
 
 #[test]
 fn tm_default() {
-    let tm: TermManager = Default::default();
+    let mut tm: TermManager = Default::default();
     // just verify it works like new()
     assert!(tm.boolean_sort().is_boolean());
 }
@@ -1997,7 +2020,8 @@ fn tm_mk_op_from_str() {
     assert_eq!(op.num_indices(), 1);
 
     // use it in a term
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     let div = tm.mk_term_from_op(op, &[x]).unwrap();
     assert!(div.sort().is_boolean());
 }
@@ -2010,7 +2034,8 @@ fn tm_sep_terms() {
     let emp = tm.mk_sep_emp();
     assert!(emp.sort().is_boolean());
 
-    let nil = tm.mk_sep_nil(tm.integer_sort()).unwrap();
+    let integer_sort = tm.integer_sort();
+    let nil = tm.mk_sep_nil(integer_sort).unwrap();
     assert!(nil.sort().is_integer());
 }
 
@@ -2047,7 +2072,8 @@ fn tm_mk_nullable_lift() {
 #[test]
 fn tm_mk_var() {
     let mut tm = TermManager::new();
-    let v = tm.mk_var(tm.integer_sort(), "v").unwrap();
+    let integer_sort = tm.integer_sort();
+    let v = tm.mk_var(integer_sort, "v").unwrap();
     assert_eq!(v.kind(), Kind::Variable);
     assert!(v.has_symbol());
     assert_eq!(v.symbol().unwrap(), "v");
@@ -2059,7 +2085,8 @@ fn tm_mk_var() {
 #[test]
 fn tm_mk_const() {
     let mut tm = TermManager::new();
-    let c = tm.mk_const(tm.boolean_sort(), "p").unwrap();
+    let boolean_sort = tm.boolean_sort();
+    let c = tm.mk_const(boolean_sort, "p").unwrap();
     assert_eq!(c.kind(), Kind::Constant);
     assert!(c.has_symbol());
     assert_eq!(c.symbol().unwrap(), "p");
@@ -2070,7 +2097,7 @@ fn tm_mk_const() {
 
 #[test]
 fn tm_print_stats_safe() {
-    let tm = TermManager::new();
+    let mut tm = TermManager::new();
     tm.print_stats_safe(2);
     // tm still usable after printing stats
     assert!(tm.boolean_sort().is_boolean());
@@ -2780,7 +2807,8 @@ fn solver_get_interpolant_with_grammar() {
         .unwrap();
     let conj = tm.mk_term(Kind::Gt, &[y, zero]).unwrap();
 
-    let start = tm.mk_var(tm.boolean_sort(), "start").unwrap();
+    let boolean_sort = tm.boolean_sort();
+    let start = tm.mk_var(boolean_sort, "start").unwrap();
     let mut g = solver
         .mk_grammar(&[], std::slice::from_ref(&start))
         .unwrap();
@@ -2805,7 +2833,8 @@ fn solver_get_abduct_with_grammar() {
     let zero = tm.mk_integer(0);
     let conj = tm.mk_term(Kind::Gt, &[x, zero]).unwrap();
 
-    let start = tm.mk_var(tm.boolean_sort(), "start").unwrap();
+    let boolean_sort = tm.boolean_sort();
+    let start = tm.mk_var(boolean_sort, "start").unwrap();
     let mut g = solver
         .mk_grammar(&[], std::slice::from_ref(&start))
         .unwrap();

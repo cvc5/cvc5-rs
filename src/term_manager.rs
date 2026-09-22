@@ -42,27 +42,27 @@ impl TermManager {
     // ── Sort creation ──────────────────────────────────────────────
 
     /// Get the Boolean sort.
-    pub fn boolean_sort(&self) -> Sort {
+    pub fn boolean_sort(&mut self) -> Sort {
         Sort::from_raw(unsafe { get_boolean_sort(self.ptr()) })
     }
     /// Get the Integer sort.
-    pub fn integer_sort(&self) -> Sort {
+    pub fn integer_sort(&mut self) -> Sort {
         Sort::from_raw(unsafe { get_integer_sort(self.ptr()) })
     }
     /// Get the Real sort.
-    pub fn real_sort(&self) -> Sort {
+    pub fn real_sort(&mut self) -> Sort {
         Sort::from_raw(unsafe { get_real_sort(self.ptr()) })
     }
     /// Get the String sort.
-    pub fn string_sort(&self) -> Sort {
+    pub fn string_sort(&mut self) -> Sort {
         Sort::from_raw(unsafe { get_string_sort(self.ptr()) })
     }
     /// Get the RegExp sort.
-    pub fn regexp_sort(&self) -> Sort {
+    pub fn regexp_sort(&mut self) -> Sort {
         Sort::from_raw(unsafe { get_regexp_sort(self.ptr()) })
     }
     /// Get the rounding mode sort.
-    pub fn rm_sort(&self) -> Sort {
+    pub fn rm_sort(&mut self) -> Sort {
         Sort::from_raw(unsafe { get_rm_sort(self.ptr()) })
     }
 
@@ -299,7 +299,7 @@ impl TermManager {
     }
 
     /// Get the number of indices expected for the given Skolem identifier.
-    pub fn get_num_idxs_for_skolem_id(&self, id: cvc5_sys::SkolemId) -> usize {
+    pub fn get_num_idxs_for_skolem_id(&mut self, id: cvc5_sys::SkolemId) -> usize {
         unsafe { get_num_idxs_for_skolem_id(self.ptr(), id) }
     }
 
@@ -555,7 +555,7 @@ impl TermManager {
     }
 
     /// Get the term manager statistics.
-    pub fn get_statistics(&self) -> Statistics {
+    pub fn get_statistics(&mut self) -> Statistics {
         Statistics::from_raw(unsafe { term_manager_get_statistics(self.ptr()) })
     }
 

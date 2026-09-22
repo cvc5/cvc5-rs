@@ -33,7 +33,7 @@ impl Statistics {
     }
 
     /// Look up a statistic by name.
-    pub fn get(&self, name: &str) -> Result<Stat> {
+    pub fn get(&mut self, name: &str) -> Result<Stat> {
         let c = CString::new(name).unwrap();
         let raw = unsafe { stats_get(self.inner, c.as_ptr()) };
         wrap(raw, "get")

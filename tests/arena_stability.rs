@@ -19,7 +19,8 @@ fn many_live_stat_handles_stay_valid() {
     let mut solver = Solver::new(&tm);
     solver.set_logic("QF_LIA").unwrap();
     solver.set_option("stats", "true").unwrap();
-    let x = tm.mk_const(tm.integer_sort(), "x").unwrap();
+    let integer_sort = tm.integer_sort();
+    let x = tm.mk_const(integer_sort, "x").unwrap();
     let zero = tm.mk_integer(0);
     solver
         .assert_formula(tm.mk_term(Kind::Gt, &[x, zero]).unwrap())
