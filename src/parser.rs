@@ -114,7 +114,22 @@ impl SymbolManager {
     /// Get terms that have been given names via the `:named` attribute.
     ///
     /// Returns a list of `(term, name)` pairs.
-    pub fn get_named_terms(&self) -> Vec<(Term, String)> {
+    /// # Safety
+    ///
+    /// The returned names are read from freed memory. `cvc5_sm_get_named_terms`
+    /// iterates the `std::map<Term, std::string>` that `getNamedTerms()` returns
+    /// **by value** into a stack local, and stores `t.second.c_str()` — an
+    /// interior pointer into that map — in the buffer it hands back. The map is
+    /// destroyed when the C function returns, so every name dangles; names long
+    /// enough to defeat the small-string optimization are a heap-use-after-free,
+    /// confirmed by AddressSanitizer.
+    ///
+    /// The `Term` half is fine: those are refcounted via `export_term`. Only the
+    /// names are affected, and there is no other C entry point to get them, so
+    /// this cannot be fixed here. Reported upstream; the sibling
+    /// `cvc5_get_option_names` shows the intended pattern (copy into a
+    /// `static thread_local std::vector<std::string>` first).
+    pub unsafe fn get_named_terms(&self) -> Vec<(Term, String)> {
         let mut size = 0usize;
         let mut terms: *mut cvc5_sys::Term = std::ptr::null_mut();
         let mut names: *mut *const std::os::raw::c_char = std::ptr::null_mut();
@@ -231,11 +246,13 @@ impl fmt::Debug for Command {
 /// # Lifetime
 ///
 /// `'s` is the borrow of the [`Solver`] and [`SymbolManager`] this parser reads
-/// and writes; both must outlive it. This is the one lifetime the crate still
-/// needs: `Cvc5InputParser` stores a bare `Cvc5*` and `Cvc5SymbolManager*` and
-/// takes no reference on either, so unlike every other wrapper it cannot keep
-/// its owners alive. A parser therefore cannot escape the scope of the solver it
-/// was built from:
+/// and writes. It is no longer needed for *soundness*: since cvc5 d7d5b948c1
+/// `Cvc5InputParser` reference counts both owners (`d_cvc5->inc_ref()` and
+/// `d_sm->inc_ref()` in its constructor), so the C parser stays valid even if
+/// both handles are dropped. It is kept because parsing *mutates* both — a
+/// command may declare symbols, assert, or run a check — and the exclusive
+/// borrow is what stops a caller driving the same solver from two places. So a
+/// parser still cannot escape the scope of the solver it was built from:
 ///
 /// ```compile_fail,E0597
 /// use cvc5::{InputParser, Solver, SymbolManager, TermManager};
@@ -374,6 +391,10 @@ impl<'s> InputParser<'s> {
                 cstr_to_string(error_msg, "next_command error")
             }));
         }
+        // A non-parse failure (anything the outer catch in `cvc5_r_next_command`
+        // handles) records the thread-local error but leaves `error_msg` NULL, so
+        // checking only the out-param would report a clean end of input.
+        checked((), "next_command")?;
         if cmd.is_null() {
             Ok(None)
         } else {
@@ -398,6 +419,10 @@ impl<'s> InputParser<'s> {
                 cstr_to_string(error_msg, "next_term error")
             }));
         }
+        // A non-parse failure (anything the outer catch in `cvc5_r_next_term`
+        // handles) records the thread-local error but leaves `error_msg` NULL, so
+        // checking only the out-param would report a clean end of input.
+        checked((), "next_term")?;
         if term.is_null() {
             Ok(None)
         } else {
