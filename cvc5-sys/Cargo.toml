@@ -1,9 +1,9 @@
 [package]
 name = "cvc5-sys"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2024"
 build = "build.rs"
-links = "cvc5"
+links = "cvc5-1.4"
 description = "Low-level FFI bindings for the cvc5 SMT solver"
 license = "BSD-3-Clause"
 repository = "https://github.com/cvc5/cvc5-rs"
