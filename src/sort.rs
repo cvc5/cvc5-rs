@@ -3,7 +3,7 @@ use std::fmt;
 
 use crate::Datatype;
 use crate::error::Result;
-use crate::ffi::{checked, cstr_or_empty, non_null, raw_slice, wrap};
+use crate::ffi::{check_same_len, checked, cstr_or_empty, non_null, raw_slice, wrap};
 
 /// A cvc5 sort (type).
 ///
@@ -224,7 +224,10 @@ impl Sort {
     }
 
     /// Simultaneously substitute `sorts` with `replacements` in this sort.
+    ///
+    /// Returns an error if the two slices differ in length.
     pub fn substitute_sorts(&self, sorts: &[Sort], replacements: &[Sort]) -> Result<Sort> {
+        check_same_len("substitute_sorts", sorts.len(), replacements.len())?;
         let s: Vec<cvc5_sys::Sort> = sorts.iter().map(|s| s.inner).collect();
         let r: Vec<cvc5_sys::Sort> = replacements.iter().map(|s| s.inner).collect();
         let raw = unsafe { sort_substitute_sorts(self.inner, s.len(), s.as_ptr(), r.as_ptr()) };

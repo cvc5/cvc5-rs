@@ -2,7 +2,7 @@ use cvc5_sys::*;
 use std::fmt;
 
 use crate::error::Result;
-use crate::ffi::{checked, cstr_or_empty, non_null, raw_slice, wrap};
+use crate::ffi::{check_same_len, checked, cstr_or_empty, non_null, raw_slice, wrap};
 use crate::{Op, Sort};
 
 /// A cvc5 term (expression or formula).
@@ -119,7 +119,10 @@ impl Term {
     }
 
     /// Simultaneously substitute `terms` with `replacements` in this term.
+    ///
+    /// Returns an error if the two slices differ in length.
     pub fn substitute_terms(&self, terms: &[Term], replacements: &[Term]) -> Result<Term> {
+        check_same_len("substitute_terms", terms.len(), replacements.len())?;
         let t: Vec<cvc5_sys::Term> = terms.iter().map(|t| t.inner).collect();
         let r: Vec<cvc5_sys::Term> = replacements.iter().map(|t| t.inner).collect();
         let raw = unsafe { term_substitute_terms(self.inner, t.len(), t.as_ptr(), r.as_ptr()) };

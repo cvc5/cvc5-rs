@@ -62,6 +62,21 @@ pub(crate) fn checked<T>(value: T, what: &str) -> Result<T> {
     }
 }
 
+/// Require that parallel argument slices have the same length.
+///
+/// Several C functions take one `size` for two or more arrays and read `size`
+/// elements from each, so a shorter slice would be read out of bounds.
+#[inline]
+pub(crate) fn check_same_len(what: &str, a: usize, b: usize) -> Result<()> {
+    if a == b {
+        Ok(())
+    } else {
+        Err(Error::from_message(format!(
+            "{what}: expected slices of the same length, got {a} and {b}"
+        )))
+    }
+}
+
 /// A wrapper type built from a raw cvc5 pointer.
 ///
 /// Implemented by delegating to each type's infallible `from_raw`, which stays
